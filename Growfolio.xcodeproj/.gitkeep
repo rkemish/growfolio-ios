@@ -1,0 +1,10 @@
+# Growfolio.xcodeproj
+# This directory will contain the Xcode project file.
+# The project.pbxproj and other project files will be created by Xcode
+# when the project is first opened or created.
+#
+# To create the actual Xcode project:
+# 1. Open Xcode
+# 2. Create a new iOS App project named "Growfolio"
+# 3. Select this directory as the location
+# 4. Xcode will merge with the existing source files

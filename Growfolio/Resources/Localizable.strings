@@ -1,0 +1,134 @@
+/*
+  Localizable.strings
+  Growfolio
+
+  English localization strings for the Growfolio app.
+*/
+
+// MARK: - Common
+
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.save" = "Save";
+"common.delete" = "Delete";
+"common.edit" = "Edit";
+"common.done" = "Done";
+"common.close" = "Close";
+"common.next" = "Next";
+"common.back" = "Back";
+"common.skip" = "Skip";
+"common.retry" = "Retry";
+"common.loading" = "Loading...";
+"common.error" = "Error";
+"common.success" = "Success";
+
+// MARK: - Authentication
+
+"auth.signIn" = "Sign In";
+"auth.signOut" = "Sign Out";
+"auth.signInWithAuth0" = "Sign In with Auth0";
+"auth.sessionExpired" = "Your session has expired. Please sign in again.";
+"auth.biometricPrompt" = "Authenticate to access Growfolio";
+
+// MARK: - Onboarding
+
+"onboarding.welcome.title" = "Welcome to Growfolio";
+"onboarding.welcome.description" = "Your personal investment companion for smarter, disciplined investing.";
+"onboarding.goals.title" = "Set Investment Goals";
+"onboarding.goals.description" = "Define your financial goals and track your progress.";
+"onboarding.dca.title" = "Automate Your Investments";
+"onboarding.dca.description" = "Set up Dollar-Cost Averaging schedules to invest consistently.";
+"onboarding.portfolio.title" = "Track Your Portfolio";
+"onboarding.portfolio.description" = "Monitor your holdings and get AI-powered insights.";
+"onboarding.family.title" = "Invest as a Family";
+"onboarding.family.description" = "Manage investments for your whole family.";
+"onboarding.getStarted" = "Get Started";
+
+// MARK: - Dashboard
+
+"dashboard.title" = "Dashboard";
+"dashboard.greeting.morning" = "Good Morning";
+"dashboard.greeting.afternoon" = "Good Afternoon";
+"dashboard.greeting.evening" = "Good Evening";
+"dashboard.totalValue" = "Total Portfolio Value";
+"dashboard.todaysChange" = "Today";
+"dashboard.totalReturn" = "Total Return";
+"dashboard.quickActions" = "Quick Actions";
+"dashboard.addGoal" = "Add Goal";
+"dashboard.newDCA" = "New DCA";
+"dashboard.recordTrade" = "Record Trade";
+"dashboard.deposit" = "Deposit";
+"dashboard.goalsProgress" = "Goals Progress";
+"dashboard.dcaSchedules" = "Active DCA Schedules";
+"dashboard.recentActivity" = "Recent Activity";
+"dashboard.seeAll" = "See All";
+
+// MARK: - Goals
+
+"goals.title" = "Goals";
+"goals.empty.title" = "No Goals Yet";
+"goals.empty.message" = "Create your first investment goal to get started.";
+"goals.create" = "Create Goal";
+"goals.edit" = "Edit Goal";
+"goals.delete" = "Delete Goal";
+"goals.archive" = "Archive Goal";
+"goals.progress" = "Progress";
+"goals.target" = "Target";
+"goals.current" = "Current";
+"goals.remaining" = "Remaining";
+"goals.daysLeft" = "Days Left";
+"goals.achieved" = "Achieved";
+
+// MARK: - DCA
+
+"dca.title" = "DCA Schedules";
+"dca.empty.title" = "No Active Schedules";
+"dca.empty.message" = "Set up dollar-cost averaging to invest automatically.";
+"dca.create" = "Create Schedule";
+"dca.edit" = "Edit Schedule";
+"dca.pause" = "Pause";
+"dca.resume" = "Resume";
+"dca.cancel" = "Cancel Schedule";
+"dca.nextExecution" = "Next Execution";
+"dca.frequency.daily" = "Daily";
+"dca.frequency.weekly" = "Weekly";
+"dca.frequency.biweekly" = "Every 2 Weeks";
+"dca.frequency.monthly" = "Monthly";
+"dca.frequency.quarterly" = "Quarterly";
+
+// MARK: - Portfolio
+
+"portfolio.title" = "Portfolio";
+"portfolio.empty.title" = "No Holdings Yet";
+"portfolio.empty.message" = "Add your first investment to get started.";
+"portfolio.holdings" = "Holdings";
+"portfolio.performance" = "Performance";
+"portfolio.transactions" = "Transactions";
+"portfolio.allocation" = "Allocation";
+
+// MARK: - Family
+
+"family.title" = "Family";
+"family.members" = "Family Members";
+"family.invite" = "Invite Member";
+"family.sharedPortfolios" = "Shared Portfolios";
+
+// MARK: - Settings
+
+"settings.title" = "Settings";
+"settings.account" = "Account";
+"settings.preferences" = "Preferences";
+"settings.notifications" = "Notifications";
+"settings.security" = "Security";
+"settings.biometric" = "Face ID / Touch ID";
+"settings.about" = "About";
+"settings.help" = "Help & Support";
+"settings.privacy" = "Privacy Policy";
+"settings.terms" = "Terms of Service";
+
+// MARK: - Errors
+
+"error.network" = "Network error. Please check your connection.";
+"error.server" = "Server error. Please try again later.";
+"error.unknown" = "An unexpected error occurred.";
+"error.unauthorized" = "Please sign in to continue.";

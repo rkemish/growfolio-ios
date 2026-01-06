@@ -1,0 +1,7 @@
+# UseCases Directory
+# This directory will contain use case implementations following Clean Architecture.
+# Example files to be added:
+# - FetchGoalsUseCase.swift
+# - CreateGoalUseCase.swift
+# - ExecuteDCAUseCase.swift
+# - CalculatePortfolioPerformanceUseCase.swift

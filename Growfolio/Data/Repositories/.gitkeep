@@ -1,0 +1,8 @@
+# Repositories Directory
+# This directory will contain concrete repository implementations.
+# Example files to be added:
+# - GoalRepository.swift
+# - PortfolioRepository.swift
+# - DCARepository.swift
+# - UserRepository.swift
+# - StockRepository.swift

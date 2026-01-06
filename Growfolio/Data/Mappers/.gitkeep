@@ -1,0 +1,8 @@
+# Mappers Directory
+# This directory will contain mappers for converting between DTOs and domain models.
+# Example files to be added:
+# - GoalMapper.swift
+# - PortfolioMapper.swift
+# - HoldingMapper.swift
+# - DCAScheduleMapper.swift
+# - UserMapper.swift

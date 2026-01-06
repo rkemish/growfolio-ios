@@ -1,0 +1,9 @@
+# DTOs Directory
+# This directory will contain Data Transfer Objects for API communication.
+# DTOs are used to map between API responses and domain models.
+# Example files to be added:
+# - GoalDTO.swift
+# - PortfolioDTO.swift
+# - HoldingDTO.swift
+# - DCAScheduleDTO.swift
+# - UserDTO.swift

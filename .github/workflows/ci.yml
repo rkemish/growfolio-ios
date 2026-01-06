@@ -1,0 +1,164 @@
+name: iOS CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:  # Allow manual triggers
+
+env:
+  SWIFT_VERSION: '5.10'
+
+jobs:
+  # ============================================================================
+  # Build and Test (Swift Package Manager)
+  # ============================================================================
+  build-and-test:
+    name: Build and Test
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.4'
+
+      - name: Cache SPM Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Build
+        run: swift build
+
+      - name: Run Tests
+        run: |
+          # Note: Running tests serially to avoid UserDefaults race conditions
+          # in FamilyViewModelTests which use shared UserDefaults state
+          swift test 2>&1 | tee test-output.txt
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          grep -E "(Test Suite|Executed|passed|failed)" test-output.txt >> $GITHUB_STEP_SUMMARY || echo "No test summary found" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          exit $TEST_EXIT_CODE
+
+  # ============================================================================
+  # SwiftLint (Optional - runs if .swiftlint.yml exists)
+  # ============================================================================
+  lint:
+    name: SwiftLint
+    runs-on: macos-14
+    continue-on-error: true  # Don't fail the workflow if lint fails
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for SwiftLint config
+        id: check-config
+        run: |
+          if [ -f ".swiftlint.yml" ]; then
+            echo "has_config=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_config=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install SwiftLint
+        if: steps.check-config.outputs.has_config == 'true'
+        run: brew install swiftlint
+
+      - name: Run SwiftLint
+        if: steps.check-config.outputs.has_config == 'true'
+        run: swiftlint lint --reporter github-actions-logging
+
+  # ============================================================================
+  # Build for Release (Xcode - requires signing setup)
+  # ============================================================================
+  build-release:
+    name: Build Release
+    runs-on: macos-14
+    needs: [build-and-test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.4'
+
+      - name: Check for Xcode Project
+        id: check-xcodeproj
+        run: |
+          if [ -d "Growfolio.xcodeproj" ]; then
+            echo "has_project=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_project=false" >> $GITHUB_OUTPUT
+            echo "No Xcode project found. Skipping release build." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Import Certificates
+        if: steps.check-xcodeproj.outputs.has_project == 'true'
+        env:
+          CERTIFICATE_P12: ${{ secrets.IOS_CERTIFICATE_P12 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          if [ -z "$CERTIFICATE_P12" ]; then
+            echo "No signing certificates configured. Skipping." >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          # Create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+
+          # Import certificate
+          echo "$CERTIFICATE_P12" | base64 --decode > certificate.p12
+          security import certificate.p12 -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+
+      - name: Install Provisioning Profile
+        if: steps.check-xcodeproj.outputs.has_project == 'true'
+        env:
+          PROVISIONING_PROFILE: ${{ secrets.IOS_PROVISIONING_PROFILE }}
+        run: |
+          if [ -z "$PROVISIONING_PROFILE" ]; then
+            echo "No provisioning profile configured. Skipping." >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "$PROVISIONING_PROFILE" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+
+      - name: Build Archive
+        if: steps.check-xcodeproj.outputs.has_project == 'true'
+        run: |
+          xcodebuild archive \
+            -project Growfolio.xcodeproj \
+            -scheme Growfolio \
+            -configuration Release \
+            -archivePath build/Growfolio.xcarchive \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO || echo "Archive build skipped (no signing)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Archive
+        if: steps.check-xcodeproj.outputs.has_project == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: growfolio-archive
+          path: build/Growfolio.xcarchive
+          if-no-files-found: ignore
