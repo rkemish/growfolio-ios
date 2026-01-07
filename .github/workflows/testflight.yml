@@ -1,0 +1,290 @@
+name: TestFlight Deployment
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags (e.g., v1.0.0)
+  workflow_dispatch:  # Allow manual trigger
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: false
+        default: 'build'
+        type: choice
+        options:
+          - build    # Increment build number only
+          - patch    # 1.0.0 -> 1.0.1
+          - minor    # 1.0.0 -> 1.1.0
+          - major    # 1.0.0 -> 2.0.0
+
+concurrency:
+  group: testflight-${{ github.ref }}
+  cancel-in-progress: false  # Don't cancel TestFlight uploads
+
+env:
+  SCHEME: Growfolio
+  BUNDLE_ID: com.growfolio.app
+
+jobs:
+  # ============================================================================
+  # Build and Deploy to TestFlight
+  # ============================================================================
+  deploy:
+    name: Build & Deploy
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for version detection
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0'
+
+      - name: Install Dependencies
+        run: |
+          brew install xcodegen
+          gem install fastlane
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: Setup App Store Connect API Key
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+        run: |
+          if [ -z "$APP_STORE_CONNECT_KEY" ]; then
+            echo "::error::App Store Connect API key not configured"
+            echo "Please add the following secrets to your repository:"
+            echo "  - APP_STORE_CONNECT_KEY_ID: Your API Key ID"
+            echo "  - APP_STORE_CONNECT_ISSUER_ID: Your Issuer ID"
+            echo "  - APP_STORE_CONNECT_KEY: Your .p8 key file contents"
+            exit 1
+          fi
+
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$APP_STORE_CONNECT_KEY" > ~/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8
+
+      - name: Setup Code Signing
+        env:
+          CERTIFICATE_P12: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_P12 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          PROVISIONING_PROFILE: ${{ secrets.IOS_PROVISIONING_PROFILE_APPSTORE }}
+          KEYCHAIN_PASSWORD: ${{ github.run_id }}
+        run: |
+          if [ -z "$CERTIFICATE_P12" ] || [ -z "$PROVISIONING_PROFILE" ]; then
+            echo "::error::Code signing not configured"
+            echo "Please add the following secrets to your repository:"
+            echo "  - IOS_DISTRIBUTION_CERTIFICATE_P12: Base64 encoded .p12 certificate"
+            echo "  - IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: Certificate password"
+            echo "  - IOS_PROVISIONING_PROFILE_APPSTORE: Base64 encoded provisioning profile"
+            exit 1
+          fi
+
+          # Create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
+
+          # Import certificate
+          echo "$CERTIFICATE_P12" | base64 --decode > certificate.p12
+          security import certificate.p12 -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          rm certificate.p12
+
+          # Install provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "$PROVISIONING_PROFILE" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+
+          # Get profile UUID for export options
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin <<< $(security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision))
+          echo "PROVISIONING_PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_ENV
+
+      - name: Determine Version
+        id: version
+        run: |
+          # Get current version from project.yml
+          CURRENT_VERSION=$(grep 'MARKETING_VERSION:' project.yml | head -1 | sed 's/.*: *"\(.*\)"/\1/')
+          CURRENT_BUILD=$(grep 'CURRENT_PROJECT_VERSION:' project.yml | head -1 | sed 's/.*: *"\(.*\)"/\1/')
+
+          echo "Current: $CURRENT_VERSION ($CURRENT_BUILD)"
+
+          # Handle version bumping
+          BUMP_TYPE="${{ github.event.inputs.version_bump || 'build' }}"
+
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            # Use tag version
+            NEW_VERSION="${GITHUB_REF#refs/tags/v}"
+            NEW_BUILD=$((CURRENT_BUILD + 1))
+          elif [ "$BUMP_TYPE" = "build" ]; then
+            NEW_VERSION="$CURRENT_VERSION"
+            NEW_BUILD=$((CURRENT_BUILD + 1))
+          else
+            # Parse version
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+            case "$BUMP_TYPE" in
+              patch) PATCH=$((PATCH + 1)) ;;
+              minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+              major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            esac
+            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+            NEW_BUILD=$((CURRENT_BUILD + 1))
+          fi
+
+          echo "New: $NEW_VERSION ($NEW_BUILD)"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "build=$NEW_BUILD" >> $GITHUB_OUTPUT
+
+      - name: Update Version in Project
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          BUILD="${{ steps.version.outputs.build }}"
+
+          # Update project.yml
+          sed -i '' "s/MARKETING_VERSION: .*/MARKETING_VERSION: \"$VERSION\"/" project.yml
+          sed -i '' "s/CURRENT_PROJECT_VERSION: .*/CURRENT_PROJECT_VERSION: \"$BUILD\"/" project.yml
+
+          # Regenerate project with new version
+          xcodegen generate
+
+      - name: Build Archive
+        run: |
+          xcodebuild archive \
+            -project Growfolio.xcodeproj \
+            -scheme $SCHEME \
+            -configuration Release \
+            -archivePath build/Growfolio.xcarchive \
+            -destination 'generic/platform=iOS' \
+            DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="iPhone Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="${{ secrets.PROVISIONING_PROFILE_NAME }}"
+
+      - name: Create Export Options
+        run: |
+          cat > ExportOptions.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
+            <key>teamID</key>
+            <string>${{ secrets.APPLE_TEAM_ID }}</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>${BUNDLE_ID}</key>
+              <string>${{ secrets.PROVISIONING_PROFILE_NAME }}</string>
+            </dict>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>uploadSymbols</key>
+            <true/>
+            <key>manageAppVersionAndBuildNumber</key>
+            <false/>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Export IPA
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath build/Growfolio.xcarchive \
+            -exportPath build/export \
+            -exportOptionsPlist ExportOptions.plist
+
+      - name: Upload to TestFlight
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          xcrun altool --upload-app \
+            --type ios \
+            --file build/export/Growfolio.ipa \
+            --apiKey "$APP_STORE_CONNECT_KEY_ID" \
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+
+      - name: Upload Archive Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: growfolio-${{ steps.version.outputs.version }}-${{ steps.version.outputs.build }}
+          path: |
+            build/Growfolio.xcarchive
+            build/export/Growfolio.ipa
+          retention-days: 30
+
+      - name: Create Release Notes
+        id: release_notes
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          BUILD="${{ steps.version.outputs.build }}"
+
+          # Get commits since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -n "$LAST_TAG" ]; then
+            COMMITS=$(git log ${LAST_TAG}..HEAD --oneline --no-merges | head -20)
+          else
+            COMMITS=$(git log --oneline --no-merges -20)
+          fi
+
+          echo "## Growfolio v${VERSION} (${BUILD})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Changes" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "$COMMITS" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Successfully uploaded to TestFlight" >> $GITHUB_STEP_SUMMARY
+
+      - name: Cleanup Keychain
+        if: always()
+        run: |
+          security delete-keychain build.keychain 2>/dev/null || true
+
+  # ============================================================================
+  # Notify on Completion
+  # ============================================================================
+  notify:
+    name: Notify
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Send Slack Notification
+        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          STATUS="${{ needs.deploy.result }}"
+          if [ "$STATUS" = "success" ]; then
+            EMOJI="✅"
+            COLOR="good"
+            TEXT="TestFlight deployment succeeded"
+          else
+            EMOJI="❌"
+            COLOR="danger"
+            TEXT="TestFlight deployment failed"
+          fi
+
+          curl -X POST "$SLACK_WEBHOOK_URL" \
+            -H 'Content-type: application/json' \
+            -d "{
+              \"attachments\": [{
+                \"color\": \"$COLOR\",
+                \"text\": \"$EMOJI $TEXT\",
+                \"fields\": [
+                  {\"title\": \"Repository\", \"value\": \"${{ github.repository }}\", \"short\": true},
+                  {\"title\": \"Branch\", \"value\": \"${{ github.ref_name }}\", \"short\": true}
+                ]
+              }]
+            }"
