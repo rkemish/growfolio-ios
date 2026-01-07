@@ -115,12 +115,13 @@ final class WebSocketService: @unchecked Sendable, WebSocketServiceProtocol {
     }
 
     func quoteUpdates() -> AsyncStream<StockQuote> {
-        AsyncStream { continuation in
-            let id = UUID()
+        let id = UUID()
+        return AsyncStream { continuation in
             quoteContinuations[id] = continuation
 
-            continuation.onTermination = { [weak self, id] _ in
-                Task { @MainActor in
+            continuation.onTermination = { [weak self] _ in
+                guard let self else { return }
+                Task { @MainActor [weak self] in
                     self?.quoteContinuations.removeValue(forKey: id)
                 }
             }
@@ -128,12 +129,13 @@ final class WebSocketService: @unchecked Sendable, WebSocketServiceProtocol {
     }
 
     func eventUpdates() -> AsyncStream<WebSocketEvent> {
-        AsyncStream { continuation in
-            let id = UUID()
+        let id = UUID()
+        return AsyncStream { continuation in
             eventContinuations[id] = continuation
 
-            continuation.onTermination = { [weak self, id] _ in
-                Task { @MainActor in
+            continuation.onTermination = { [weak self] _ in
+                guard let self else { return }
+                Task { @MainActor [weak self] in
                     self?.eventContinuations.removeValue(forKey: id)
                 }
             }
@@ -141,12 +143,13 @@ final class WebSocketService: @unchecked Sendable, WebSocketServiceProtocol {
     }
 
     func ackUpdates() -> AsyncStream<WebSocketAckPayload> {
-        AsyncStream { continuation in
-            let id = UUID()
+        let id = UUID()
+        return AsyncStream { continuation in
             ackContinuations[id] = continuation
 
-            continuation.onTermination = { [weak self, id] _ in
-                Task { @MainActor in
+            continuation.onTermination = { [weak self] _ in
+                guard let self else { return }
+                Task { @MainActor [weak self] in
                     self?.ackContinuations.removeValue(forKey: id)
                 }
             }
