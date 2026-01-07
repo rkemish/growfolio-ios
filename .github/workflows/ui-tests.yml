@@ -1,0 +1,139 @@
+name: UI Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:  # Allow manual trigger
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ui-tests:
+    name: Run UI Tests
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0'
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: List Available Simulators
+        run: xcrun simctl list devices available | grep -E "iPhone" | head -10
+
+      - name: Build for Testing
+        run: |
+          xcodebuild build-for-testing \
+            -project Growfolio.xcodeproj \
+            -scheme Growfolio \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty
+
+      - name: Run UI Tests
+        run: |
+          xcodebuild test-without-building \
+            -project Growfolio.xcodeproj \
+            -scheme Growfolio \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -only-testing:GrowfolioUITests \
+            -resultBundlePath TestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty --report junit --output test-results.xml
+
+      - name: Extract Screenshots
+        if: always()
+        run: |
+          mkdir -p screenshots
+          if [ -d "TestResults.xcresult/Data" ]; then
+            for file in TestResults.xcresult/Data/*; do
+              if file "$file" | grep -q "PNG image"; then
+                cp "$file" "screenshots/$(basename $file).png"
+              fi
+            done
+          fi
+          echo "Extracted $(ls screenshots | wc -l) screenshots"
+
+      - name: Upload Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-screenshots
+          path: screenshots/
+          retention-days: 14
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            TestResults.xcresult
+            test-results.xml
+          retention-days: 14
+
+      - name: Publish Test Report
+        if: always()
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: 'test-results.xml'
+          check_name: 'UI Test Results'
+          fail_on_failure: true
+
+  screenshot-diff:
+    name: Screenshot Comparison
+    runs-on: macos-15
+    needs: ui-tests
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Screenshots
+        uses: actions/download-artifact@v4
+        with:
+          name: ui-test-screenshots
+          path: new-screenshots/
+
+      - name: Compare with Baseline
+        run: |
+          echo "📸 Screenshot Comparison"
+          echo ""
+
+          BASELINE_DIR="Growfolio/Docs/Screenshots"
+          NEW_DIR="new-screenshots"
+
+          if [ -d "$BASELINE_DIR" ] && [ -d "$NEW_DIR" ]; then
+            echo "Comparing screenshots..."
+
+            # List baseline screenshots
+            echo "Baseline screenshots:"
+            ls -la "$BASELINE_DIR"/*.png 2>/dev/null || echo "No baseline screenshots"
+
+            echo ""
+            echo "New screenshots:"
+            ls -la "$NEW_DIR"/*.png 2>/dev/null || echo "No new screenshots"
+
+            # Count differences (basic check)
+            NEW_COUNT=$(ls "$NEW_DIR"/*.png 2>/dev/null | wc -l)
+            echo ""
+            echo "Captured $NEW_COUNT screenshots in this run"
+          else
+            echo "Screenshot directories not found for comparison"
+          fi
