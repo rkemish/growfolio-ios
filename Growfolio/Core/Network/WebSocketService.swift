@@ -119,7 +119,7 @@ final class WebSocketService: @unchecked Sendable, WebSocketServiceProtocol {
             let id = UUID()
             quoteContinuations[id] = continuation
 
-            continuation.onTermination = { [weak self] _ in
+            continuation.onTermination = { [weak self, id] _ in
                 Task { @MainActor in
                     self?.quoteContinuations.removeValue(forKey: id)
                 }
@@ -132,7 +132,7 @@ final class WebSocketService: @unchecked Sendable, WebSocketServiceProtocol {
             let id = UUID()
             eventContinuations[id] = continuation
 
-            continuation.onTermination = { [weak self] _ in
+            continuation.onTermination = { [weak self, id] _ in
                 Task { @MainActor in
                     self?.eventContinuations.removeValue(forKey: id)
                 }
@@ -145,7 +145,7 @@ final class WebSocketService: @unchecked Sendable, WebSocketServiceProtocol {
             let id = UUID()
             ackContinuations[id] = continuation
 
-            continuation.onTermination = { [weak self] _ in
+            continuation.onTermination = { [weak self, id] _ in
                 Task { @MainActor in
                     self?.ackContinuations.removeValue(forKey: id)
                 }
