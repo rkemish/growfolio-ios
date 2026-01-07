@@ -15,21 +15,17 @@ let package = Package(
             targets: ["Growfolio"]
         ),
     ],
-    dependencies: [
-        // Auth0 for authentication
-        .package(url: "https://github.com/auth0/Auth0.swift", from: "2.5.0"),
-    ],
+    dependencies: [],
     targets: [
         .target(
             name: "Growfolio",
-            dependencies: [
-                .product(name: "Auth0", package: "Auth0.swift"),
-            ],
+            dependencies: [],
             path: "Growfolio",
             exclude: [
                 "App/GrowfolioApp.swift",
                 "App/AppDelegate.swift",
                 "Resources",
+                "Docs",
                 // Exclude iOS-only Views (they use iOS-specific APIs)
                 "Presentation/Dashboard/Views",
                 "Presentation/Goals/Views",
