@@ -46,7 +46,10 @@ final class StockDetailViewModel: @unchecked Sendable {
 
     // Repositories
     private let stocksRepository: StocksRepositoryProtocol
-    private let apiClient: APIClientProtocol
+    private let aiRepository: AIRepositoryProtocol
+    private let webSocketService: WebSocketServiceProtocol
+    private var quoteUpdatesTask: Task<Void, Never>?
+    private var isQuoteSubscriptionActive = false
 
     // Symbol
     private(set) var symbol: String
@@ -154,11 +157,13 @@ final class StockDetailViewModel: @unchecked Sendable {
     init(
         symbol: String,
         stocksRepository: StocksRepositoryProtocol = RepositoryContainer.stocksRepository,
-        apiClient: APIClientProtocol = APIClient.shared
+        aiRepository: AIRepositoryProtocol = RepositoryContainer.aiRepository,
+        webSocketService: WebSocketServiceProtocol = WebSocketService.shared
     ) {
         self.symbol = symbol.uppercased()
         self.stocksRepository = stocksRepository
-        self.apiClient = apiClient
+        self.aiRepository = aiRepository
+        self.webSocketService = webSocketService
     }
 
     // MARK: - Data Loading
@@ -184,6 +189,7 @@ final class StockDetailViewModel: @unchecked Sendable {
 
             // Also check watchlist status
             await checkWatchlistStatus()
+            await startQuoteUpdates()
         } catch {
             self.error = error
         }
@@ -225,6 +231,17 @@ final class StockDetailViewModel: @unchecked Sendable {
     }
 
     @MainActor
+    func stopQuoteUpdates() async {
+        guard isQuoteSubscriptionActive else { return }
+
+        quoteUpdatesTask?.cancel()
+        quoteUpdatesTask = nil
+        isQuoteSubscriptionActive = false
+
+        await webSocketService.unsubscribeFromQuotes(symbols: [symbol])
+    }
+
+    @MainActor
     func loadHistory(period: HistoryPeriod) async {
         selectedPeriod = period
         historyError = nil
@@ -254,9 +271,7 @@ final class StockDetailViewModel: @unchecked Sendable {
         aiError = nil
 
         do {
-            let response: AIExplanationResponse = try await apiClient.request(
-                Endpoints.GetStockExplanation(symbol: symbol)
-            )
+            let response = try await aiRepository.fetchStockExplanation(symbol: symbol)
             aiExplanation = response.explanation
         } catch {
             // AI explanation failures are shown as info toast (non-critical feature)
@@ -277,6 +292,24 @@ final class StockDetailViewModel: @unchecked Sendable {
 
     func addToDCA() {
         showAddToDCASheet = true
+    }
+
+    @MainActor
+    private func startQuoteUpdates() async {
+        guard !isQuoteSubscriptionActive else { return }
+        isQuoteSubscriptionActive = true
+
+        await webSocketService.subscribeToQuotes(symbols: [symbol])
+
+        quoteUpdatesTask = Task { [weak self] in
+            guard let self else { return }
+            let stream = await webSocketService.quoteUpdates()
+            for await quote in stream where quote.symbol == self.symbol {
+                await MainActor.run {
+                    self.quote = quote
+                }
+            }
+        }
     }
 
     @MainActor
@@ -318,16 +351,6 @@ final class StockDetailViewModel: @unchecked Sendable {
         let url = "https://growfolio.app/stock/\(symbol)"
         return "Check out \(companyName) (\(symbol)) on Growfolio: \(url)"
     }
-}
-
-// MARK: - AI Explanation Response
-
-struct AIExplanationResponse: Codable, Sendable {
-    let symbol: String
-    let explanation: String
-    let pros: [String]?
-    let cons: [String]?
-    let riskLevel: String?
 }
 
 // MARK: - Preview Helper

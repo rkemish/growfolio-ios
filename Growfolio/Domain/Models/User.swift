@@ -13,7 +13,7 @@ struct User: Identifiable, Codable, Sendable, Equatable, Hashable {
 
     // MARK: - Properties
 
-    /// Unique identifier from Auth0
+    /// Unique identifier from Apple Sign In
     let id: String
 
     /// User's email address

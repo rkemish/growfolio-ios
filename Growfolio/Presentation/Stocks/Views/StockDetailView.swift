@@ -79,6 +79,11 @@ struct StockDetailView: View {
             .task {
                 await viewModel.loadStock()
             }
+            .onDisappear {
+                Task {
+                    await viewModel.stopQuoteUpdates()
+                }
+            }
             .sheet(isPresented: $viewModel.showBuySheet) {
                 BuyStockSheet(
                     symbol: viewModel.symbol,

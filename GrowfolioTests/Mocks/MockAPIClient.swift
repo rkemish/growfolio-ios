@@ -25,9 +25,14 @@ final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
     /// Default error to throw if no response is configured
     var defaultError: Error?
 
+    private let lock = NSLock()
+
     // MARK: - APIClientProtocol
 
     func request<T: Decodable & Sendable>(_ endpoint: Endpoint) async throws -> T {
+        lock.lock()
+        defer { lock.unlock() }
+
         requestsMade.append(endpoint)
 
         let key = String(describing: type(of: endpoint))
@@ -48,6 +53,9 @@ final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
     }
 
     func request(_ endpoint: Endpoint) async throws {
+        lock.lock()
+        defer { lock.unlock() }
+
         requestsMade.append(endpoint)
 
         let key = String(describing: type(of: endpoint))
@@ -58,6 +66,9 @@ final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
     }
 
     func requestData(_ endpoint: Endpoint) async throws -> Data {
+        lock.lock()
+        defer { lock.unlock() }
+
         requestsMade.append(endpoint)
 
         let key = String(describing: type(of: endpoint))
@@ -79,6 +90,9 @@ final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
         fileName: String,
         mimeType: String
     ) async throws -> T {
+        lock.lock()
+        defer { lock.unlock() }
+
         requestsMade.append(endpoint)
 
         let key = String(describing: type(of: endpoint))
@@ -98,15 +112,21 @@ final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
 
     func setResponse<T>(_ response: T, for endpointType: Any.Type) {
         let key = String(describing: endpointType)
+        lock.lock()
+        defer { lock.unlock() }
         responses[key] = response
     }
 
     func setError(_ error: Error, for endpointType: Any.Type) {
         let key = String(describing: endpointType)
+        lock.lock()
+        defer { lock.unlock() }
         errors[key] = error
     }
 
     func reset() {
+        lock.lock()
+        defer { lock.unlock() }
         responses.removeAll()
         errors.removeAll()
         requestsMade.removeAll()

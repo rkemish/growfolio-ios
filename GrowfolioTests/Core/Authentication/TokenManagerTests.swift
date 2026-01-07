@@ -262,7 +262,7 @@ final class TokenManagerTests: XCTestCase {
     func testTokenManagerGetUserIdWithToken() async {
         // Store a token with user ID in claims
         let header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
-        let payload = "eyJzdWIiOiJhdXRoMHwxMjM0NTYifQ" // {"sub":"auth0|123456"}
+        let payload = "eyJzdWIiOiJhcHBsZXwxMjM0NTYifQ" // {"sub":"apple|123456"}
         let signature = "sig"
         let idToken = "\(header).\(payload).\(signature)"
 
@@ -275,7 +275,7 @@ final class TokenManagerTests: XCTestCase {
 
         let userId = await tokenManager.getUserId()
 
-        XCTAssertEqual(userId, "auth0|123456")
+        XCTAssertEqual(userId, "apple|123456")
     }
 
     func testTokenManagerGetUserIdWithoutToken() async {

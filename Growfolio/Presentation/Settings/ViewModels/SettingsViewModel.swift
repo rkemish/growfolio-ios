@@ -69,7 +69,7 @@ final class SettingsViewModel: @unchecked Sendable {
     // MARK: - Initialization
 
     init(
-        userRepository: UserRepositoryProtocol = UserRepository(),
+        userRepository: UserRepositoryProtocol = RepositoryContainer.userRepository,
         authService: AuthService = .shared
     ) {
         self.userRepository = userRepository

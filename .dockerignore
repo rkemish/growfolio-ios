@@ -1,0 +1,43 @@
+# Git
+.git/
+.gitignore
+
+# macOS
+.DS_Store
+._*
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+DerivedData/
+*.xcarchive
+build/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Large media files
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wmv
+*.flv
+*.webm
+*.m4v
+
+# Documentation videos/screenshots
+Growfolio/Docs/Screenshots/Videos/
+
+# Test artifacts
+fastlane/
+*.xcresult
+
+# IDE
+*.swp
+*.swo
+*~
+
+# CI/CD
+.github/

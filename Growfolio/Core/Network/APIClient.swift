@@ -221,17 +221,6 @@ actor APIClient: APIClientProtocol {
 
             throw networkError
         } catch let networkError as NetworkError {
-            // Handle token refresh for unauthorized errors
-            if networkError == .unauthorized && endpoint.requiresAuthentication && retryCount == 0 {
-                do {
-                    try await authInterceptor.refreshToken()
-                    var refreshedRequest = request
-                    refreshedRequest = try await authInterceptor.intercept(request: refreshedRequest)
-                    return try await execute(request: refreshedRequest, endpoint: endpoint, retryCount: retryCount + 1)
-                } catch {
-                    throw networkError
-                }
-            }
             throw networkError
         }
     }

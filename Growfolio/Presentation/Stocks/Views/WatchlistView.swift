@@ -192,7 +192,7 @@ struct StockSearchView: View {
     @State private var isSearching = false
     @State private var selectedSymbol: String?
 
-    private let stocksRepository: StocksRepositoryProtocol = StocksRepository()
+    private let stocksRepository: StocksRepositoryProtocol = RepositoryContainer.stocksRepository
     let onStockSelected: (String) -> Void
 
     var body: some View {

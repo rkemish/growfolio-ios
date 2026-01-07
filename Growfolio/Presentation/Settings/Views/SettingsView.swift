@@ -13,7 +13,7 @@ struct SettingsView: View {
 
     @State private var viewModel = SettingsViewModel()
     @Environment(AppState.self) private var appState
-    @AppStorage("useMockData") private var useMockData = true
+    @AppStorage(Constants.StorageKeys.useMockData) private var useMockData = true
     @State private var showRestartAlert = false
 
     // MARK: - Body
