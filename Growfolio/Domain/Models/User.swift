@@ -22,8 +22,20 @@ struct User: Identifiable, Codable, Sendable, Equatable, Hashable {
     /// User's display name
     var displayName: String?
 
+    /// User's first name
+    var firstName: String?
+
+    /// User's last name
+    var lastName: String?
+
     /// User's profile picture URL
     var profilePictureURL: URL?
+
+    /// Alpaca brokerage account ID
+    var alpacaAccountId: String?
+
+    /// Family ID if user is part of a family account
+    var familyId: String?
 
     /// User's preferred currency code (e.g., "USD", "EUR")
     var preferredCurrency: String
@@ -55,7 +67,11 @@ struct User: Identifiable, Codable, Sendable, Equatable, Hashable {
         id: String,
         email: String,
         displayName: String? = nil,
+        firstName: String? = nil,
+        lastName: String? = nil,
         profilePictureURL: URL? = nil,
+        alpacaAccountId: String? = nil,
+        familyId: String? = nil,
         preferredCurrency: String = "USD",
         notificationsEnabled: Bool = true,
         biometricEnabled: Bool = false,
@@ -68,7 +84,11 @@ struct User: Identifiable, Codable, Sendable, Equatable, Hashable {
         self.id = id
         self.email = email
         self.displayName = displayName
+        self.firstName = firstName
+        self.lastName = lastName
         self.profilePictureURL = profilePictureURL
+        self.alpacaAccountId = alpacaAccountId
+        self.familyId = familyId
         self.preferredCurrency = preferredCurrency
         self.notificationsEnabled = notificationsEnabled
         self.biometricEnabled = biometricEnabled
@@ -124,7 +144,11 @@ struct User: Identifiable, Codable, Sendable, Equatable, Hashable {
         case id
         case email
         case displayName
+        case firstName
+        case lastName
         case profilePictureURL = "profilePictureUrl"
+        case alpacaAccountId
+        case familyId
         case preferredCurrency
         case notificationsEnabled
         case biometricEnabled

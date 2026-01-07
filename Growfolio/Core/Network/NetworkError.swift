@@ -206,13 +206,68 @@ enum NetworkError: LocalizedError, Equatable, Sendable {
 // MARK: - Error Response
 
 /// Standard error response structure from the API
-struct APIErrorResponse: Codable, Sendable {
-    let error: APIErrorDetail
+/// Supports both flat format (AsyncAPI spec) and nested format
+struct APIErrorResponse: Sendable {
+    let error: String
+    let message: String
+    let details: [String: String]?
+}
 
-    struct APIErrorDetail: Codable, Sendable {
+extension APIErrorResponse: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case error
+        case message
+        case details
+    }
+
+    enum NestedErrorKeys: String, CodingKey {
+        case error
+    }
+
+    enum ErrorDetailKeys: String, CodingKey {
+        case code
+        case message
+        case details
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        // Try flat format first (AsyncAPI spec)
+        if let errorString = try? container.decode(String.self, forKey: .error) {
+            self.error = errorString
+            self.message = try container.decode(String.self, forKey: .message)
+            self.details = try container.decodeIfPresent([String: String].self, forKey: .details)
+        }
+        // Fall back to nested format
+        else if let errorDetail = try? container.decode(ErrorDetail.self, forKey: .error) {
+            self.error = errorDetail.code
+            self.message = errorDetail.message
+            self.details = errorDetail.details
+        }
+        // Fail if neither format matches
+        else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .error,
+                in: container,
+                debugDescription: "Error field must be either a string or nested object"
+            )
+        }
+    }
+
+    private struct ErrorDetail: Decodable {
         let code: String
         let message: String
         let details: [String: String]?
+    }
+}
+
+extension APIErrorResponse: Encodable {
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(error, forKey: .error)
+        try container.encode(message, forKey: .message)
+        try container.encodeIfPresent(details, forKey: .details)
     }
 }
 

@@ -29,7 +29,7 @@ actor TokenManager {
 
     init(keychain: KeychainWrapper = KeychainWrapper()) {
         self.keychain = keychain
-        loadCachedTokens()
+        Task { await self.loadCachedTokens() }
     }
 
     // MARK: - Public Properties

@@ -417,6 +417,86 @@ final class MockFamilyRepository: FamilyRepositoryProtocol, @unchecked Sendable 
         )
     }
 
+    // MARK: - Get Family Accounts
+
+    func getFamilyAccounts() async throws -> [FamilyAccount] {
+        try await simulateNetwork()
+        await ensureInitialized()
+
+        guard let family = await store.family else {
+            throw FamilyRepositoryError.familyNotFound
+        }
+
+        // Return mock family accounts for family members
+        return family.activeMembers.prefix(3).map { member in
+            // Convert FamilyMemberRole to FamilyRole
+            let familyRole: FamilyRole = member.role == .admin ? .admin : .viewer
+
+            return FamilyAccount(
+                id: MockDataGenerator.mockId(prefix: "facct"),
+                primaryUserId: family.ownerId,
+                memberUserId: member.userId,
+                name: member.name,
+                email: member.email,
+                relationship: member.userId == family.ownerId ? .parent : .child,
+                role: familyRole,
+                permissions: FamilyPermissions(
+                    canViewPortfolios: true,
+                    canManagePortfolios: member.role == .admin,
+                    canViewGoals: true,
+                    canManageGoals: member.role == .admin,
+                    canViewDCASchedules: true,
+                    canManageDCASchedules: member.role == .admin,
+                    canTrade: member.role == .admin,
+                    canInviteMembers: member.role == .admin
+                ),
+                status: member.status,
+                joinedAt: member.joinedAt,
+                createdAt: member.joinedAt,
+                updatedAt: Date()
+            )
+        }
+    }
+
+    // MARK: - Create Family Account
+
+    func createFamilyAccount(name: String, relationship: String, email: String?) async throws -> FamilyAccount {
+        try await simulateNetwork()
+
+        guard await store.family != nil else {
+            throw FamilyRepositoryError.familyNotFound
+        }
+
+        guard let user = await store.currentUser else {
+            throw FamilyRepositoryError.notAMember
+        }
+
+        let account = FamilyAccount(
+            id: MockDataGenerator.mockId(prefix: "facct"),
+            primaryUserId: user.id,
+            memberUserId: MockDataGenerator.mockId(prefix: "user"),
+            name: name,
+            email: email,
+            relationship: FamilyRelationship(rawValue: relationship) ?? .other,
+            role: .viewer,
+            permissions: FamilyPermissions(
+                canViewPortfolios: true,
+                canManagePortfolios: false,
+                canViewGoals: true,
+                canManageGoals: false,
+                canViewDCASchedules: true,
+                canManageDCASchedules: false,
+                canTrade: false,
+                canInviteMembers: false
+            ),
+            status: .active,
+            createdAt: Date(),
+            updatedAt: Date()
+        )
+
+        return account
+    }
+
     // MARK: - Cache Operations
 
     func invalidateCache() async {

@@ -34,6 +34,9 @@ protocol StocksRepositoryProtocol: Sendable {
     /// - Returns: The submitted order details
     func submitBuyOrder(symbol: String, notionalUSD: Decimal) async throws -> StockOrder
 
+    /// Get current stock price
+    func getStockPrice(symbol: String) async throws -> StockPrice
+
     /// Invalidate cache
     func invalidateCache() async
 
@@ -202,6 +205,13 @@ final class StocksRepository: StocksRepositoryProtocol, @unchecked Sendable {
         )
 
         return order
+    }
+
+    // MARK: - Get Stock Price
+
+    func getStockPrice(symbol: String) async throws -> StockPrice {
+        let uppercasedSymbol = symbol.uppercased()
+        return try await apiClient.request(Endpoints.GetStockPrice(symbol: uppercasedSymbol))
     }
 
     // MARK: - Watchlist Operations

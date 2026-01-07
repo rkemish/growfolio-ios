@@ -77,15 +77,33 @@ final class MockStocksRepository: StocksRepositoryProtocol, @unchecked Sendable 
             side: .buy,
             type: .market,
             status: .filled,
+            timeInForce: .day,
             notional: notionalUSD,
             quantity: nil,
             filledQuantity: quantity,
             filledAvgPrice: price,
+            limitPrice: nil,
+            stopPrice: nil,
             submittedAt: Date(),
             filledAt: Date(),
             cancelledAt: nil,
             expiredAt: nil,
             clientOrderId: MockDataGenerator.mockId(prefix: "client")
+        )
+    }
+
+    // MARK: - Stock Price
+
+    func getStockPrice(symbol: String) async throws -> StockPrice {
+        try await simulateNetwork()
+
+        let uppercased = symbol.uppercased()
+        let price = MockStockDataProvider.currentPrice(for: uppercased)
+
+        return StockPrice(
+            symbol: uppercased,
+            price: price,
+            timestamp: Date()
         )
     }
 

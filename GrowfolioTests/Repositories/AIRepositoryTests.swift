@@ -481,4 +481,138 @@ final class AIRepositoryTests: XCTestCase {
         // Assert
         XCTAssertTrue(result.isEmpty)
     }
+
+    // MARK: - Get AI Insights Tests
+
+    func test_getAIInsights_returnsInsightsFromAPI() async throws {
+        // Arrange
+        let insights = [
+            makeInsight(id: "ins-1", type: .portfolioHealth, title: "Health Insight"),
+            makeInsight(id: "ins-2", type: .diversification, title: "Diversification Tip")
+        ]
+        let response = makePortfolioInsightsResponse(insights: insights, healthScore: 85)
+        mockAPIClient.setResponse(response, for: Endpoints.GetAIInsights.self)
+
+        // Act
+        let result = try await sut.getAIInsights()
+
+        // Assert
+        XCTAssertEqual(result.insights.count, 2)
+        XCTAssertEqual(result.insights[0].id, "ins-1")
+        XCTAssertEqual(result.insights[0].type, .portfolioHealth)
+        XCTAssertEqual(result.insights[1].id, "ins-2")
+        XCTAssertEqual(result.insights[1].type, .diversification)
+        XCTAssertEqual(result.healthScore, 85)
+    }
+
+    func test_getAIInsights_returnsEmptyWhenNoInsights() async throws {
+        // Arrange
+        let response = makePortfolioInsightsResponse(insights: [], healthScore: 50)
+        mockAPIClient.setResponse(response, for: Endpoints.GetAIInsights.self)
+
+        // Act
+        let result = try await sut.getAIInsights()
+
+        // Assert
+        XCTAssertTrue(result.insights.isEmpty)
+        XCTAssertEqual(result.healthScore, 50)
+    }
+
+    func test_getAIInsights_throwsOnNetworkError() async {
+        // Arrange
+        mockAPIClient.setError(NetworkError.serverError(statusCode: 500, message: "Server error"), for: Endpoints.GetAIInsights.self)
+
+        // Act & Assert
+        do {
+            _ = try await sut.getAIInsights()
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertTrue(error is NetworkError)
+        }
+    }
+
+    func test_getAIInsights_throwsOnUnauthorized() async {
+        // Arrange
+        mockAPIClient.setError(NetworkError.unauthorized, for: Endpoints.GetAIInsights.self)
+
+        // Act & Assert
+        do {
+            _ = try await sut.getAIInsights()
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertEqual(error as? NetworkError, .unauthorized)
+        }
+    }
+
+    // MARK: - Get Goal Insights Tests
+
+    func test_getGoalInsights_returnsInsightsForGoal() async throws {
+        // Arrange
+        let insights = [
+            makeInsight(id: "goal-ins-1", type: .goalProgress, title: "Goal Progress Update"),
+            makeInsight(id: "goal-ins-2", type: .dcaSuggestion, title: "DCA Recommendation")
+        ]
+        let response = makePortfolioInsightsResponse(insights: insights, healthScore: 75)
+        mockAPIClient.setResponse(response, for: Endpoints.GetGoalInsights.self)
+
+        // Act
+        let result = try await sut.getGoalInsights(goalId: "goal-123")
+
+        // Assert
+        XCTAssertEqual(result.insights.count, 2)
+        XCTAssertEqual(result.insights[0].type, .goalProgress)
+        XCTAssertEqual(result.insights[1].type, .dcaSuggestion)
+        XCTAssertEqual(result.healthScore, 75)
+    }
+
+    func test_getGoalInsights_sendsCorrectGoalId() async throws {
+        // Arrange
+        let response = makePortfolioInsightsResponse(insights: [])
+        mockAPIClient.setResponse(response, for: Endpoints.GetGoalInsights.self)
+
+        // Act
+        _ = try await sut.getGoalInsights(goalId: "goal-456")
+
+        // Assert
+        XCTAssertEqual(mockAPIClient.requestsMade.count, 1)
+    }
+
+    func test_getGoalInsights_throwsOnGoalNotFound() async {
+        // Arrange
+        mockAPIClient.setError(NetworkError.notFound, for: Endpoints.GetGoalInsights.self)
+
+        // Act & Assert
+        do {
+            _ = try await sut.getGoalInsights(goalId: "nonexistent-goal")
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertEqual(error as? NetworkError, .notFound)
+        }
+    }
+
+    func test_getGoalInsights_throwsOnNetworkError() async {
+        // Arrange
+        mockAPIClient.setError(NetworkError.serverError(statusCode: 503, message: "Service unavailable"), for: Endpoints.GetGoalInsights.self)
+
+        // Act & Assert
+        do {
+            _ = try await sut.getGoalInsights(goalId: "goal-123")
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertTrue(error is NetworkError)
+        }
+    }
+
+    func test_getGoalInsights_returnsEmptyInsightsForNewGoal() async throws {
+        // Arrange
+        let response = makePortfolioInsightsResponse(insights: [], healthScore: 60)
+        mockAPIClient.setResponse(response, for: Endpoints.GetGoalInsights.self)
+
+        // Act
+        let result = try await sut.getGoalInsights(goalId: "new-goal")
+
+        // Assert
+        XCTAssertTrue(result.insights.isEmpty)
+        XCTAssertEqual(result.healthScore, 60)
+    }
 }

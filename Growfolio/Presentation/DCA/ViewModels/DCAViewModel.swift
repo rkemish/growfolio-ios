@@ -41,7 +41,7 @@ final class DCAViewModel: @unchecked Sendable {
         var filtered = schedules
 
         if !showInactive {
-            filtered = filtered.filter { $0.status == .active || $0.status == .pendingExecution }
+            filtered = filtered.filter { $0.status == .active || $0.status == .pendingFunds }
         }
 
         if let frequency = filterFrequency {

@@ -543,4 +543,178 @@ final class FamilyRepositoryTests: XCTestCase {
         // Assert
         XCTAssertTrue(invites.isEmpty)
     }
+
+    // MARK: - Get Family Accounts Tests
+
+    func test_getFamilyAccounts_returnsAccountsFromAPI() async throws {
+        // Arrange
+        let accounts = [
+            makeFamilyAccount(id: "acct-1", name: "Child 1", relationship: .child),
+            makeFamilyAccount(id: "acct-2", name: "Child 2", relationship: .child)
+        ]
+        mockAPIClient.setResponse(accounts, for: Endpoints.GetFamilyAccounts.self)
+
+        // Act
+        let result = try await sut.getFamilyAccounts()
+
+        // Assert
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result[0].id, "acct-1")
+        XCTAssertEqual(result[0].name, "Child 1")
+        XCTAssertEqual(result[0].relationship, .child)
+        XCTAssertEqual(result[1].id, "acct-2")
+    }
+
+    func test_getFamilyAccounts_returnsEmptyArrayWhenNoAccounts() async throws {
+        // Arrange
+        mockAPIClient.setResponse([FamilyAccount](), for: Endpoints.GetFamilyAccounts.self)
+
+        // Act
+        let result = try await sut.getFamilyAccounts()
+
+        // Assert
+        XCTAssertTrue(result.isEmpty)
+    }
+
+    func test_getFamilyAccounts_throwsOnNetworkError() async {
+        // Arrange
+        mockAPIClient.setError(NetworkError.serverError(statusCode: 500, message: "Server error"), for: Endpoints.GetFamilyAccounts.self)
+
+        // Act & Assert
+        do {
+            _ = try await sut.getFamilyAccounts()
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertTrue(error is NetworkError)
+        }
+    }
+
+    // MARK: - Create Family Account Tests
+
+    func test_createFamilyAccount_createsAccountWithCorrectData() async throws {
+        // Arrange
+        let expectedAccount = makeFamilyAccount(
+            id: "acct-new",
+            name: "New Child",
+            email: "child@example.com",
+            relationship: .child
+        )
+        mockAPIClient.setResponse(expectedAccount, for: Endpoints.CreateFamilyAccount.self)
+
+        // Act
+        let result = try await sut.createFamilyAccount(
+            name: "New Child",
+            relationship: "child",
+            email: "child@example.com"
+        )
+
+        // Assert
+        XCTAssertEqual(result.id, "acct-new")
+        XCTAssertEqual(result.name, "New Child")
+        XCTAssertEqual(result.email, "child@example.com")
+        XCTAssertEqual(result.relationship, .child)
+    }
+
+    func test_createFamilyAccount_sendsCorrectRequestData() async throws {
+        // Arrange
+        let account = makeFamilyAccount()
+        mockAPIClient.setResponse(account, for: Endpoints.CreateFamilyAccount.self)
+
+        // Act
+        _ = try await sut.createFamilyAccount(
+            name: "Test Child",
+            relationship: "child",
+            email: "test@example.com"
+        )
+
+        // Assert
+        XCTAssertEqual(mockAPIClient.requestsMade.count, 1)
+    }
+
+    func test_createFamilyAccount_withoutEmail() async throws {
+        // Arrange
+        let account = makeFamilyAccount(name: "Child Without Email", email: nil)
+        mockAPIClient.setResponse(account, for: Endpoints.CreateFamilyAccount.self)
+
+        // Act
+        let result = try await sut.createFamilyAccount(
+            name: "Child Without Email",
+            relationship: "child",
+            email: nil
+        )
+
+        // Assert
+        XCTAssertEqual(result.name, "Child Without Email")
+        XCTAssertNil(result.email)
+    }
+
+    func test_createFamilyAccount_invalidatesCache() async throws {
+        // Arrange - First populate cache
+        let family = makeFamily()
+        mockAPIClient.setResponse(family, for: Endpoints.GetFamily.self)
+        _ = try await sut.getFamily()
+
+        let account = makeFamilyAccount()
+        mockAPIClient.setResponse(account, for: Endpoints.CreateFamilyAccount.self)
+
+        // Act
+        _ = try await sut.createFamilyAccount(name: "Test", relationship: "child", email: nil)
+
+        // Assert - Cache should be invalidated
+        mockAPIClient.reset()
+        mockAPIClient.setResponse(makeFamily(name: "Refreshed"), for: Endpoints.GetFamily.self)
+        _ = try await sut.getFamily()
+        XCTAssertEqual(mockAPIClient.requestsMade.count, 1)
+    }
+
+    func test_createFamilyAccount_throwsOnValidationError() async {
+        // Arrange
+        mockAPIClient.setError(NetworkError.clientError(statusCode: 400, message: "Invalid relationship"), for: Endpoints.CreateFamilyAccount.self)
+
+        // Act & Assert
+        do {
+            _ = try await sut.createFamilyAccount(name: "Test", relationship: "invalid", email: nil)
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertTrue(error is NetworkError)
+        }
+    }
+
+    func test_createFamilyAccount_throwsOnUnauthorized() async {
+        // Arrange
+        mockAPIClient.setError(NetworkError.unauthorized, for: Endpoints.CreateFamilyAccount.self)
+
+        // Act & Assert
+        do {
+            _ = try await sut.createFamilyAccount(name: "Test", relationship: "child", email: nil)
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertEqual(error as? NetworkError, .unauthorized)
+        }
+    }
+
+    // MARK: - Helper Methods for Family Accounts
+
+    private func makeFamilyAccount(
+        id: String = "acct-1",
+        primaryUserId: String = "user-1",
+        memberUserId: String = "user-2",
+        name: String = "Test Account",
+        email: String? = "test@example.com",
+        relationship: FamilyRelationship = .child
+    ) -> FamilyAccount {
+        FamilyAccount(
+            id: id,
+            primaryUserId: primaryUserId,
+            memberUserId: memberUserId,
+            name: name,
+            email: email,
+            relationship: relationship,
+            role: .viewer,
+            permissions: .viewOnly,
+            status: .active,
+            createdAt: Date(),
+            updatedAt: Date()
+        )
+    }
 }

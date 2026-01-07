@@ -63,7 +63,7 @@ final class DCAViewModelTests: XCTestCase {
         let filtered = sut.filteredSchedules
 
         // Should exclude inactive and paused schedules (status != .active)
-        XCTAssertTrue(filtered.allSatisfy { $0.status == .active || $0.status == .pendingExecution })
+        XCTAssertTrue(filtered.allSatisfy { $0.status == .active || $0.status == .pendingFunds })
     }
 
     func test_filteredSchedules_includesInactiveWhenEnabled() {

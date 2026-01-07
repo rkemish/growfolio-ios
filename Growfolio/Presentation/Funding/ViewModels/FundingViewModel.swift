@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 @Observable
+@MainActor
 final class FundingViewModel: @unchecked Sendable {
 
     // MARK: - Properties
@@ -51,7 +52,7 @@ final class FundingViewModel: @unchecked Sendable {
     // Repository
     private let repository: FundingRepositoryProtocol
     private let webSocketService: WebSocketServiceProtocol
-    private var transferUpdatesTask: Task<Void, Never>?
+    nonisolated(unsafe) private var transferUpdatesTask: Task<Void, Never>?
 
     // MARK: - Computed Properties
 
@@ -157,10 +158,14 @@ final class FundingViewModel: @unchecked Sendable {
 
     init(
         repository: FundingRepositoryProtocol = RepositoryContainer.fundingRepository,
-        webSocketService: WebSocketServiceProtocol = WebSocketService.shared
+        webSocketService: WebSocketServiceProtocol? = nil
     ) {
         self.repository = repository
-        self.webSocketService = webSocketService
+        if let webSocketService {
+            self.webSocketService = webSocketService
+        } else {
+            self.webSocketService = WebSocketService.shared
+        }
     }
 
     deinit {

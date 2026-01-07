@@ -327,6 +327,69 @@ final class MockAIRepository: AIRepositoryProtocol, @unchecked Sendable {
         ]
     }
 
+    // MARK: - AI Insights
+
+    func getAIInsights() async throws -> PortfolioInsightsResponse {
+        // Delegate to fetchInsights with includeGoals: true
+        return try await fetchInsights(includeGoals: true)
+    }
+
+    // MARK: - Goal Insights
+
+    func getGoalInsights(goalId: String) async throws -> PortfolioInsightsResponse {
+        try await simulateNetwork()
+        await ensureInitialized()
+
+        // Find the specific goal
+        guard let goal = await store.goals.first(where: { $0.id == goalId }) else {
+            throw NetworkError.notFound
+        }
+
+        var insights: [AIInsight] = []
+
+        // Add goal-specific insights
+        if goal.progressPercentage >= 100 {
+            insights.append(AIInsight(
+                type: .milestone,
+                title: "Goal Achieved!",
+                content: "Congratulations! You've reached your \(goal.name) goal of \(goal.targetAmount.currencyString)!",
+                priority: .high,
+                action: InsightAction(type: .viewGoal, label: "View Goal", destination: goal.id)
+            ))
+        } else {
+            let progressInt = NSDecimalNumber(decimal: goal.progressPercentage).intValue
+            insights.append(AIInsight(
+                type: .goalProgress,
+                title: "Goal Progress",
+                content: "Your \(goal.name) goal is \(progressInt)% complete. You have \(goal.remainingAmount.currencyString) remaining to reach your target of \(goal.targetAmount.currencyString).",
+                priority: .medium,
+                action: InsightAction(type: .viewGoal, label: "View Goal", destination: goal.id)
+            ))
+
+            // Add recommendation if there's a target date
+            if let targetDate = goal.targetDate, let monthlyContribution = goal.estimatedMonthlyContribution {
+                let daysRemaining = targetDate.daysFromNow
+                if daysRemaining > 0 {
+                    insights.append(AIInsight(
+                        type: .dcaSuggestion,
+                        title: "Monthly Contribution Needed",
+                        content: "To reach this goal on time, consider contributing approximately \(monthlyContribution.currencyString) per month. You have \(daysRemaining) days remaining.",
+                        priority: .high,
+                        action: InsightAction(type: .setupDCA, label: "Set Up DCA", destination: nil)
+                    ))
+                }
+            }
+        }
+
+        let progressInt = NSDecimalNumber(decimal: goal.progressPercentage).intValue
+        return PortfolioInsightsResponse(
+            insights: insights,
+            generatedAt: Date(),
+            healthScore: progressInt >= 75 ? 85 : progressInt >= 50 ? 70 : 60,
+            summary: "AI-generated insights for your \(goal.name) goal."
+        )
+    }
+
     // MARK: - Private Methods
 
     private func simulateNetwork() async throws {
@@ -398,8 +461,6 @@ private extension DCASchedule {
             return amount * 2
         case .monthly:
             return amount
-        case .quarterly:
-            return amount / 3
         }
     }
 }

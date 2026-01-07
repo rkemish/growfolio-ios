@@ -7,6 +7,80 @@
 
 import Foundation
 
+// MARK: - DCA Allocation
+
+/// Represents allocation for a stock within a DCA schedule
+struct DCAAllocation: Codable, Sendable, Equatable, Hashable {
+    /// Stock symbol
+    let symbol: String
+
+    /// Allocation percentage (0-100)
+    let percentage: Decimal
+
+    /// Minimum order amount for this symbol
+    let minAmount: Decimal?
+
+    enum CodingKeys: String, CodingKey {
+        case symbol
+        case percentage
+        case minAmount = "min_amount"
+    }
+}
+
+// MARK: - DCA Schedule Create
+
+/// Request model for creating a DCA schedule
+struct DCAScheduleCreate: Encodable, Sendable {
+    /// Schedule name
+    let name: String
+
+    /// Basket ID to link to (optional)
+    let basketId: String?
+
+    /// Amount to invest per execution
+    let amount: Decimal
+
+    /// Currency (GBP or USD)
+    let currency: String
+
+    /// Investment frequency
+    let frequency: DCAFrequency
+
+    /// Day of week for weekly schedules (0 = Monday, 6 = Sunday)
+    let dayOfWeek: Int?
+
+    /// Day of month for monthly schedules (1-28)
+    let dayOfMonth: Int?
+
+    /// Execution time in UTC (HH:MM:SS format)
+    let executionTime: String
+
+    /// Stock allocations (must sum to 100%)
+    let allocations: [DCAAllocation]
+
+    /// Optional end date
+    let endDate: Date?
+
+    /// Maximum number of executions
+    let maxExecutions: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case name
+        case basketId = "basket_id"
+        case amount
+        case currency
+        case frequency
+        case dayOfWeek = "day_of_week"
+        case dayOfMonth = "day_of_month"
+        case executionTime = "execution_time"
+        case allocations
+        case endDate = "end_date"
+        case maxExecutions = "max_executions"
+    }
+}
+
+// MARK: - DCA Schedule
+
 /// Represents a Dollar-Cost Averaging investment schedule
 struct DCASchedule: Identifiable, Codable, Sendable, Equatable, Hashable {
 
@@ -18,14 +92,23 @@ struct DCASchedule: Identifiable, Codable, Sendable, Equatable, Hashable {
     /// User ID who owns this schedule
     let userId: String
 
-    /// Stock symbol to invest in
+    /// Basket ID if schedule is linked to a basket
+    var basketId: String?
+
+    /// Stock symbol to invest in (legacy - use allocations for multi-stock)
     var stockSymbol: String
 
     /// Stock name for display
     var stockName: String?
 
+    /// Allocation percentages for multiple stocks (preferred over stockSymbol)
+    var allocations: [DCAAllocation]?
+
     /// Amount to invest per execution
     var amount: Decimal
+
+    /// Currency for the investment amount (GBP or USD)
+    var currency: String
 
     /// Investment frequency
     var frequency: DCAFrequency
@@ -41,6 +124,12 @@ struct DCASchedule: Identifiable, Codable, Sendable, Equatable, Hashable {
 
     /// Date when the schedule ends (nil for indefinite)
     var endDate: Date?
+
+    /// Time of day to execute (UTC, format: "HH:MM:SS")
+    var executionTime: String
+
+    /// Maximum number of executions (nil for unlimited)
+    var maxExecutions: Int?
 
     /// Date of the next scheduled execution
     var nextExecutionDate: Date?
@@ -74,14 +163,19 @@ struct DCASchedule: Identifiable, Codable, Sendable, Equatable, Hashable {
     init(
         id: String = UUID().uuidString,
         userId: String,
+        basketId: String? = nil,
         stockSymbol: String,
         stockName: String? = nil,
+        allocations: [DCAAllocation]? = nil,
         amount: Decimal,
+        currency: String = "GBP",
         frequency: DCAFrequency = .monthly,
         preferredDayOfWeek: Int? = nil,
         preferredDayOfMonth: Int? = nil,
         startDate: Date = Date(),
         endDate: Date? = nil,
+        executionTime: String = "14:30:00",
+        maxExecutions: Int? = nil,
         nextExecutionDate: Date? = nil,
         lastExecutionDate: Date? = nil,
         portfolioId: String,
@@ -94,14 +188,19 @@ struct DCASchedule: Identifiable, Codable, Sendable, Equatable, Hashable {
     ) {
         self.id = id
         self.userId = userId
+        self.basketId = basketId
         self.stockSymbol = stockSymbol
         self.stockName = stockName
+        self.allocations = allocations
         self.amount = amount
+        self.currency = currency
         self.frequency = frequency
         self.preferredDayOfWeek = preferredDayOfWeek
         self.preferredDayOfMonth = preferredDayOfMonth
         self.startDate = startDate
         self.endDate = endDate
+        self.executionTime = executionTime
+        self.maxExecutions = maxExecutions
         self.nextExecutionDate = nextExecutionDate
         self.lastExecutionDate = lastExecutionDate
         self.portfolioId = portfolioId
@@ -138,7 +237,7 @@ struct DCASchedule: Identifiable, Codable, Sendable, Equatable, Hashable {
         } else if let endDate = endDate, endDate < Date() {
             return .completed
         } else if let nextDate = nextExecutionDate, nextDate <= Date() {
-            return .pendingExecution
+            return .pendingFunds
         } else {
             return .active
         }
@@ -176,8 +275,6 @@ struct DCASchedule: Identifiable, Codable, Sendable, Equatable, Hashable {
             return remainingDays / 14
         case .monthly:
             return endDate.monthsFromNow
-        case .quarterly:
-            return endDate.monthsFromNow / 3
         }
     }
 
@@ -216,9 +313,6 @@ struct DCASchedule: Identifiable, Codable, Sendable, Equatable, Hashable {
                 nextDate = calendar.date(from: dateComponents) ?? nextDate
             }
             return nextDate
-
-        case .quarterly:
-            return calendar.date(byAdding: .month, value: 3, to: date) ?? date
         }
     }
 
@@ -227,14 +321,19 @@ struct DCASchedule: Identifiable, Codable, Sendable, Equatable, Hashable {
     enum CodingKeys: String, CodingKey {
         case id
         case userId
+        case basketId
         case stockSymbol
         case stockName
+        case allocations
         case amount
+        case currency
         case frequency
         case preferredDayOfWeek
         case preferredDayOfMonth
         case startDate
         case endDate
+        case executionTime
+        case maxExecutions
         case nextExecutionDate
         case lastExecutionDate
         case portfolioId
@@ -255,7 +354,6 @@ enum DCAFrequency: String, Codable, Sendable, CaseIterable {
     case weekly
     case biweekly
     case monthly
-    case quarterly
 
     var displayName: String {
         switch self {
@@ -267,8 +365,6 @@ enum DCAFrequency: String, Codable, Sendable, CaseIterable {
             return "Every 2 Weeks"
         case .monthly:
             return "Monthly"
-        case .quarterly:
-            return "Quarterly"
         }
     }
 
@@ -282,8 +378,6 @@ enum DCAFrequency: String, Codable, Sendable, CaseIterable {
             return "Bi-weekly"
         case .monthly:
             return "Monthly"
-        case .quarterly:
-            return "Quarterly"
         }
     }
 
@@ -297,8 +391,6 @@ enum DCAFrequency: String, Codable, Sendable, CaseIterable {
             return 26
         case .monthly:
             return 12
-        case .quarterly:
-            return 4
         }
     }
 
@@ -312,8 +404,6 @@ enum DCAFrequency: String, Codable, Sendable, CaseIterable {
             return 14
         case .monthly:
             return 30
-        case .quarterly:
-            return 91
         }
     }
 }
@@ -321,11 +411,12 @@ enum DCAFrequency: String, Codable, Sendable, CaseIterable {
 // MARK: - DCA Schedule Status
 
 /// Status of a DCA schedule
-enum DCAScheduleStatus: String, Codable, Sendable {
+enum DCAStatus: String, Codable, Sendable {
     case active
     case paused
-    case pendingExecution
     case completed
+    case cancelled
+    case pendingFunds = "pending_funds"
 
     var displayName: String {
         switch self {
@@ -333,10 +424,12 @@ enum DCAScheduleStatus: String, Codable, Sendable {
             return "Active"
         case .paused:
             return "Paused"
-        case .pendingExecution:
-            return "Pending"
         case .completed:
             return "Completed"
+        case .cancelled:
+            return "Cancelled"
+        case .pendingFunds:
+            return "Pending Funds"
         }
     }
 
@@ -346,10 +439,12 @@ enum DCAScheduleStatus: String, Codable, Sendable {
             return "play.circle.fill"
         case .paused:
             return "pause.circle.fill"
-        case .pendingExecution:
-            return "clock.fill"
         case .completed:
             return "checkmark.circle.fill"
+        case .cancelled:
+            return "xmark.circle.fill"
+        case .pendingFunds:
+            return "clock.fill"
         }
     }
 
@@ -359,13 +454,18 @@ enum DCAScheduleStatus: String, Codable, Sendable {
             return "#34C759"
         case .paused:
             return "#FF9500"
-        case .pendingExecution:
-            return "#007AFF"
         case .completed:
             return "#8E8E93"
+        case .cancelled:
+            return "#FF3B30"
+        case .pendingFunds:
+            return "#007AFF"
         }
     }
 }
+
+// Legacy type alias for backwards compatibility
+typealias DCAScheduleStatus = DCAStatus
 
 // MARK: - DCA Execution
 

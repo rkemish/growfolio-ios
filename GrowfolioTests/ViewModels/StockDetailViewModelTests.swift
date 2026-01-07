@@ -591,4 +591,12 @@ final class StubAIRepository: AIRepositoryProtocol {
     func fetchInvestingTips() async throws -> [InvestingTip] {
         []
     }
+
+    func getAIInsights() async throws -> PortfolioInsightsResponse {
+        PortfolioInsightsResponse(insights: [])
+    }
+
+    func getGoalInsights(goalId: String) async throws -> PortfolioInsightsResponse {
+        PortfolioInsightsResponse(insights: [])
+    }
 }

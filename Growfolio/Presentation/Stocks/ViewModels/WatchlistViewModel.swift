@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 @Observable
+@MainActor
 final class WatchlistViewModel: @unchecked Sendable {
 
     // MARK: - Properties
@@ -27,8 +28,8 @@ final class WatchlistViewModel: @unchecked Sendable {
     // Repository
     private let stocksRepository: StocksRepositoryProtocol
     private let webSocketService: WebSocketServiceProtocol
-    private var quoteUpdatesTask: Task<Void, Never>?
-    private var connectionObserverTask: Task<Void, Never>?
+    nonisolated(unsafe) private var quoteUpdatesTask: Task<Void, Never>?
+    nonisolated(unsafe) private var connectionObserverTask: Task<Void, Never>?
     private var subscribedSymbols: Set<String> = []
     private var previousConnectionState: WebSocketService.ConnectionState = .disconnected
 
@@ -46,10 +47,14 @@ final class WatchlistViewModel: @unchecked Sendable {
 
     init(
         stocksRepository: StocksRepositoryProtocol = RepositoryContainer.stocksRepository,
-        webSocketService: WebSocketServiceProtocol = WebSocketService.shared
+        webSocketService: WebSocketServiceProtocol? = nil
     ) {
         self.stocksRepository = stocksRepository
-        self.webSocketService = webSocketService
+        if let webSocketService {
+            self.webSocketService = webSocketService
+        } else {
+            self.webSocketService = WebSocketService.shared
+        }
         startConnectionObserver()
     }
 

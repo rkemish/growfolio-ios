@@ -103,8 +103,6 @@ enum MockDataGenerator {
             return calendar.date(byAdding: .weekOfYear, value: 2, to: date) ?? date
         case .monthly:
             return calendar.date(byAdding: .month, value: 1, to: date) ?? date
-        case .quarterly:
-            return calendar.date(byAdding: .month, value: 3, to: date) ?? date
         }
     }
 

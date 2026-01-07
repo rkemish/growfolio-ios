@@ -475,36 +475,32 @@ final class NetworkErrorTests: XCTestCase {
     func testAPIErrorResponse_Decoding() throws {
         let json = """
         {
-            "error": {
-                "code": "VALIDATION_ERROR",
-                "message": "Invalid input",
-                "details": {"field": "email"}
-            }
+            "error": "VALIDATION_ERROR",
+            "message": "Invalid input",
+            "details": {"field": "email"}
         }
         """.data(using: .utf8)!
 
         let response = try JSONDecoder().decode(APIErrorResponse.self, from: json)
 
-        XCTAssertEqual(response.error.code, "VALIDATION_ERROR")
-        XCTAssertEqual(response.error.message, "Invalid input")
-        XCTAssertEqual(response.error.details?["field"], "email")
+        XCTAssertEqual(response.error, "VALIDATION_ERROR")
+        XCTAssertEqual(response.message, "Invalid input")
+        XCTAssertEqual(response.details?["field"], "email")
     }
 
     func testAPIErrorResponse_DecodingWithoutDetails() throws {
         let json = """
         {
-            "error": {
-                "code": "SERVER_ERROR",
-                "message": "Internal error"
-            }
+            "error": "SERVER_ERROR",
+            "message": "Internal error"
         }
         """.data(using: .utf8)!
 
         let response = try JSONDecoder().decode(APIErrorResponse.self, from: json)
 
-        XCTAssertEqual(response.error.code, "SERVER_ERROR")
-        XCTAssertEqual(response.error.message, "Internal error")
-        XCTAssertNil(response.error.details)
+        XCTAssertEqual(response.error, "SERVER_ERROR")
+        XCTAssertEqual(response.message, "Internal error")
+        XCTAssertNil(response.details)
     }
 
     // MARK: - Additional Retryable Tests

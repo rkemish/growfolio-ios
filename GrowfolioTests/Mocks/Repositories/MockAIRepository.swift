@@ -35,6 +35,9 @@ final class MockAIRepository: AIRepositoryProtocol, @unchecked Sendable {
     var lastAllocationRiskTolerance: RiskTolerance?
     var lastAllocationTimeHorizon: TimeHorizon?
     var fetchInvestingTipsCalled = false
+    var getAIInsightsCalled = false
+    var getGoalInsightsCalled = false
+    var lastGoalInsightsGoalId: String?
 
     // MARK: - Reset
 
@@ -59,6 +62,9 @@ final class MockAIRepository: AIRepositoryProtocol, @unchecked Sendable {
         lastAllocationRiskTolerance = nil
         lastAllocationTimeHorizon = nil
         fetchInvestingTipsCalled = false
+        getAIInsightsCalled = false
+        getGoalInsightsCalled = false
+        lastGoalInsightsGoalId = nil
     }
 
     // MARK: - AIRepositoryProtocol Implementation
@@ -143,5 +149,42 @@ final class MockAIRepository: AIRepositoryProtocol, @unchecked Sendable {
                 category: .general
             )
         ]
+    }
+
+    func getAIInsights() async throws -> PortfolioInsightsResponse {
+        getAIInsightsCalled = true
+        if let error = errorToThrow { throw error }
+        if let insights = insightsToReturn { return insights }
+        return PortfolioInsightsResponse(
+            insights: [
+                AIInsight(
+                    id: UUID().uuidString,
+                    type: .portfolioHealth,
+                    title: "Mock AI Insight",
+                    content: "This is a mock AI insight.",
+                    priority: .medium
+                )
+            ],
+            generatedAt: Date()
+        )
+    }
+
+    func getGoalInsights(goalId: String) async throws -> PortfolioInsightsResponse {
+        getGoalInsightsCalled = true
+        lastGoalInsightsGoalId = goalId
+        if let error = errorToThrow { throw error }
+        if let insights = insightsToReturn { return insights }
+        return PortfolioInsightsResponse(
+            insights: [
+                AIInsight(
+                    id: UUID().uuidString,
+                    type: .goalProgress,
+                    title: "Mock Goal Insight",
+                    content: "This is a mock goal insight for goal \(goalId).",
+                    priority: .medium
+                )
+            ],
+            generatedAt: Date()
+        )
     }
 }

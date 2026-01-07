@@ -43,6 +43,9 @@ final class MockStocksRepository: StocksRepositoryProtocol, @unchecked Sendable 
     var submitBuyOrderCalled = false
     var lastBuyOrderSymbol: String?
     var lastBuyOrderNotional: Decimal?
+    var getStockPriceCalled = false
+    var lastGetStockPriceSymbol: String?
+    var stockPriceToReturn: StockPrice?
     var invalidateCacheCalled = false
     var getWatchlistCalled = false
     var addToWatchlistCalled = false
@@ -84,6 +87,9 @@ final class MockStocksRepository: StocksRepositoryProtocol, @unchecked Sendable 
         submitBuyOrderCalled = false
         lastBuyOrderSymbol = nil
         lastBuyOrderNotional = nil
+        getStockPriceCalled = false
+        lastGetStockPriceSymbol = nil
+        stockPriceToReturn = nil
         invalidateCacheCalled = false
         getWatchlistCalled = false
         addToWatchlistCalled = false
@@ -152,6 +158,18 @@ final class MockStocksRepository: StocksRepositoryProtocol, @unchecked Sendable 
         if let error = errorToThrow { throw error }
         if let order = orderToReturn { return order }
         return MockStocksRepository.sampleOrder(symbol: symbol, notional: notionalUSD)
+    }
+
+    func getStockPrice(symbol: String) async throws -> StockPrice {
+        getStockPriceCalled = true
+        lastGetStockPriceSymbol = symbol
+        if let error = errorToThrow { throw error }
+        if let price = stockPriceToReturn { return price }
+        return StockPrice(
+            symbol: symbol,
+            price: 175.50,
+            timestamp: Date()
+        )
     }
 
     func invalidateCache() async {
@@ -277,10 +295,13 @@ final class MockStocksRepository: StocksRepositoryProtocol, @unchecked Sendable 
             side: .buy,
             type: .market,
             status: .filled,
+            timeInForce: .day,
             notional: notional,
             quantity: nil,
             filledQuantity: notional / 185,
             filledAvgPrice: 185,
+            limitPrice: nil,
+            stopPrice: nil,
             submittedAt: Date(),
             filledAt: Date(),
             cancelledAt: nil,

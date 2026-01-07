@@ -79,6 +79,7 @@ final class StocksRepositoryTests: XCTestCase {
             name: name,
             exchange: "NASDAQ",
             assetType: .stock,
+            status: nil,
             currencyCode: "USD"
         )
     }
@@ -311,10 +312,13 @@ final class StocksRepositoryTests: XCTestCase {
             side: .buy,
             type: .market,
             status: .new,
+            timeInForce: .day,
             notional: 1000,
             quantity: nil,
             filledQuantity: nil,
             filledAvgPrice: nil,
+            limitPrice: nil,
+            stopPrice: nil,
             submittedAt: Date(),
             filledAt: nil,
             cancelledAt: nil,
@@ -340,10 +344,13 @@ final class StocksRepositoryTests: XCTestCase {
             side: .buy,
             type: .market,
             status: .new,
+            timeInForce: .day,
             notional: 1000,
             quantity: nil,
             filledQuantity: nil,
             filledAvgPrice: nil,
+            limitPrice: nil,
+            stopPrice: nil,
             submittedAt: Date(),
             filledAt: nil,
             cancelledAt: nil,
@@ -502,5 +509,100 @@ final class StocksRepositoryTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(watchlist.isEmpty)
+    }
+
+    // MARK: - Get Stock Price Tests
+
+    func test_getStockPrice_returnsPriceFromAPI() async throws {
+        // Arrange
+        let expectedPrice = StockPrice(
+            symbol: "AAPL",
+            price: 182.50,
+            timestamp: Date()
+        )
+        mockAPIClient.setResponse(expectedPrice, for: Endpoints.GetStockPrice.self)
+
+        // Act
+        let result = try await sut.getStockPrice(symbol: "AAPL")
+
+        // Assert
+        XCTAssertEqual(result.symbol, "AAPL")
+        XCTAssertEqual(result.price, 182.50)
+    }
+
+    func test_getStockPrice_convertsSymbolToUppercase() async throws {
+        // Arrange
+        let price = StockPrice(symbol: "AAPL", price: 180.00, timestamp: Date())
+        mockAPIClient.setResponse(price, for: Endpoints.GetStockPrice.self)
+
+        // Act
+        let result = try await sut.getStockPrice(symbol: "aapl")
+
+        // Assert
+        XCTAssertEqual(result.symbol, "AAPL")
+        XCTAssertEqual(mockAPIClient.requestsMade.count, 1)
+    }
+
+    func test_getStockPrice_includesTimestamp() async throws {
+        // Arrange
+        let now = Date()
+        let price = StockPrice(symbol: "GOOGL", price: 140.25, timestamp: now)
+        mockAPIClient.setResponse(price, for: Endpoints.GetStockPrice.self)
+
+        // Act
+        let result = try await sut.getStockPrice(symbol: "GOOGL")
+
+        // Assert
+        XCTAssertEqual(result.timestamp, now)
+    }
+
+    func test_getStockPrice_throwsOnNetworkError() async {
+        // Arrange
+        mockAPIClient.setError(NetworkError.serverError(statusCode: 500, message: "Server error"), for: Endpoints.GetStockPrice.self)
+
+        // Act & Assert
+        do {
+            _ = try await sut.getStockPrice(symbol: "AAPL")
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertTrue(error is NetworkError)
+        }
+    }
+
+    func test_getStockPrice_throwsOnNotFound() async {
+        // Arrange
+        mockAPIClient.setError(NetworkError.notFound, for: Endpoints.GetStockPrice.self)
+
+        // Act & Assert
+        do {
+            _ = try await sut.getStockPrice(symbol: "INVALID")
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertEqual(error as? NetworkError, .notFound)
+        }
+    }
+
+    func test_getStockPrice_handlesDecimalPrecision() async throws {
+        // Arrange
+        let price = StockPrice(symbol: "TSLA", price: 245.6789, timestamp: Date())
+        mockAPIClient.setResponse(price, for: Endpoints.GetStockPrice.self)
+
+        // Act
+        let result = try await sut.getStockPrice(symbol: "TSLA")
+
+        // Assert
+        XCTAssertEqual(result.price, 245.6789)
+    }
+
+    func test_getStockPrice_sendsCorrectSymbol() async throws {
+        // Arrange
+        let price = StockPrice(symbol: "MSFT", price: 350.00, timestamp: Date())
+        mockAPIClient.setResponse(price, for: Endpoints.GetStockPrice.self)
+
+        // Act
+        _ = try await sut.getStockPrice(symbol: "MSFT")
+
+        // Assert
+        XCTAssertEqual(mockAPIClient.requestsMade.count, 1)
     }
 }

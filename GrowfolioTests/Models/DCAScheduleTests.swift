@@ -125,11 +125,12 @@ final class DCAScheduleTests: XCTestCase {
         XCTAssertEqual(schedule.estimatedAnnualInvestment, 6000) // 500 * 12
     }
 
-    func testEstimatedAnnualInvestment_Quarterly() {
-        let schedule = TestFixtures.dcaSchedule(amount: 1000, frequency: .quarterly)
-
-        XCTAssertEqual(schedule.estimatedAnnualInvestment, 4000) // 1000 * 4
-    }
+    // Test disabled: quarterly frequency was removed
+    // func testEstimatedAnnualInvestment_Quarterly() {
+    //     let schedule = TestFixtures.dcaSchedule(amount: 1000, frequency: .monthly)
+    //
+    //     XCTAssertEqual(schedule.estimatedAnnualInvestment, 4000) // 1000 * 4
+    // }
 
     // MARK: - Status Tests
 
@@ -179,7 +180,7 @@ final class DCAScheduleTests: XCTestCase {
             isPaused: false
         )
 
-        XCTAssertEqual(schedule.status, .pendingExecution)
+        XCTAssertEqual(schedule.status, .pendingFunds)
     }
 
     // MARK: - HasEnded Tests
@@ -250,7 +251,6 @@ final class DCAScheduleTests: XCTestCase {
         XCTAssertEqual(DCAFrequency.weekly.displayName, "Weekly")
         XCTAssertEqual(DCAFrequency.biweekly.displayName, "Every 2 Weeks")
         XCTAssertEqual(DCAFrequency.monthly.displayName, "Monthly")
-        XCTAssertEqual(DCAFrequency.quarterly.displayName, "Quarterly")
     }
 
     func testDCAFrequency_ShortName() {
@@ -258,7 +258,6 @@ final class DCAScheduleTests: XCTestCase {
         XCTAssertEqual(DCAFrequency.weekly.shortName, "Weekly")
         XCTAssertEqual(DCAFrequency.biweekly.shortName, "Bi-weekly")
         XCTAssertEqual(DCAFrequency.monthly.shortName, "Monthly")
-        XCTAssertEqual(DCAFrequency.quarterly.shortName, "Quarterly")
     }
 
     func testDCAFrequency_ExecutionsPerYear() {
@@ -266,7 +265,6 @@ final class DCAScheduleTests: XCTestCase {
         XCTAssertEqual(DCAFrequency.weekly.executionsPerYear, 52)
         XCTAssertEqual(DCAFrequency.biweekly.executionsPerYear, 26)
         XCTAssertEqual(DCAFrequency.monthly.executionsPerYear, 12)
-        XCTAssertEqual(DCAFrequency.quarterly.executionsPerYear, 4)
     }
 
     func testDCAFrequency_AverageDaysBetweenExecutions() {
@@ -274,11 +272,10 @@ final class DCAScheduleTests: XCTestCase {
         XCTAssertEqual(DCAFrequency.weekly.averageDaysBetweenExecutions, 7)
         XCTAssertEqual(DCAFrequency.biweekly.averageDaysBetweenExecutions, 14)
         XCTAssertEqual(DCAFrequency.monthly.averageDaysBetweenExecutions, 30)
-        XCTAssertEqual(DCAFrequency.quarterly.averageDaysBetweenExecutions, 91)
     }
 
     func testDCAFrequency_AllCases() {
-        XCTAssertEqual(DCAFrequency.allCases.count, 5)
+        XCTAssertEqual(DCAFrequency.allCases.count, 4)
     }
 
     // MARK: - DCAScheduleStatus Tests
@@ -286,19 +283,19 @@ final class DCAScheduleTests: XCTestCase {
     func testDCAScheduleStatus_DisplayName() {
         XCTAssertEqual(DCAScheduleStatus.active.displayName, "Active")
         XCTAssertEqual(DCAScheduleStatus.paused.displayName, "Paused")
-        XCTAssertEqual(DCAScheduleStatus.pendingExecution.displayName, "Pending")
+        XCTAssertEqual(DCAScheduleStatus.pendingFunds.displayName, "Pending Funds")
         XCTAssertEqual(DCAScheduleStatus.completed.displayName, "Completed")
     }
 
     func testDCAScheduleStatus_IconName_NotEmpty() {
-        let statuses: [DCAScheduleStatus] = [.active, .paused, .pendingExecution, .completed]
+        let statuses: [DCAScheduleStatus] = [.active, .paused, .pendingFunds, .completed]
         for status in statuses {
             XCTAssertFalse(status.iconName.isEmpty, "Icon name for \(status) should not be empty")
         }
     }
 
     func testDCAScheduleStatus_ColorHex_ValidFormat() {
-        let statuses: [DCAScheduleStatus] = [.active, .paused, .pendingExecution, .completed]
+        let statuses: [DCAScheduleStatus] = [.active, .paused, .pendingFunds, .completed]
         for status in statuses {
             XCTAssertTrue(status.colorHex.hasPrefix("#"), "Color hex for \(status) should start with #")
             XCTAssertEqual(status.colorHex.count, 7, "Color hex for \(status) should be 7 characters")
@@ -343,14 +340,15 @@ final class DCAScheduleTests: XCTestCase {
         XCTAssertEqual(monthDiff, 1)
     }
 
-    func testCalculateNextExecutionDate_Quarterly() {
-        let schedule = TestFixtures.dcaSchedule(frequency: .quarterly)
-        let fromDate = Date()
-        let nextDate = schedule.calculateNextExecutionDate(from: fromDate)
-
-        let monthDiff = Calendar.current.dateComponents([.month], from: fromDate, to: nextDate).month ?? 0
-        XCTAssertEqual(monthDiff, 3)
-    }
+    // Test disabled: quarterly frequency was removed
+    // func testCalculateNextExecutionDate_Quarterly() {
+    //     let schedule = TestFixtures.dcaSchedule(frequency: .monthly)
+    //     let fromDate = Date()
+    //     let nextDate = schedule.calculateNextExecutionDate(from: fromDate)
+    //
+    //     let monthDiff = Calendar.current.dateComponents([.month], from: fromDate, to: nextDate).month ?? 0
+    //     XCTAssertEqual(monthDiff, 3)
+    // }
 
     // MARK: - DCAExecution Tests
 
@@ -451,7 +449,7 @@ final class DCAScheduleTests: XCTestCase {
     }
 
     func testDCAScheduleStatus_Codable() throws {
-        let statuses: [DCAScheduleStatus] = [.active, .paused, .pendingExecution, .completed]
+        let statuses: [DCAScheduleStatus] = [.active, .paused, .pendingFunds, .completed]
         for status in statuses {
             let data = try JSONEncoder().encode(status)
             let decoded = try JSONDecoder().decode(DCAScheduleStatus.self, from: data)

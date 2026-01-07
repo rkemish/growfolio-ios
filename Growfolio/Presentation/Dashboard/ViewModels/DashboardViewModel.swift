@@ -104,20 +104,14 @@ final class DashboardViewModel: @unchecked Sendable {
 
         do {
             // Parallel API calls for best performance
-            async let portfolioTask = loadPortfolioSummary()
-            async let goalsTask = loadTopGoals()
-            async let dcaTask = loadActiveDCASchedules()
-            async let activityTask = loadRecentActivity()
-            async let marketStatusTask = loadMarketStatus()
+            async let portfolio = loadPortfolioSummary()
+            async let goals = loadTopGoals()
+            async let dca = loadActiveDCASchedules()
+            async let activity = loadRecentActivity()
+            async let marketStatus = loadMarketStatus()
 
             // Wait for all tasks
-            let (_, _, _, _, _) = await (
-                try portfolioTask,
-                try goalsTask,
-                try dcaTask,
-                try activityTask,
-                try marketStatusTask
-            )
+            _ = try await (portfolio, goals, dca, activity, marketStatus)
 
         } catch {
             self.error = error

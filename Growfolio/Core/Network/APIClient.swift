@@ -252,7 +252,7 @@ actor APIClient: APIClientProtocol {
 
     private func extractErrorMessage(from data: Data) -> String? {
         if let errorResponse = try? decoder.decode(APIErrorResponse.self, from: data) {
-            return errorResponse.error.message
+            return errorResponse.message
         }
         return String(data: data, encoding: .utf8)
     }

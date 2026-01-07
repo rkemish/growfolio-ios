@@ -99,7 +99,7 @@ final class StockTests: XCTestCase {
             symbol: "AAPL",
             name: "Apple Inc.",
             exchange: "NASDAQ",
-            assetType: .stock,
+            assetType: .stock, status: nil,
             currencyCode: "USD"
         )
         XCTAssertEqual(result.id, "AAPL")
@@ -650,7 +650,7 @@ final class StockTests: XCTestCase {
             symbol: "AAPL",
             name: "Apple Inc.",
             exchange: "NASDAQ",
-            assetType: .stock,
+            assetType: .stock, status: nil,
             currencyCode: "USD"
         )
         XCTAssertEqual(result.displayName, "AAPL - Apple Inc. (NASDAQ)")
@@ -661,15 +661,15 @@ final class StockTests: XCTestCase {
             symbol: "AAPL",
             name: "Apple Inc.",
             exchange: nil,
-            assetType: .stock,
+            assetType: .stock, status: nil,
             currencyCode: "USD"
         )
         XCTAssertEqual(result.displayName, "AAPL - Apple Inc.")
     }
 
     func testStockSearchResult_Hashable() {
-        let result1 = StockSearchResult(symbol: "AAPL", name: "Apple", exchange: nil, assetType: .stock, currencyCode: "USD")
-        let result2 = StockSearchResult(symbol: "MSFT", name: "Microsoft", exchange: nil, assetType: .stock, currencyCode: "USD")
+        let result1 = StockSearchResult(symbol: "AAPL", name: "Apple", exchange: nil, assetType: .stock, status: nil, currencyCode: "USD")
+        let result2 = StockSearchResult(symbol: "MSFT", name: "Microsoft", exchange: nil, assetType: .stock, status: nil, currencyCode: "USD")
 
         var set = Set<StockSearchResult>()
         set.insert(result1)

@@ -49,6 +49,8 @@ enum WebSocketEventName: String, CaseIterable, Sendable {
     case basketValueChanged = "basket_value_changed"
     case tokenExpiring = "token_expiring"
     case tokenRefreshed = "token_refreshed"
+    case serverShutdown = "server_shutdown"
+    case heartbeat = "heartbeat"
 }
 
 struct WebSocketIncomingMessage: Sendable {
@@ -199,6 +201,146 @@ struct WebSocketTokenRefreshedPayload: Decodable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case expiresAt = "expires_at"
+    }
+}
+
+struct WebSocketOrderFillPayload: Decodable, Sendable {
+    let orderId: String
+    let clientOrderId: String?
+    let symbol: String
+    let side: String
+    let filledQty: FlexibleDecimal
+    let filledPrice: FlexibleDecimal
+    let status: String
+    let basketId: String?
+    let dcaScheduleId: String?
+
+    enum CodingKeys: String, CodingKey {
+        case orderId = "order_id"
+        case clientOrderId = "client_order_id"
+        case symbol
+        case side
+        case filledQty = "filled_qty"
+        case filledPrice = "filled_price"
+        case status
+        case basketId = "basket_id"
+        case dcaScheduleId = "dca_schedule_id"
+    }
+}
+
+struct WebSocketPositionUpdatePayload: Decodable, Sendable {
+    let symbol: String
+    let quantity: FlexibleDecimal
+    let marketValueUsd: FlexibleDecimal
+    let marketValueGbp: FlexibleDecimal
+    let unrealizedPnlUsd: FlexibleDecimal
+    let unrealizedPnlGbp: FlexibleDecimal
+    let changePct: FlexibleDecimal?
+
+    enum CodingKeys: String, CodingKey {
+        case symbol
+        case quantity
+        case marketValueUsd = "market_value_usd"
+        case marketValueGbp = "market_value_gbp"
+        case unrealizedPnlUsd = "unrealized_pnl_usd"
+        case unrealizedPnlGbp = "unrealized_pnl_gbp"
+        case changePct = "change_pct"
+    }
+}
+
+struct WebSocketAccountUpdatePayload: Decodable, Sendable {
+    let cashUsd: FlexibleDecimal
+    let cashGbp: FlexibleDecimal
+    let buyingPowerUsd: FlexibleDecimal
+    let portfolioValueUsd: FlexibleDecimal
+    let portfolioValueGbp: FlexibleDecimal
+
+    enum CodingKeys: String, CodingKey {
+        case cashUsd = "cash_usd"
+        case cashGbp = "cash_gbp"
+        case buyingPowerUsd = "buying_power_usd"
+        case portfolioValueUsd = "portfolio_value_usd"
+        case portfolioValueGbp = "portfolio_value_gbp"
+    }
+}
+
+struct WebSocketDCAExecutionPayload: Decodable, Sendable {
+    let scheduleId: String
+    let scheduleName: String
+    let basketId: String
+    let totalAmountGbp: FlexibleDecimal
+    let totalAmountUsd: FlexibleDecimal
+    let status: String
+    let orders: [DCAExecutionOrder]
+    let errorMessage: String?
+
+    struct DCAExecutionOrder: Decodable, Sendable {
+        let symbol: String
+        let amountUsd: FlexibleDecimal
+        let status: String
+
+        enum CodingKeys: String, CodingKey {
+            case symbol
+            case amountUsd = "amount_usd"
+            case status
+        }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case scheduleId = "schedule_id"
+        case scheduleName = "schedule_name"
+        case basketId = "basket_id"
+        case totalAmountGbp = "total_amount_gbp"
+        case totalAmountUsd = "total_amount_usd"
+        case status
+        case orders
+        case errorMessage = "error_message"
+    }
+}
+
+struct WebSocketTransferPayload: Decodable, Sendable {
+    let transferId: String
+    let direction: String
+    let amount: FlexibleDecimal
+    let currency: String
+    let status: String
+
+    enum CodingKeys: String, CodingKey {
+        case transferId = "transfer_id"
+        case direction
+        case amount
+        case currency
+        case status
+    }
+}
+
+struct WebSocketFXRatePayload: Decodable, Sendable {
+    let pair: String
+    let rate: FlexibleDecimal
+    let previousRate: FlexibleDecimal?
+    let changePct: FlexibleDecimal?
+
+    enum CodingKeys: String, CodingKey {
+        case pair
+        case rate
+        case previousRate = "previous_rate"
+        case changePct = "change_pct"
+    }
+}
+
+struct WebSocketBasketValuePayload: Decodable, Sendable {
+    let basketId: String
+    let currentValue: FlexibleDecimal
+    let totalInvested: FlexibleDecimal
+    let totalGainLoss: FlexibleDecimal
+    let changePct: FlexibleDecimal?
+
+    enum CodingKeys: String, CodingKey {
+        case basketId = "basket_id"
+        case currentValue = "current_value"
+        case totalInvested = "total_invested"
+        case totalGainLoss = "total_gain_loss"
+        case changePct = "change_pct"
     }
 }
 

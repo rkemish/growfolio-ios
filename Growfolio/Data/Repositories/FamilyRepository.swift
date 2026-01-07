@@ -59,6 +59,12 @@ protocol FamilyRepositoryProtocol: Sendable {
     /// Get family goals overview
     func getFamilyGoals() async throws -> FamilyGoalsOverview
 
+    /// Get family member accounts
+    func getFamilyAccounts() async throws -> [FamilyAccount]
+
+    /// Create a new family member account
+    func createFamilyAccount(name: String, relationship: String, email: String?) async throws -> FamilyAccount
+
     /// Invalidate cached data
     func invalidateCache() async
 }
@@ -242,6 +248,27 @@ final class FamilyRepository: FamilyRepositoryProtocol, @unchecked Sendable {
 
     func getFamilyGoals() async throws -> FamilyGoalsOverview {
         return try await apiClient.request(Endpoints.GetFamilyGoals())
+    }
+
+    // MARK: - Get Family Accounts
+
+    func getFamilyAccounts() async throws -> [FamilyAccount] {
+        return try await apiClient.request(Endpoints.GetFamilyAccounts())
+    }
+
+    // MARK: - Create Family Account
+
+    func createFamilyAccount(name: String, relationship: String, email: String?) async throws -> FamilyAccount {
+        let request = FamilyAccountCreateRequest(
+            name: name,
+            relationship: relationship,
+            email: email
+        )
+        let account: FamilyAccount = try await apiClient.request(
+            try Endpoints.CreateFamilyAccount(account: request)
+        )
+        await invalidateCache()
+        return account
     }
 
     // MARK: - Cache

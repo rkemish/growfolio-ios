@@ -17,6 +17,8 @@ struct AppleTokenExchangeResponse: Decodable, Sendable {
     let userId: String
     let email: String?
     let name: String?
+    let isNewUser: Bool
+    let alpacaAccountId: String?
     let alpacaAccountStatus: String?
 }
 

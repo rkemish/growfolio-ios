@@ -374,6 +374,7 @@ enum MockStockDataProvider {
                     name: profile.name,
                     exchange: "NASDAQ",
                     assetType: profile.assetType,
+                    status: nil,
                     currencyCode: "USD"
                 )
             }

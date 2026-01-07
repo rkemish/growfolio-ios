@@ -210,13 +210,15 @@ extension View {
     ///   - position: Where toasts should appear (default: top)
     ///   - toastManager: The toast manager to use (default: shared)
     /// - Returns: Modified view with toast overlay
+    @MainActor
     func toastOverlay(
         position: ToastPosition = .top,
-        toastManager: ToastManager = .shared
+        toastManager: ToastManager? = nil
     ) -> some View {
-        self.overlay {
+        let manager = toastManager ?? ToastManager.shared
+        return self.overlay {
             ToastContainerView(position: position)
-                .environment(toastManager)
+                .environment(manager)
         }
     }
 }

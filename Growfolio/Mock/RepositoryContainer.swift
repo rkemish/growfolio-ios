@@ -51,6 +51,16 @@ enum RepositoryContainer {
         return DCARepository()
     }
 
+    // MARK: - Basket Repository
+
+    /// Provides the appropriate BasketRepository implementation
+    static var basketRepository: BasketRepositoryProtocol {
+        if MockConfiguration.shared.isEnabled {
+            return MockBasketRepository()
+        }
+        return BasketRepository()
+    }
+
     // MARK: - Goal Repository
 
     /// Provides the appropriate GoalRepository implementation
@@ -124,6 +134,11 @@ extension RepositoryContainer {
     /// Creates a mock DCA repository for SwiftUI previews
     static var previewDCARepository: DCARepositoryProtocol {
         MockDCARepository()
+    }
+
+    /// Creates a mock basket repository for SwiftUI previews
+    static var previewBasketRepository: BasketRepositoryProtocol {
+        MockBasketRepository()
     }
 
     /// Creates a mock goal repository for SwiftUI previews

@@ -293,6 +293,15 @@ struct StockQuote: Codable, Sendable, Equatable {
     }
 }
 
+// MARK: - Stock Price
+
+/// Simple price data for a stock
+struct StockPrice: Codable, Sendable, Equatable {
+    let symbol: String
+    let price: Decimal
+    let timestamp: Date
+}
+
 // MARK: - Stock History
 
 /// Historical price data for a stock
@@ -356,6 +365,7 @@ struct StockSearchResult: Identifiable, Codable, Sendable, Equatable, Hashable {
     let name: String
     let exchange: String?
     let assetType: AssetType
+    let status: String?
     let currencyCode: String?
 
     var displayName: String {
@@ -527,7 +537,6 @@ struct MarketHours: Codable, Sendable {
 
     /// Static fallback for when API is unavailable
     static func fallback() -> MarketHours {
-        let calendar = Calendar.current
         let now = Date()
 
         // Create a timezone for New York
@@ -589,10 +598,13 @@ struct StockOrder: Identifiable, Codable, Sendable, Equatable {
     let side: OrderSide
     let type: OrderType
     let status: OrderStatus
+    let timeInForce: TimeInForce?
     let notional: Decimal?
     let quantity: Decimal?
     let filledQuantity: Decimal?
     let filledAvgPrice: Decimal?
+    let limitPrice: Decimal?
+    let stopPrice: Decimal?
     let submittedAt: Date
     let filledAt: Date?
     let cancelledAt: Date?
@@ -605,10 +617,13 @@ struct StockOrder: Identifiable, Codable, Sendable, Equatable {
         case side
         case type
         case status
+        case timeInForce
         case notional
         case quantity = "qty"
         case filledQuantity = "filledQty"
         case filledAvgPrice
+        case limitPrice
+        case stopPrice
         case submittedAt
         case filledAt
         case cancelledAt
@@ -631,6 +646,27 @@ enum OrderType: String, Codable, Sendable {
     case stopLimit = "stop_limit"
 }
 
+/// Time in force for orders
+enum TimeInForce: String, Codable, Sendable {
+    case day
+    case gtc
+    case ioc
+    case fok
+}
+
+/// Request model for submitting an order
+struct SubmitOrderRequest: Encodable, Sendable {
+    let symbol: String
+    let side: OrderSide
+    let type: OrderType
+    let timeInForce: TimeInForce
+    let qty: Decimal?
+    let notional: Decimal?
+    let limitPrice: Decimal?
+    let stopPrice: Decimal?
+    let clientOrderId: String?
+}
+
 /// Order status
 enum OrderStatus: String, Codable, Sendable {
     case new
@@ -639,8 +675,10 @@ enum OrderStatus: String, Codable, Sendable {
     case acceptedForBidding = "accepted_for_bidding"
     case filled
     case partiallyFilled = "partially_filled"
+    case doneForDay = "done_for_day"
     case cancelled = "canceled"
     case expired
+    case replaced
     case rejected
     case pendingCancel = "pending_cancel"
     case pendingReplace = "pending_replace"
@@ -656,10 +694,14 @@ enum OrderStatus: String, Codable, Sendable {
             return "Filled"
         case .partiallyFilled:
             return "Partially Filled"
+        case .doneForDay:
+            return "Done for Day"
         case .cancelled:
             return "Cancelled"
         case .expired:
             return "Expired"
+        case .replaced:
+            return "Replaced"
         case .rejected:
             return "Rejected"
         case .pendingCancel:

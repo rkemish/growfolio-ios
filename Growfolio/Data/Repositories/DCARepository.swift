@@ -219,7 +219,7 @@ final class DCARepository: DCARepositoryProtocol, @unchecked Sendable {
     func fetchExecutions(for scheduleId: String, page: Int, limit: Int) async throws -> PaginatedResponse<DCAExecution> {
         // The backend returns execution history as part of schedule
         // For now, create a paginated response from the schedule's execution data
-        let schedule = try await fetchSchedule(id: scheduleId)
+        _ = try await fetchSchedule(id: scheduleId)
 
         // This would need a dedicated endpoint in the backend
         // For now, return empty

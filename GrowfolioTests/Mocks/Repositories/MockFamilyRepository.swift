@@ -55,6 +55,13 @@ final class MockFamilyRepository: FamilyRepositoryProtocol, @unchecked Sendable 
     var leaveFamilyCalled = false
     var getFamilyGoalsCalled = false
     var invalidateCacheCalled = false
+    var getFamilyAccountsCalled = false
+    var familyAccountsToReturn: [FamilyAccount] = []
+    var createFamilyAccountCalled = false
+    var lastCreateAccountName: String?
+    var lastCreateAccountRelationship: String?
+    var lastCreateAccountEmail: String?
+    var familyAccountToReturn: FamilyAccount?
 
     // MARK: - Reset
 
@@ -99,6 +106,13 @@ final class MockFamilyRepository: FamilyRepositoryProtocol, @unchecked Sendable 
         leaveFamilyCalled = false
         getFamilyGoalsCalled = false
         invalidateCacheCalled = false
+        getFamilyAccountsCalled = false
+        familyAccountsToReturn = []
+        createFamilyAccountCalled = false
+        lastCreateAccountName = nil
+        lastCreateAccountRelationship = nil
+        lastCreateAccountEmail = nil
+        familyAccountToReturn = nil
     }
 
     // MARK: - FamilyRepositoryProtocol Implementation
@@ -282,6 +296,34 @@ final class MockFamilyRepository: FamilyRepositoryProtocol, @unchecked Sendable 
             totalTargetAmount: 0,
             totalCurrentAmount: 0,
             memberGoals: []
+        )
+    }
+
+    func getFamilyAccounts() async throws -> [FamilyAccount] {
+        getFamilyAccountsCalled = true
+        if let error = errorToThrow { throw error }
+        return familyAccountsToReturn
+    }
+
+    func createFamilyAccount(name: String, relationship: String, email: String?) async throws -> FamilyAccount {
+        createFamilyAccountCalled = true
+        lastCreateAccountName = name
+        lastCreateAccountRelationship = relationship
+        lastCreateAccountEmail = email
+        if let error = errorToThrow { throw error }
+        if let account = familyAccountToReturn { return account }
+        return FamilyAccount(
+            id: "facct-123",
+            primaryUserId: "user-1",
+            memberUserId: "user-2",
+            name: name,
+            email: email,
+            relationship: FamilyRelationship(rawValue: relationship) ?? .other,
+            role: .viewer,
+            permissions: .viewOnly,
+            status: .active,
+            createdAt: Date(),
+            updatedAt: Date()
         )
     }
 

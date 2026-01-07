@@ -226,6 +226,64 @@ enum Endpoints {
         }
     }
 
+    // MARK: - Basket Endpoints
+
+    struct GetBaskets: Endpoint {
+        let path = "/\(Constants.API.version)/baskets"
+        let method: HTTPMethod = .get
+    }
+
+    struct GetBasket: Endpoint {
+        let path: String
+        let method: HTTPMethod = .get
+
+        init(id: String) {
+            self.path = "/\(Constants.API.version)/baskets/\(id)"
+        }
+    }
+
+    struct CreateBasket: Endpoint {
+        let path = "/\(Constants.API.version)/baskets"
+        let method: HTTPMethod = .post
+        let body: Data?
+
+        init(basket: BasketCreate) throws {
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            self.body = try encoder.encode(basket)
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    struct UpdateBasket: Endpoint {
+        let path: String
+        let method: HTTPMethod = .patch
+        let body: Data?
+
+        init(id: String, basket: BasketCreate) throws {
+            self.path = "/\(Constants.API.version)/baskets/\(id)"
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            self.body = try encoder.encode(basket)
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    struct DeleteBasket: Endpoint {
+        let path: String
+        let method: HTTPMethod = .delete
+
+        init(id: String) {
+            self.path = "/\(Constants.API.version)/baskets/\(id)"
+        }
+    }
+
     // MARK: - DCA Endpoints
 
     struct GetDCASchedules: Endpoint {

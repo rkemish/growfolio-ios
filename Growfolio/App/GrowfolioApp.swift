@@ -168,26 +168,33 @@ struct MainTabView: View {
                 }
                 .tag(1)
 
+            // Baskets - Custom stock groups with allocations
+            BasketsListView()
+                .tabItem {
+                    Label("Baskets", systemImage: "basket.fill")
+                }
+                .tag(2)
+
             // Dollar-Cost Averaging - Investment automation
             DCASchedulesView()
                 .tabItem {
                     Label("DCA", systemImage: "arrow.triangle.2.circlepath")
                 }
-                .tag(2)
+                .tag(3)
 
             // Portfolio - Holdings and performance tracking
             PortfolioView()
                 .tabItem {
                     Label("Portfolio", systemImage: "briefcase.fill")
                 }
-                .tag(3)
+                .tag(4)
 
             // Settings - App configuration and account management
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gearshape.fill")
                 }
-                .tag(4)
+                .tag(5)
         }
         .task {
             // Establish WebSocket connection when tab view appears

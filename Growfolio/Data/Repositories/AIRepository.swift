@@ -34,6 +34,12 @@ protocol AIRepositoryProtocol: Sendable {
 
     /// Get investing tips
     func fetchInvestingTips() async throws -> [InvestingTip]
+
+    /// Get AI insights for the user's portfolio
+    func getAIInsights() async throws -> PortfolioInsightsResponse
+
+    /// Get AI insights for a specific goal
+    func getGoalInsights(goalId: String) async throws -> PortfolioInsightsResponse
 }
 
 // MARK: - AI Repository Implementation
@@ -175,6 +181,18 @@ final class AIRepository: AIRepositoryProtocol, @unchecked Sendable {
         cachedTipsTime = Date()
 
         return response.tips
+    }
+
+    // MARK: - AI Insights
+
+    func getAIInsights() async throws -> PortfolioInsightsResponse {
+        return try await apiClient.request(Endpoints.GetAIInsights())
+    }
+
+    // MARK: - Goal Insights
+
+    func getGoalInsights(goalId: String) async throws -> PortfolioInsightsResponse {
+        return try await apiClient.request(Endpoints.GetGoalInsights(goalId: goalId))
     }
 
     // MARK: - Cache Management

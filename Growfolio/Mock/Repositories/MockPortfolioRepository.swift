@@ -43,7 +43,7 @@ final class MockPortfolioRepository: PortfolioRepositoryProtocol, @unchecked Sen
         try await simulateNetwork()
         await ensureInitialized()
 
-        var newPortfolio = Portfolio(
+        let newPortfolio = Portfolio(
             id: MockDataGenerator.mockId(prefix: "portfolio"),
             userId: portfolio.userId,
             name: portfolio.name,
@@ -154,7 +154,7 @@ final class MockPortfolioRepository: PortfolioRepositoryProtocol, @unchecked Sen
             throw PortfolioRepositoryError.duplicateHolding(symbol: holding.stockSymbol)
         }
 
-        var newHolding = Holding(
+        let newHolding = Holding(
             id: MockDataGenerator.mockId(prefix: "holding"),
             portfolioId: portfolioId,
             stockSymbol: holding.stockSymbol,
@@ -292,7 +292,7 @@ final class MockPortfolioRepository: PortfolioRepositoryProtocol, @unchecked Sen
     func addLedgerEntry(_ entry: LedgerEntry, to portfolioId: String) async throws -> LedgerEntry {
         try await simulateNetwork()
 
-        var newEntry = LedgerEntry(
+        let newEntry = LedgerEntry(
             id: MockDataGenerator.mockId(prefix: "ledger"),
             portfolioId: portfolioId,
             userId: entry.userId,

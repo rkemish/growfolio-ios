@@ -57,7 +57,7 @@ actor CacheManager: CacheProtocol {
 
     init() {
         memoryCache.totalCostLimit = Constants.Cache.maxCacheSize
-        createCacheDirectoryIfNeeded()
+        Task { await self.createCacheDirectoryIfNeeded() }
     }
 
     // MARK: - CacheProtocol
@@ -323,7 +323,7 @@ actor ImageCache {
 
     init() {
         memoryCache.totalCostLimit = 100 * 1024 * 1024  // 100 MB
-        createCacheDirectoryIfNeeded()
+        Task { await self.createCacheDirectoryIfNeeded() }
     }
 
     // MARK: - Public Methods

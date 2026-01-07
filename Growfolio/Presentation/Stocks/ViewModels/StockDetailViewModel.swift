@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 @Observable
+@MainActor
 final class StockDetailViewModel: @unchecked Sendable {
 
     // MARK: - Properties
@@ -48,7 +49,7 @@ final class StockDetailViewModel: @unchecked Sendable {
     private let stocksRepository: StocksRepositoryProtocol
     private let aiRepository: AIRepositoryProtocol
     private let webSocketService: WebSocketServiceProtocol
-    private var quoteUpdatesTask: Task<Void, Never>?
+    nonisolated(unsafe) private var quoteUpdatesTask: Task<Void, Never>?
     private var isQuoteSubscriptionActive = false
 
     // Symbol
@@ -158,12 +159,16 @@ final class StockDetailViewModel: @unchecked Sendable {
         symbol: String,
         stocksRepository: StocksRepositoryProtocol = RepositoryContainer.stocksRepository,
         aiRepository: AIRepositoryProtocol = RepositoryContainer.aiRepository,
-        webSocketService: WebSocketServiceProtocol = WebSocketService.shared
+        webSocketService: WebSocketServiceProtocol? = nil
     ) {
         self.symbol = symbol.uppercased()
         self.stocksRepository = stocksRepository
         self.aiRepository = aiRepository
-        self.webSocketService = webSocketService
+        if let webSocketService {
+            self.webSocketService = webSocketService
+        } else {
+            self.webSocketService = WebSocketService.shared
+        }
     }
 
     // MARK: - Data Loading
