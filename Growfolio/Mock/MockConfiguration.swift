@@ -96,6 +96,53 @@ final class MockConfiguration: @unchecked Sendable {
         errorRate = 0
     }
 
+    // MARK: - Launch Arguments
+
+    /// Whether UI testing mode is enabled via launch arguments
+    private(set) var isUITesting: Bool = false
+
+    /// Whether to reset onboarding state
+    private(set) var shouldResetOnboarding: Bool = false
+
+    /// Whether to skip onboarding and go directly to auth
+    private(set) var shouldSkipOnboarding: Bool = false
+
+    /// Whether to skip directly to main app (bypass onboarding, auth, KYC)
+    private(set) var shouldSkipToMain: Bool = false
+
+    /// Process launch arguments for UI testing support
+    /// Call this early in app startup (e.g., AppDelegate.didFinishLaunching)
+    func processLaunchArguments() {
+        let arguments = ProcessInfo.processInfo.arguments
+
+        // Check for UI testing mode
+        if arguments.contains("--uitesting") {
+            isUITesting = true
+            configureForTesting()
+        }
+
+        // Check for mock mode
+        if arguments.contains("--mock-mode") {
+            _isEnabled = true
+        }
+
+        // Check for onboarding reset
+        if arguments.contains("--reset-onboarding") {
+            shouldResetOnboarding = true
+        }
+
+        // Check for skip onboarding
+        if arguments.contains("--skip-onboarding") {
+            shouldSkipOnboarding = true
+        }
+
+        // Check for skip to main
+        if arguments.contains("--skip-to-main") {
+            shouldSkipToMain = true
+            _isEnabled = true  // Skip to main requires mock mode
+        }
+    }
+
     /// Simulate network delay if configured
     func simulateNetworkDelay() async throws {
         if networkDelay > 0 {

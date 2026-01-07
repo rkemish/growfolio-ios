@@ -35,6 +35,20 @@
                ReferencedContainer = "container:Growfolio.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6AE3CA1C61BD7B69111B0801"
+               BuildableName = "GrowfolioUITests.xctest"
+               BlueprintName = "GrowfolioUITests"
+               ReferencedContainer = "container:Growfolio.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -61,6 +75,17 @@
                BlueprintIdentifier = "D04D158D0286C6A2F1F77B59"
                BuildableName = "GrowfolioTests.xctest"
                BlueprintName = "GrowfolioTests"
+               ReferencedContainer = "container:Growfolio.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6AE3CA1C61BD7B69111B0801"
+               BuildableName = "GrowfolioUITests.xctest"
+               BlueprintName = "GrowfolioUITests"
                ReferencedContainer = "container:Growfolio.xcodeproj">
             </BuildableReference>
          </TestableReference>

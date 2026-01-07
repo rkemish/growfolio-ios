@@ -59,15 +59,15 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         print("Failed to register for remote notifications: \(error.localizedDescription)")
     }
 
-    // MARK: - URL Handling (Auth0 callback)
+    // MARK: - URL Handling
 
     func application(
         _ app: UIApplication,
         open url: URL,
         options: [UIApplication.OpenURLOptionsKey: Any] = [:]
     ) -> Bool {
-        // Handle Auth0 callback URLs
-        return AuthService.shared.handleCallback(url: url)
+        // No custom URL handling for Apple Sign In
+        return false
     }
 
     // MARK: - Background Tasks
@@ -85,6 +85,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     // MARK: - Private Methods
 
     private func configureServices() {
+        // Process launch arguments first (for UI testing support)
+        MockConfiguration.shared.processLaunchArguments()
+
         // Initialize core services
         configureLogging()
         configureAnalytics()
@@ -132,12 +135,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     }
 
     private func registerDeviceToken(_ token: String) async {
+        guard !MockConfiguration.shared.isEnabled else { return }
         // Send device token to backend for push notifications
         do {
-            let client = APIClient.shared
-            try await client.request(
-                Endpoints.registerDevice(token: token)
-            )
+            try await RepositoryContainer.userRepository.registerDeviceToken(token)
         } catch {
             print("Failed to register device token: \(error)")
         }

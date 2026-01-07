@@ -15,10 +15,7 @@ settings:
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
 
-packages:
-  Auth0:
-    url: https://github.com/auth0/Auth0.swift
-    from: "2.5.0"
+packages: {}
 
 targets:
   Growfolio:
@@ -46,8 +43,7 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_EMIT_LOC_STRINGS: YES
-    dependencies:
-      - package: Auth0
+    dependencies: []
 
   GrowfolioTests:
     type: bundle.unit-test
@@ -63,18 +59,34 @@ targets:
     dependencies:
       - target: Growfolio
 
+  GrowfolioUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: GrowfolioUITests
+        excludes:
+          - "**/.DS_Store"
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.growfolio.uitests
+    dependencies:
+      - target: Growfolio
+
 schemes:
   Growfolio:
     build:
       targets:
         Growfolio: all
         GrowfolioTests: [test]
+        GrowfolioUITests: [test]
     run:
       config: Debug
     test:
       config: Debug
       targets:
         - GrowfolioTests
+        - GrowfolioUITests
     profile:
       config: Release
     analyze:
