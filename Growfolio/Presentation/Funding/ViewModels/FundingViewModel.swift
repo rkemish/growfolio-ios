@@ -50,6 +50,8 @@ final class FundingViewModel: @unchecked Sendable {
 
     // Repository
     private let repository: FundingRepositoryProtocol
+    private let webSocketService: WebSocketServiceProtocol
+    private var transferUpdatesTask: Task<Void, Never>?
 
     // MARK: - Computed Properties
 
@@ -153,8 +155,16 @@ final class FundingViewModel: @unchecked Sendable {
 
     // MARK: - Initialization
 
-    init(repository: FundingRepositoryProtocol = RepositoryContainer.fundingRepository) {
+    init(
+        repository: FundingRepositoryProtocol = RepositoryContainer.fundingRepository,
+        webSocketService: WebSocketServiceProtocol = WebSocketService.shared
+    ) {
         self.repository = repository
+        self.webSocketService = webSocketService
+    }
+
+    deinit {
+        transferUpdatesTask?.cancel()
     }
 
     // MARK: - Data Loading
@@ -187,6 +197,8 @@ final class FundingViewModel: @unchecked Sendable {
         }
 
         isLoading = false
+
+        startTransferUpdatesIfNeeded()
     }
 
     @MainActor
@@ -209,6 +221,23 @@ final class FundingViewModel: @unchecked Sendable {
             fxRate = try await repository.fetchFXRate()
         } catch {
             self.error = error
+        }
+    }
+
+    @MainActor
+    private func startTransferUpdatesIfNeeded() {
+        guard transferUpdatesTask == nil else { return }
+
+        transferUpdatesTask = Task { [weak self] in
+            guard let self else { return }
+
+            await webSocketService.subscribe(channels: [.transfers])
+
+            let stream = await webSocketService.eventUpdates()
+            for await event in stream {
+                guard event.name == .transferComplete || event.name == .transferFailed else { continue }
+                await refreshFundingData()
+            }
         }
     }
 

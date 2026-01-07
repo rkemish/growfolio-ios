@@ -14,7 +14,7 @@ final class StockDetailViewModelTests: XCTestCase {
     // MARK: - Properties
 
     var mockStocksRepository: MockStocksRepository!
-    var mockAPIClient: MockAPIClient!
+    var mockAIRepository: StubAIRepository!
     var sut: StockDetailViewModel!
 
     // MARK: - Setup & Teardown
@@ -22,17 +22,17 @@ final class StockDetailViewModelTests: XCTestCase {
     override func setUp() {
         super.setUp()
         mockStocksRepository = MockStocksRepository()
-        mockAPIClient = MockAPIClient()
+        mockAIRepository = StubAIRepository()
         sut = StockDetailViewModel(
             symbol: "AAPL",
             stocksRepository: mockStocksRepository,
-            apiClient: mockAPIClient
+            aiRepository: mockAIRepository
         )
     }
 
     override func tearDown() {
         mockStocksRepository = nil
-        mockAPIClient = nil
+        mockAIRepository = nil
         sut = nil
         super.tearDown()
     }
@@ -57,7 +57,7 @@ final class StockDetailViewModelTests: XCTestCase {
         let lowercaseSut = StockDetailViewModel(
             symbol: "aapl",
             stocksRepository: mockStocksRepository,
-            apiClient: mockAPIClient
+            aiRepository: mockAIRepository
         )
 
         XCTAssertEqual(lowercaseSut.symbol, "AAPL")
@@ -344,14 +344,11 @@ final class StockDetailViewModelTests: XCTestCase {
     // MARK: - Load AI Explanation Tests
 
     func test_loadAIExplanation_setsIsLoadingExplanation() async {
-        let response = AIExplanationResponse(
+        let response = StockExplanation(
             symbol: "AAPL",
-            explanation: "Apple is a leading tech company.",
-            pros: nil,
-            cons: nil,
-            riskLevel: nil
+            explanation: "Apple is a leading tech company."
         )
-        mockAPIClient.setResponse(response, for: Endpoints.GetStockExplanation.self)
+        mockAIRepository.explanationToReturn = response
 
         await sut.loadAIExplanation()
 
@@ -360,14 +357,11 @@ final class StockDetailViewModelTests: XCTestCase {
     }
 
     func test_loadAIExplanation_setsExplanation() async {
-        let response = AIExplanationResponse(
+        let response = StockExplanation(
             symbol: "AAPL",
-            explanation: "Apple is a leading tech company.",
-            pros: nil,
-            cons: nil,
-            riskLevel: nil
+            explanation: "Apple is a leading tech company."
         )
-        mockAPIClient.setResponse(response, for: Endpoints.GetStockExplanation.self)
+        mockAIRepository.explanationToReturn = response
 
         await sut.loadAIExplanation()
 
@@ -379,11 +373,11 @@ final class StockDetailViewModelTests: XCTestCase {
 
         await sut.loadAIExplanation()
 
-        XCTAssertTrue(mockAPIClient.requestsMade.isEmpty)
+        XCTAssertEqual(mockAIRepository.fetchExplanationCallCount, 0)
     }
 
     func test_loadAIExplanation_setsErrorOnFailure() async {
-        mockAPIClient.setError(NetworkError.serverError(statusCode: 500, message: nil), for: Endpoints.GetStockExplanation.self)
+        mockAIRepository.errorToThrow = NetworkError.serverError(statusCode: 500, message: nil)
 
         await sut.loadAIExplanation()
 
@@ -551,5 +545,50 @@ final class StockDetailViewModelTests: XCTestCase {
         await sut.loadStock()
 
         XCTAssertNil(sut.dividendYield)
+    }
+}
+
+// MARK: - Test Doubles
+
+final class StubAIRepository: AIRepositoryProtocol {
+    var explanationToReturn = StockExplanation(symbol: "AAPL", explanation: "Mock explanation")
+    var errorToThrow: Error?
+    private(set) var fetchExplanationCallCount = 0
+
+    func sendMessage(
+        _ message: String,
+        conversationHistory: [ChatMessage],
+        includePortfolioContext: Bool
+    ) async throws -> ChatMessage {
+        ChatMessage.assistant("Mock response")
+    }
+
+    func fetchInsights(includeGoals: Bool) async throws -> PortfolioInsightsResponse {
+        PortfolioInsightsResponse(insights: [])
+    }
+
+    func fetchStockExplanation(symbol: String) async throws -> StockExplanation {
+        fetchExplanationCallCount += 1
+        if let errorToThrow {
+            throw errorToThrow
+        }
+        return explanationToReturn
+    }
+
+    func fetchAllocationSuggestion(
+        investmentAmount: Decimal,
+        riskTolerance: RiskTolerance,
+        timeHorizon: TimeHorizon
+    ) async throws -> AllocationSuggestion {
+        AllocationSuggestion(
+            suggestion: "Mock suggestion",
+            investmentAmount: investmentAmount,
+            riskTolerance: riskTolerance,
+            timeHorizon: timeHorizon
+        )
+    }
+
+    func fetchInvestingTips() async throws -> [InvestingTip] {
+        []
     }
 }

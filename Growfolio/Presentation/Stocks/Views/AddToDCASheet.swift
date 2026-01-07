@@ -29,7 +29,7 @@ struct AddToDCASheet: View {
     init(
         symbol: String,
         stockName: String? = nil,
-        dcaRepository: DCARepositoryProtocol = DCARepository(),
+        dcaRepository: DCARepositoryProtocol = RepositoryContainer.dcaRepository,
         onDismiss: @escaping () -> Void
     ) {
         self.symbol = symbol

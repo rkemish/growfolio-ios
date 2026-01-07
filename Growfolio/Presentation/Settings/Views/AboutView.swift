@@ -382,12 +382,6 @@ private struct OpenSourceLicensesView: View {
 
                 Section("Dependencies") {
                     licenseRow(
-                        name: "Auth0.swift",
-                        license: "MIT License",
-                        url: "https://github.com/auth0/Auth0.swift"
-                    )
-
-                    licenseRow(
                         name: "Kingfisher",
                         license: "MIT License",
                         url: "https://github.com/onevcat/Kingfisher"

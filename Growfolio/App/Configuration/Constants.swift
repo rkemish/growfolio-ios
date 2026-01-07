@@ -267,5 +267,8 @@ enum Constants {
 
         /// Notification settings key
         static let notificationSettings = "notificationSettings"
+
+        /// Mock mode toggle key
+        static let useMockData = "useMockData"
     }
 }

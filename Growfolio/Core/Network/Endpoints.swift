@@ -41,6 +41,25 @@ extension Endpoint {
 /// All available API endpoints
 enum Endpoints {
 
+    // MARK: - Auth Endpoints
+
+    struct ExchangeAppleToken: Endpoint {
+        let path = "/\(Constants.API.version)/auth/token"
+        let method: HTTPMethod = .post
+        let body: Data?
+        let requiresAuthentication = false
+
+        init(request: AppleTokenExchangeRequest) throws {
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            self.body = try encoder.encode(request)
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
     // MARK: - User Endpoints
 
     struct GetCurrentUser: Endpoint {

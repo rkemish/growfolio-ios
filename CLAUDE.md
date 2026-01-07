@@ -8,103 +8,115 @@ Growfolio iOS is a Dollar Cost Averaging (DCA) investment app for international 
 
 ## Common Commands
 
-### Build and Run
-
 ```bash
-# Build the project using Swift Package Manager
+# Build
 swift build
 
-# Run tests
+# Run all tests
 swift test
 
-# Build with Xcode (if .xcodeproj exists)
+# Run a single test file
+swift test --filter DashboardViewModelTests
+
+# Run a specific test method
+swift test --filter DashboardViewModelTests.test_loadDashboardData_loadsPortfolioSummary
+
+# Build with Xcode
 xcodebuild -project Growfolio.xcodeproj -scheme Growfolio -configuration Debug build
 
-# Run tests with Xcode
-xcodebuild -project Growfolio.xcodeproj -scheme Growfolio -configuration Debug test -destination 'platform=iOS Simulator,name=iPhone 15'
+# Run tests with Xcode (for iOS-specific tests)
+xcodebuild -project Growfolio.xcodeproj -scheme Growfolio test -destination 'platform=iOS Simulator,name=iPhone 15'
+
+# Regenerate Xcode project from project.yml (requires xcodegen)
+xcodegen generate
 
 # Open in Xcode
 open Growfolio.xcodeproj
-
-# Generate Xcode project from project.yml (requires xcodegen)
-xcodegen generate
-```
-
-### Code Quality
-
-```bash
-# Run SwiftLint (if configured)
-swiftlint lint
-
-# Auto-fix SwiftLint issues
-swiftlint lint --fix
 ```
 
 ## Architecture
 
-The app follows Clean Architecture with MVVM presentation pattern:
+Clean Architecture with MVVM. The codebase is organized into layers:
 
-### Directory Structure
-
-- **App/**: Entry point (`AppDelegate.swift`) and app configuration
-  - `Configuration/`: Environment constants and settings
-
-- **Core/**: Shared infrastructure and utilities
-  - `Network/`: `APIClient` (async/await HTTP client), `AuthInterceptor` (token refresh), `NetworkError`
-  - `Authentication/`: Auth0 integration, `TokenManager`, `BiometricAuth`
-  - `Extensions/`: Swift type extensions
-
-- **Domain/**: Business layer (pure Swift, no external dependencies)
-  - `Models/`: Domain entities (`User`, `Portfolio`, `Holding`, `DCASchedule`, `LedgerEntry`)
-  - `Repositories/Protocols/`: Repository interfaces
-  - `UseCases/`: Business logic use cases
-
-- **Data/**: Data layer implementation
-  - `Repositories/`: Concrete repository implementations
-  - `DTOs/`: Data transfer objects for API communication
-  - `Mappers/`: DTO to Domain model mappers
-
-- **Presentation/**: UI layer (SwiftUI + ViewModels)
-  - `Dashboard/`: Main dashboard view
-  - `Goals/`: Investment goals management
-  - `DCA/`: Dollar cost averaging schedule management
-  - `Portfolio/`: Holdings and positions view
-  - `Family/`: Family account management
-  - `StockDetails/`: Individual stock information
-  - `AIInsights/`: AI-powered investment insights
-  - `Settings/`: App settings and preferences
-
-- **Resources/**: Assets, localization strings, and other resources
+```
+Growfolio/
+├── App/                    # Entry point and configuration
+│   └── Configuration/      # Environment, Constants
+├── Core/                   # Shared infrastructure
+│   ├── Network/            # APIClient (actor), AuthInterceptor, Endpoints
+│   ├── Authentication/     # Apple Sign In integration, TokenManager
+│   └── Extensions/         # Swift type extensions
+├── Domain/                 # Pure Swift business layer
+│   ├── Models/             # Domain entities (Codable, Sendable)
+│   └── Repositories/Protocols/  # Repository interfaces
+├── Data/                   # API layer
+│   └── Repositories/       # Protocol implementations using APIClient
+├── Mock/                   # Mock mode for development/previews
+│   ├── Repositories/       # Mock repository implementations
+│   ├── Generators/         # MockDataGenerator, MockDataStore
+│   └── RepositoryContainer.swift  # DI container switching real/mock
+└── Presentation/           # SwiftUI views and ViewModels
+    └── {Feature}/
+        ├── Views/          # SwiftUI views
+        └── ViewModels/     # @Observable ViewModels
+```
 
 ### Key Patterns
 
-1. **Repository Pattern**: ViewModels depend on repository protocols, enabling easy testing with mocks
+**RepositoryContainer**: Central DI container that provides repository instances. Switches between real and mock implementations based on `MockConfiguration.shared.isEnabled`:
+```swift
+// In ViewModel init (default parameters enable DI)
+init(portfolioRepository: PortfolioRepositoryProtocol = RepositoryContainer.portfolioRepository) { ... }
+```
 
-2. **Dependency Injection**: Repositories are injected into ViewModels, with mock implementations in tests
+**ViewModel Pattern**: All ViewModels use `@Observable` macro with `@MainActor` for async methods:
+```swift
+@Observable
+final class DashboardViewModel: @unchecked Sendable {
+    @MainActor
+    func loadData() async { ... }
+}
+```
 
-3. **Async/Await**: All network operations use Swift concurrency
+**APIClient**: An `actor` that handles all network requests with automatic token refresh and retry logic. Uses `Endpoint` structs for request configuration.
 
-4. **Observable Macro**: ViewModels use `@Observable` for reactive UI updates
+**TestFixtures**: Factory enum in `GrowfolioTests/Mocks/Helpers/TestFixtures.swift` provides consistent test data for all domain models.
 
 ## Code Style
 
-- **Swift Version**: Swift 6
-- **Minimum iOS**: iOS 17+
-- **UI Framework**: SwiftUI with `@Observable` macro
-- **JSON Decoding**: Uses `.convertFromSnakeCase` key decoding strategy
-- **Naming**: Swift standard conventions (camelCase for properties/methods, PascalCase for types)
-- **Error Handling**: Use `Result` types and structured error enums
-
-## API Connection
-
-The app connects to the Growfolio API backend:
-- Authentication via Auth0 JWT tokens
-- Token refresh handled automatically by `AuthInterceptor`
-- API base URL configured in `Constants.swift`
+- **iOS 17+**, Swift 5.9 (Package.swift), Xcode 16 (project.yml)
+- **SwiftUI** with `@Observable` macro (not ObservableObject)
+- **JSON**: `.convertFromSnakeCase` for decoding, `.convertToSnakeCase` for encoding
+- **Concurrency**: async/await with `@MainActor` for UI updates, `Sendable` conformance on models
+- **Naming**: Swift conventions (camelCase properties, PascalCase types)
 
 ## Testing
 
-Tests are located in `GrowfolioTests/`:
-- Unit tests for ViewModels with mock repositories
-- Mock implementations in `Mocks/` directory
-- Run with `swift test` or Xcode Test Navigator
+Tests in `GrowfolioTests/` mirror the main target structure:
+
+- `ViewModels/`: ViewModel tests with injected mock repositories
+- `Models/`: Domain model tests (encoding/decoding, computed properties)
+- `Repositories/`: Repository tests with MockAPIClient
+- `Mocks/`: Mock implementations and TestFixtures
+
+Test pattern for ViewModels:
+```swift
+@MainActor
+final class DashboardViewModelTests: XCTestCase {
+    var mockPortfolioRepository: MockPortfolioRepository!
+    var sut: DashboardViewModel!
+
+    override func setUp() {
+        mockPortfolioRepository = MockPortfolioRepository()
+        sut = DashboardViewModel(portfolioRepository: mockPortfolioRepository)
+    }
+}
+```
+
+## Mock Mode
+
+The app supports a mock mode for development without backend:
+- Toggle via `MockConfiguration.shared.isEnabled`
+- `MockDataStore` manages shared state across mock repositories
+- `MockDataGenerator` creates realistic test data scenarios
+- SwiftUI previews use `RepositoryContainer.preview*` properties

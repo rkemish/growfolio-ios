@@ -26,6 +26,11 @@ final class WatchlistViewModel: @unchecked Sendable {
 
     // Repository
     private let stocksRepository: StocksRepositoryProtocol
+    private let webSocketService: WebSocketServiceProtocol
+    private var quoteUpdatesTask: Task<Void, Never>?
+    private var connectionObserverTask: Task<Void, Never>?
+    private var subscribedSymbols: Set<String> = []
+    private var previousConnectionState: WebSocketService.ConnectionState = .disconnected
 
     // MARK: - Computed Properties
 
@@ -39,8 +44,18 @@ final class WatchlistViewModel: @unchecked Sendable {
 
     // MARK: - Initialization
 
-    init(stocksRepository: StocksRepositoryProtocol = RepositoryContainer.stocksRepository) {
+    init(
+        stocksRepository: StocksRepositoryProtocol = RepositoryContainer.stocksRepository,
+        webSocketService: WebSocketServiceProtocol = WebSocketService.shared
+    ) {
         self.stocksRepository = stocksRepository
+        self.webSocketService = webSocketService
+        startConnectionObserver()
+    }
+
+    deinit {
+        quoteUpdatesTask?.cancel()
+        connectionObserverTask?.cancel()
     }
 
     // MARK: - Data Loading
@@ -54,6 +69,7 @@ final class WatchlistViewModel: @unchecked Sendable {
 
         do {
             watchlistItems = try await stocksRepository.getWatchlistWithQuotes()
+            await updateQuoteSubscriptions()
         } catch {
             self.error = error
         }
@@ -68,6 +84,7 @@ final class WatchlistViewModel: @unchecked Sendable {
 
         do {
             watchlistItems = try await stocksRepository.getWatchlistWithQuotes()
+            await updateQuoteSubscriptions()
         } catch {
             self.error = error
             ToastManager.shared.showError(
@@ -91,6 +108,7 @@ final class WatchlistViewModel: @unchecked Sendable {
 
             // Remove from local list
             watchlistItems.removeAll { $0.symbol == symbol }
+            await updateQuoteSubscriptions()
 
             ToastManager.shared.showSuccess("Removed from watchlist")
         } catch {
@@ -116,6 +134,105 @@ final class WatchlistViewModel: @unchecked Sendable {
 
     func selectStock(_ symbol: String) {
         selectedSymbol = symbol
+    }
+
+    @MainActor
+    func stopQuoteUpdates() async {
+        quoteUpdatesTask?.cancel()
+        quoteUpdatesTask = nil
+        connectionObserverTask?.cancel()
+        connectionObserverTask = nil
+
+        let symbols = Array(subscribedSymbols)
+        subscribedSymbols.removeAll()
+        if !symbols.isEmpty {
+            await webSocketService.unsubscribeFromQuotes(symbols: symbols)
+        }
+    }
+
+    // MARK: - Connection Observation
+
+    private func startConnectionObserver() {
+        connectionObserverTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            // Use withObservationTracking to observe WebSocketService.shared.connectionState
+            while !Task.isCancelled {
+                let currentState = WebSocketService.shared.connectionState
+
+                // Check for reconnection: transitioning to connected from disconnected/connecting
+                if currentState == .connected && previousConnectionState != .connected {
+                    await resubscribeSymbols()
+                }
+
+                previousConnectionState = currentState
+
+                // Wait for the next state change using observation tracking
+                await withCheckedContinuation { continuation in
+                    withObservationTracking {
+                        _ = WebSocketService.shared.connectionState
+                    } onChange: {
+                        continuation.resume()
+                    }
+                }
+            }
+        }
+    }
+
+    @MainActor
+    private func resubscribeSymbols() async {
+        guard !subscribedSymbols.isEmpty else { return }
+        let symbols = Array(subscribedSymbols)
+        await webSocketService.subscribeToQuotes(symbols: symbols)
+    }
+}
+
+// MARK: - Quote Updates
+
+private extension WatchlistViewModel {
+    @MainActor
+    func updateQuoteSubscriptions() async {
+        let symbols = Set(watchlistItems.map { $0.symbol.uppercased() })
+        let newSymbols = symbols.subtracting(subscribedSymbols)
+        let removedSymbols = subscribedSymbols.subtracting(symbols)
+
+        if !newSymbols.isEmpty {
+            await webSocketService.subscribeToQuotes(symbols: Array(newSymbols))
+        }
+        if !removedSymbols.isEmpty {
+            await webSocketService.unsubscribeFromQuotes(symbols: Array(removedSymbols))
+        }
+
+        subscribedSymbols = symbols
+        if !symbols.isEmpty {
+            startQuoteUpdatesIfNeeded()
+        }
+    }
+
+    @MainActor
+    func startQuoteUpdatesIfNeeded() {
+        guard quoteUpdatesTask == nil else { return }
+
+        quoteUpdatesTask = Task { [weak self] in
+            guard let self else { return }
+            let stream = await webSocketService.quoteUpdates()
+            for await quote in stream {
+                await MainActor.run {
+                    self.applyQuoteUpdate(quote)
+                }
+            }
+        }
+    }
+
+    @MainActor
+    func applyQuoteUpdate(_ quote: StockQuote) {
+        guard let index = watchlistItems.firstIndex(where: { $0.symbol == quote.symbol }) else { return }
+        let currentItem = watchlistItems[index]
+        watchlistItems[index] = WatchlistItemWithQuote(
+            item: currentItem.item,
+            stock: currentItem.stock,
+            quote: quote
+        )
     }
 }
 

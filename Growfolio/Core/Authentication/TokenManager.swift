@@ -47,16 +47,20 @@ actor TokenManager {
     }
 
     var isTokenExpired: Bool {
-        guard let expirationDate = tokenExpirationDate else {
-            return true
-        }
-        // Consider token expired if it expires within the threshold
-        let thresholdDate = Date().addingTimeInterval(Constants.Auth.tokenRefreshThreshold)
-        return expirationDate <= thresholdDate
+        isTokenExpired(threshold: Constants.Auth.tokenRefreshThreshold)
     }
 
     var hasValidTokens: Bool {
         accessToken != nil && !isTokenExpired
+    }
+
+    func isTokenExpired(threshold: TimeInterval) -> Bool {
+        guard let expirationDate = tokenExpirationDate else {
+            return true
+        }
+        // Consider token expired if it expires within the threshold
+        let thresholdDate = Date().addingTimeInterval(threshold)
+        return expirationDate <= thresholdDate
     }
 
     // MARK: - Token Storage
@@ -72,10 +76,14 @@ actor TokenManager {
 
         if let refreshToken = refreshToken {
             keychain.set(refreshToken, forKey: Constants.Auth.refreshTokenKey)
+        } else {
+            keychain.delete(Constants.Auth.refreshTokenKey)
         }
 
         if let idToken = idToken {
             keychain.set(idToken, forKey: Constants.Auth.idTokenKey)
+        } else {
+            keychain.delete(Constants.Auth.idTokenKey)
         }
 
         // Cache tokens in memory

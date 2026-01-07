@@ -40,47 +40,11 @@ enum AppEnvironment: String, CaseIterable, Sendable {
     var websocketURL: URL {
         switch self {
         case .development:
-            return URL(string: "ws://localhost:3000/ws")!
+            return URL(string: "ws://localhost:3000/api/v1/ws")!
         case .staging:
-            return URL(string: "wss://staging-api.growfolio.app/ws")!
+            return URL(string: "wss://staging-api.growfolio.app/api/v1/ws")!
         case .production:
-            return URL(string: "wss://api.growfolio.app/ws")!
-        }
-    }
-
-    /// Auth0 domain for authentication
-    var auth0Domain: String {
-        switch self {
-        case .development:
-            return "growfolio-dev.us.auth0.com"
-        case .staging:
-            return "growfolio-staging.us.auth0.com"
-        case .production:
-            return "growfolio.us.auth0.com"
-        }
-    }
-
-    /// Auth0 client ID
-    var auth0ClientId: String {
-        switch self {
-        case .development:
-            return "dev_client_id_placeholder"
-        case .staging:
-            return "staging_client_id_placeholder"
-        case .production:
-            return "prod_client_id_placeholder"
-        }
-    }
-
-    /// Auth0 audience for API authorization
-    var auth0Audience: String {
-        switch self {
-        case .development:
-            return "https://api.growfolio.dev"
-        case .staging:
-            return "https://api.growfolio.staging"
-        case .production:
-            return "https://api.growfolio.app"
+            return URL(string: "wss://api.growfolio.app/api/v1/ws")!
         }
     }
 
@@ -106,7 +70,7 @@ enum AppEnvironment: String, CaseIterable, Sendable {
             if ProcessInfo.processInfo.arguments.contains("--no-mock-data") {
                 return false
             }
-            return UserDefaults.standard.object(forKey: "useMockData") as? Bool ?? true
+            return UserDefaults.standard.object(forKey: Constants.StorageKeys.useMockData) as? Bool ?? true
         case .staging, .production:
             return false
         }
@@ -202,19 +166,13 @@ struct EnvironmentConfiguration: Sendable {
     let environment: AppEnvironment
     let apiBaseURL: URL
     let websocketURL: URL
-    let auth0Domain: String
-    let auth0ClientId: String
-    let auth0Audience: String
 
     static var current: EnvironmentConfiguration {
         let env = AppEnvironment.current
         return EnvironmentConfiguration(
             environment: env,
             apiBaseURL: env.apiBaseURL,
-            websocketURL: env.websocketURL,
-            auth0Domain: env.auth0Domain,
-            auth0ClientId: env.auth0ClientId,
-            auth0Audience: env.auth0Audience
+            websocketURL: env.websocketURL
         )
     }
 }

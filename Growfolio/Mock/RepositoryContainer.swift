@@ -90,6 +90,16 @@ enum RepositoryContainer {
         }
         return FamilyRepository()
     }
+
+    // MARK: - KYC Repository
+
+    /// Provides the appropriate KYCRepository implementation
+    static var kycRepository: KYCRepositoryProtocol {
+        if MockConfiguration.shared.isEnabled {
+            return MockKYCRepository()
+        }
+        return KYCRepository()
+    }
 }
 
 // MARK: - SwiftUI Preview Support
@@ -134,6 +144,11 @@ extension RepositoryContainer {
     /// Creates a mock family repository for SwiftUI previews
     static var previewFamilyRepository: FamilyRepositoryProtocol {
         MockFamilyRepository()
+    }
+
+    /// Creates a mock KYC repository for SwiftUI previews
+    static var previewKYCRepository: KYCRepositoryProtocol {
+        MockKYCRepository()
     }
 
     /// Initialize mock data for previews

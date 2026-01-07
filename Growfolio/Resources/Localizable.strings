@@ -26,7 +26,7 @@
 
 "auth.signIn" = "Sign In";
 "auth.signOut" = "Sign Out";
-"auth.signInWithAuth0" = "Sign In with Auth0";
+"auth.signInWithApple" = "Sign In with Apple";
 "auth.sessionExpired" = "Your session has expired. Please sign in again.";
 "auth.biometricPrompt" = "Authenticate to access Growfolio";
 

@@ -88,7 +88,7 @@ final class KYCViewModel {
 
     // MARK: - Initialization
 
-    init(repository: KYCRepositoryProtocol = KYCRepository()) {
+    init(repository: KYCRepositoryProtocol = RepositoryContainer.kycRepository) {
         self.repository = repository
     }
 

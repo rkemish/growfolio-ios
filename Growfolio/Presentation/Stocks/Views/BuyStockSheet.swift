@@ -26,8 +26,8 @@ struct BuyStockSheet: View {
         symbol: String,
         stockName: String? = nil,
         currentPriceUSD: Decimal? = nil,
-        stocksRepository: StocksRepositoryProtocol = StocksRepository(),
-        fundingRepository: FundingRepositoryProtocol = FundingRepository(),
+        stocksRepository: StocksRepositoryProtocol = RepositoryContainer.stocksRepository,
+        fundingRepository: FundingRepositoryProtocol = RepositoryContainer.fundingRepository,
         onDismiss: @escaping () -> Void
     ) {
         self.symbol = symbol
