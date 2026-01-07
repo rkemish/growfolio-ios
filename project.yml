@@ -26,6 +26,7 @@ targets:
       - path: Growfolio
         excludes:
           - "**/.DS_Store"
+          - "Docs/**"
     resources:
       - path: Growfolio/Resources
         excludes:

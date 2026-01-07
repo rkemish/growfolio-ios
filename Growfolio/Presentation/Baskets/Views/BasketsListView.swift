@@ -98,7 +98,7 @@ struct BasketsListView: View {
                     Text("Total Portfolio Value")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Text(viewModel.totalValue.currencyFormatted)
+                    Text(viewModel.totalValue.currencyString)
                         .font(.title)
                         .fontWeight(.bold)
                 }
@@ -109,7 +109,7 @@ struct BasketsListView: View {
                     Text("Total Gain/Loss")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Text(viewModel.totalGainLoss.currencyFormatted)
+                    Text(viewModel.totalGainLoss.currencyString)
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundStyle(viewModel.totalGainLoss >= 0 ? .green : .red)

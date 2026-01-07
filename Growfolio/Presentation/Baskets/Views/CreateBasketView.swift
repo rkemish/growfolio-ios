@@ -117,7 +117,7 @@ struct CreateBasketView: View {
                     HStack {
                         Text("Stock Allocations")
                         Spacer()
-                        Text("Total: \(viewModel.totalAllocationPercentage.percentageFormatted)")
+                        Text("Total: \(viewModel.totalAllocationPercentage.rawPercentString)")
                             .foregroundStyle(
                                 viewModel.totalAllocationPercentage == 100 ? .green : .orange
                             )

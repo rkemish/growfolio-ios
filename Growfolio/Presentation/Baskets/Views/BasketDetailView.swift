@@ -129,7 +129,7 @@ struct BasketDetailView: View {
             VStack(spacing: 12) {
                 performanceRow(
                     title: "Current Value",
-                    value: viewModel.basket.summary.currentValue.currencyFormatted,
+                    value: viewModel.basket.summary.currentValue.currencyString,
                     color: .primary
                 )
 
@@ -137,7 +137,7 @@ struct BasketDetailView: View {
 
                 performanceRow(
                     title: "Total Invested",
-                    value: viewModel.basket.summary.totalInvested.currencyFormatted,
+                    value: viewModel.basket.summary.totalInvested.currencyString,
                     color: .secondary
                 )
 
@@ -145,7 +145,7 @@ struct BasketDetailView: View {
 
                 performanceRow(
                     title: "Gain/Loss",
-                    value: viewModel.basket.summary.totalGainLoss.currencyFormatted,
+                    value: viewModel.basket.summary.totalGainLoss.currencyString,
                     color: viewModel.isGaining ? .green : .red
                 )
 
@@ -153,7 +153,7 @@ struct BasketDetailView: View {
 
                 performanceRow(
                     title: "Return",
-                    value: viewModel.returnPercentage.percentageFormatted,
+                    value: viewModel.returnPercentage.rawPercentString,
                     color: viewModel.isGaining ? .green : .red
                 )
             }

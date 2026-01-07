@@ -41,7 +41,7 @@ struct BasketAllocationRow: View {
 
             if showPercentage {
                 // Percentage
-                Text(allocation.percentage.percentageFormatted)
+                Text(allocation.percentage.rawPercentString)
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundStyle(.primary)
