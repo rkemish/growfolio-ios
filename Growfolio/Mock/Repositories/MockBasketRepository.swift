@@ -9,12 +9,16 @@ import Foundation
 
 /// Mock implementation of basket repository
 final class MockBasketRepository: BasketRepositoryProtocol, @unchecked Sendable {
-    private var baskets: [Basket] = []
+    private let store = MockDataStore.shared
     var shouldFail = false
     var errorToThrow: Error?
 
     init(baskets: [Basket] = []) {
-        self.baskets = baskets
+        Task {
+            for basket in baskets {
+                await store.addBasket(basket)
+            }
+        }
     }
 
     func fetchBaskets() async throws -> [Basket] {
@@ -22,7 +26,7 @@ final class MockBasketRepository: BasketRepositoryProtocol, @unchecked Sendable 
             throw errorToThrow ?? NetworkError.serverError(statusCode: 500, message: "Mock error")
         }
         try? await Task.sleep(nanoseconds: 500_000_000) // 0.5s delay
-        return baskets
+        return await store.baskets
     }
 
     func fetchBasket(id: String) async throws -> Basket {
@@ -30,7 +34,7 @@ final class MockBasketRepository: BasketRepositoryProtocol, @unchecked Sendable 
             throw errorToThrow ?? NetworkError.serverError(statusCode: 500, message: "Mock error")
         }
         try? await Task.sleep(nanoseconds: 300_000_000) // 0.3s delay
-        guard let basket = baskets.first(where: { $0.id == id }) else {
+        guard let basket = await store.getBasket(id: id) else {
             throw NetworkError.notFound
         }
         return basket
@@ -51,7 +55,7 @@ final class MockBasketRepository: BasketRepositoryProtocol, @unchecked Sendable 
             allocations: basket.allocations,
             isShared: basket.isShared
         )
-        baskets.append(newBasket)
+        await store.addBasket(newBasket)
         return newBasket
     }
 
@@ -60,28 +64,28 @@ final class MockBasketRepository: BasketRepositoryProtocol, @unchecked Sendable 
             throw errorToThrow ?? NetworkError.serverError(statusCode: 500, message: "Mock error")
         }
         try? await Task.sleep(nanoseconds: 500_000_000) // 0.5s delay
-        guard let index = baskets.firstIndex(where: { $0.id == id }) else {
+        guard let existing = await store.getBasket(id: id) else {
             throw NetworkError.notFound
         }
         let updatedBasket = Basket(
-            id: baskets[index].id,
-            userId: baskets[index].userId,
-            familyId: baskets[index].familyId,
+            id: existing.id,
+            userId: existing.userId,
+            familyId: existing.familyId,
             name: basket.name,
             description: basket.description,
             category: basket.category,
             icon: basket.icon,
             color: basket.color,
             allocations: basket.allocations,
-            dcaEnabled: baskets[index].dcaEnabled,
-            dcaScheduleId: baskets[index].dcaScheduleId,
-            status: baskets[index].status,
-            summary: baskets[index].summary,
+            dcaEnabled: existing.dcaEnabled,
+            dcaScheduleId: existing.dcaScheduleId,
+            status: existing.status,
+            summary: existing.summary,
             isShared: basket.isShared,
-            createdAt: baskets[index].createdAt,
+            createdAt: existing.createdAt,
             updatedAt: Date()
         )
-        baskets[index] = updatedBasket
+        await store.updateBasket(updatedBasket)
         return updatedBasket
     }
 
@@ -90,6 +94,6 @@ final class MockBasketRepository: BasketRepositoryProtocol, @unchecked Sendable 
             throw errorToThrow ?? NetworkError.serverError(statusCode: 500, message: "Mock error")
         }
         try? await Task.sleep(nanoseconds: 500_000_000) // 0.5s delay
-        baskets.removeAll { $0.id == id }
+        await store.deleteBasket(id: id)
     }
 }

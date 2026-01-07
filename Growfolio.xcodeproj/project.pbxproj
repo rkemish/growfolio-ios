@@ -56,6 +56,7 @@
 		26163CCBF13D23777F5BDCC6 /* 07-portfolio.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B2E13A6F9B83592F495F204 /* 07-portfolio.png */; };
 		286177CD097A43C0286923A8 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 40DFFA420ACFB22A104DF544 /* Localizable.strings */; };
 		28D1A0A00C00BB625D553275 /* AuthModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2B2E571DCD5DD7698222B8A /* AuthModels.swift */; };
+		2A4F1E637C79101725DF6F7E /* BasketRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B010DCA1774CAEE0F48A982 /* BasketRepositoryTests.swift */; };
 		2AE588CA0111E32DEE37192A /* PortfolioRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073FD868FF9398860B6EFE07 /* PortfolioRepositoryProtocol.swift */; };
 		2BF22D4E2BA05DDA9A3F6006 /* StockDetailViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C12118CF494BF12300E8B78A /* StockDetailViewModelTests.swift */; };
 		2D3E61F14CACA3524EEBC849 /* FundingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055288F63F11B2F3062E331A /* FundingViewModel.swift */; };
@@ -442,6 +443,7 @@
 		89FC44D3F8BD26037D3E5550 /* UserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepository.swift; sourceTree = "<group>"; };
 		8A603BB902E4E24E899990E9 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8A62CBF33DCECA5C400979D8 /* GoalRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalRepository.swift; sourceTree = "<group>"; };
+		8B010DCA1774CAEE0F48A982 /* BasketRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasketRepositoryTests.swift; sourceTree = "<group>"; };
 		8B536AC8AA10FEBA343D78B4 /* FamilyGoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyGoalsView.swift; sourceTree = "<group>"; };
 		8B60A5FC25EDD828A5914612 /* Basket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Basket.swift; sourceTree = "<group>"; };
 		8D018EB4C7C5334EC7FB11AE /* InviteMemberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMemberView.swift; sourceTree = "<group>"; };
@@ -1047,6 +1049,7 @@
 			isa = PBXGroup;
 			children = (
 				2E110A80BB83393DAF97BFA9 /* AIRepositoryTests.swift */,
+				8B010DCA1774CAEE0F48A982 /* BasketRepositoryTests.swift */,
 				F561FB4D0A6C477C0314E1B2 /* DCARepositoryTests.swift */,
 				EF04BB12A912682344608C88 /* FamilyRepositoryTests.swift */,
 				0D680A97B4347064A9A32BAF /* FundingRepositoryTests.swift */,
@@ -1652,6 +1655,7 @@
 				80F466C2B4FA816375E99496 /* APIClientTests.swift in Sources */,
 				A96B21E61420FA64C28EF303 /* AuthInterceptorTests.swift in Sources */,
 				C868135C0E30233F87F53D92 /* AuthServiceTests.swift in Sources */,
+				2A4F1E637C79101725DF6F7E /* BasketRepositoryTests.swift in Sources */,
 				629EB65F1953CA6599F46F46 /* BiometricAuthTests.swift in Sources */,
 				D1C51F0D7870E7DF0125EF51 /* CacheManagerTests.swift in Sources */,
 				D6A1F3705C236B9403987195 /* ChatMessageTests.swift in Sources */,
@@ -1975,7 +1979,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.9;
 			};
 			name = Release;
@@ -2043,7 +2047,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.9;
 			};
 			name = Debug;

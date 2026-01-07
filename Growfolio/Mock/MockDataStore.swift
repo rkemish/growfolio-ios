@@ -39,6 +39,10 @@ actor MockDataStore {
 
     private(set) var watchlist: [String] = []
 
+    // MARK: - Baskets Data
+
+    private(set) var baskets: [Basket] = []
+
     // MARK: - Funding Data
 
     private(set) var fundingBalance: FundingBalance?
@@ -86,6 +90,7 @@ actor MockDataStore {
         goals = []
         milestones = [:]
         watchlist = []
+        baskets = []
         fundingBalance = nil
         transfers = []
         currentFXRate = nil
@@ -301,6 +306,26 @@ actor MockDataStore {
 
     func removeFromWatchlist(_ symbol: String) {
         watchlist.removeAll { $0 == symbol }
+    }
+
+    // MARK: - Baskets CRUD
+
+    func addBasket(_ basket: Basket) {
+        baskets.append(basket)
+    }
+
+    func updateBasket(_ basket: Basket) {
+        if let index = baskets.firstIndex(where: { $0.id == basket.id }) {
+            baskets[index] = basket
+        }
+    }
+
+    func deleteBasket(id: String) {
+        baskets.removeAll { $0.id == id }
+    }
+
+    func getBasket(id: String) -> Basket? {
+        baskets.first { $0.id == id }
     }
 
     // MARK: - Funding CRUD
