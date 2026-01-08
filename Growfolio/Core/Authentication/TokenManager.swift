@@ -118,7 +118,7 @@ actor TokenManager {
     // MARK: - Token Parsing
 
     /// Decode JWT token to extract claims (without verification)
-    func decodeJWT(_ token: String) -> [String: Any]? {
+    nonisolated func decodeJWT(_ token: String) -> [String: Any]? {
         let segments = token.components(separatedBy: ".")
         guard segments.count == 3 else { return nil }
 

@@ -230,7 +230,7 @@ final class AuthService: AuthServiceProtocol, @unchecked Sendable {
         email: String?
     ) async {
         // Extract claims from JWT for fallback data
-        let claims = await tokenManager.decodeJWT(identityToken)
+        let claims = tokenManager.decodeJWT(identityToken)
         let nameFromToken = claims?["name"] as? String
         let emailFromToken = claims?["email"] as? String
 
@@ -255,7 +255,7 @@ final class AuthService: AuthServiceProtocol, @unchecked Sendable {
     }
 
     private func expirationInterval(for token: String) async -> Int {
-        guard let claims = await tokenManager.decodeJWT(token) else {
+        guard let claims = tokenManager.decodeJWT(token) else {
             return Int(Constants.Auth.tokenRefreshThreshold)
         }
 
