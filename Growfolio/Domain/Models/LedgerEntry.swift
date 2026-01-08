@@ -111,13 +111,17 @@ struct LedgerEntry: Identifiable, Codable, Sendable, Equatable, Hashable {
     // MARK: - Computed Properties
 
     /// Net amount (total minus fees)
+    /// Returns negative for outflows (buy, withdrawal, fee), positive for inflows
     var netAmount: Decimal {
         switch type {
         case .buy, .withdrawal, .fee:
+            // Negative value represents cash leaving the account
             return -(totalAmount + fees)
         case .sell, .deposit, .dividend, .interest:
+            // Positive value represents cash entering the account
             return totalAmount - fees
         case .transfer, .adjustment:
+            // Transfer/adjustment keeps the sign from totalAmount
             return totalAmount
         }
     }
@@ -372,12 +376,14 @@ struct TransactionGroup: Identifiable, Sendable {
 
 extension Array where Element == LedgerEntry {
     /// Group entries by date
+    /// Groups transactions by calendar day, sorted most recent first
     func groupedByDate() -> [TransactionGroup] {
         let grouped = Dictionary(grouping: self) { entry in
             entry.transactionDate.startOfDay
         }
 
         return grouped.map { date, entries in
+            // Within each day, sort by time (most recent first)
             TransactionGroup(title: date.displayString, entries: entries.sorted { $0.transactionDate > $1.transactionDate })
         }.sorted { $0.entries.first?.transactionDate ?? Date() > $1.entries.first?.transactionDate ?? Date() }
     }

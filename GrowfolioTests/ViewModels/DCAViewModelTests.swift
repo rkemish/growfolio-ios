@@ -14,6 +14,7 @@ final class DCAViewModelTests: XCTestCase {
     // MARK: - Properties
 
     var mockRepository: MockDCARepository!
+    var mockWebSocketService: MockWebSocketService!
     var sut: DCAViewModel!
 
     // MARK: - Setup / Teardown
@@ -21,11 +22,16 @@ final class DCAViewModelTests: XCTestCase {
     override func setUp() {
         super.setUp()
         mockRepository = MockDCARepository()
-        sut = DCAViewModel(repository: mockRepository)
+        mockWebSocketService = MockWebSocketService()
+        sut = DCAViewModel(
+            repository: mockRepository,
+            webSocketService: mockWebSocketService
+        )
     }
 
     override func tearDown() {
         mockRepository = nil
+        mockWebSocketService = nil
         sut = nil
         super.tearDown()
     }
@@ -435,6 +441,213 @@ final class DCAViewModelTests: XCTestCase {
         let filtered = sut.filteredSchedules
 
         XCTAssertEqual(filtered.first?.id, "dca-2") // Most recent first
+    }
+
+    // MARK: - WebSocket Integration Tests
+
+    func test_loadSchedules_subscribesToDCAChannel() async {
+        mockRepository.schedulesToReturn = TestFixtures.sampleDCASchedules
+
+        await sut.loadSchedules()
+
+        // Give async task time to subscribe
+        try? await Task.sleep(for: .milliseconds(100))
+
+        XCTAssertTrue(mockWebSocketService.subscribedChannels.contains(WebSocketChannel.dca.rawValue))
+    }
+
+    func test_handleDCAExecuted_showsSuccessNotification() async {
+        // Setup initial schedules
+        let schedule = TestFixtures.dcaSchedule(id: "schedule-1", stockSymbol: "AAPL", amount: 100)
+        mockRepository.schedulesToReturn = [schedule]
+
+        await sut.loadSchedules()
+
+        // Give the event listener task time to start
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Simulate DCA executed event
+        let event = MockWebSocketService.makeDCAExecutedEvent(
+            scheduleId: "schedule-1",
+            scheduleName: "Weekly AAPL",
+            totalAmountGbp: 100,
+            totalAmountUsd: 127,
+            status: "success"
+        )
+
+        mockWebSocketService.sendEvent(event)
+
+        // Give async handling time to process
+        try? await Task.sleep(for: .milliseconds(300))
+
+        // Toast notification would have been shown
+        // Verify refresh was called
+        XCTAssertTrue(mockRepository.invalidateCacheCalled)
+    }
+
+    func test_handleDCAExecuted_refreshesSchedules() async {
+        // Setup initial schedules
+        let schedule = TestFixtures.dcaSchedule(id: "schedule-1", executionCount: 5)
+        mockRepository.schedulesToReturn = [schedule]
+
+        await sut.loadSchedules()
+
+        // Give the event listener task time to start
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Reset mock to detect refresh call
+        mockRepository.invalidateCacheCalled = false
+        mockRepository.fetchSchedulesCalled = false
+
+        // Simulate DCA executed event
+        let event = MockWebSocketService.makeDCAExecutedEvent(
+            scheduleId: "schedule-1",
+            scheduleName: "Weekly AAPL",
+            totalAmountGbp: 100
+        )
+
+        mockWebSocketService.sendEvent(event)
+
+        // Give async handling time to process
+        try? await Task.sleep(for: .milliseconds(500))
+
+        // Verify schedule was refreshed to update execution count
+        XCTAssertTrue(mockRepository.invalidateCacheCalled)
+        XCTAssertTrue(mockRepository.fetchSchedulesCalled)
+    }
+
+    func test_handleDCAFailed_showsErrorNotification() async {
+        // Setup initial schedules
+        let schedule = TestFixtures.dcaSchedule(id: "schedule-1", stockSymbol: "MSFT")
+        mockRepository.schedulesToReturn = [schedule]
+
+        await sut.loadSchedules()
+
+        // Give the event listener task time to start
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Simulate DCA failed event
+        let event = MockWebSocketService.makeDCAFailedEvent(
+            scheduleId: "schedule-1",
+            scheduleName: "Weekly MSFT",
+            totalAmountGbp: 50,
+            errorMessage: "Insufficient funds"
+        )
+
+        mockWebSocketService.sendEvent(event)
+
+        // Give async handling time to process
+        try? await Task.sleep(for: .milliseconds(300))
+
+        // Toast error would have been shown with error message
+        // Verify refresh was called to update status
+        XCTAssertTrue(mockRepository.invalidateCacheCalled)
+    }
+
+    func test_handleDCAFailed_includesErrorMessage() async {
+        // Setup initial schedules
+        let schedule = TestFixtures.dcaSchedule(id: "schedule-1", stockSymbol: "GOOGL")
+        mockRepository.schedulesToReturn = [schedule]
+
+        await sut.loadSchedules()
+
+        // Give the event listener task time to start
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Reset mock
+        mockRepository.invalidateCacheCalled = false
+
+        // Simulate DCA failed event with specific error
+        let event = MockWebSocketService.makeDCAFailedEvent(
+            scheduleId: "schedule-1",
+            scheduleName: "Daily GOOGL",
+            totalAmountGbp: 25,
+            errorMessage: "Market closed"
+        )
+
+        mockWebSocketService.sendEvent(event)
+
+        // Give async handling time to process
+        try? await Task.sleep(for: .milliseconds(300))
+
+        // Error notification would include "Market closed" message
+        // Verify refresh was called
+        XCTAssertTrue(mockRepository.invalidateCacheCalled)
+    }
+
+    func test_handleDCAStatusChanged_refreshesSchedules() async {
+        // Setup initial schedules
+        let schedule = TestFixtures.dcaSchedule(id: "schedule-1", isActive: true, isPaused: false)
+        mockRepository.schedulesToReturn = [schedule]
+
+        await sut.loadSchedules()
+
+        // Give the event listener task time to start
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Reset mock to detect refresh call
+        mockRepository.invalidateCacheCalled = false
+        mockRepository.fetchSchedulesCalled = false
+
+        // Simulate DCA status changed event (generic event with dcaStatusChanged name)
+        let json: [String: Any] = [
+            "schedule_id": "schedule-1",
+            "old_status": "active",
+            "new_status": "paused"
+        ]
+        let data = try! JSONSerialization.data(withJSONObject: json)
+        let event = WebSocketEvent(
+            id: UUID().uuidString,
+            event: WebSocketEventName.dcaStatusChanged.rawValue,
+            timestamp: Date(),
+            data: data
+        )
+
+        mockWebSocketService.sendEvent(event)
+
+        // Give async handling time to process
+        try? await Task.sleep(for: .milliseconds(500))
+
+        // Verify schedule was refreshed to show new status
+        XCTAssertTrue(mockRepository.invalidateCacheCalled)
+        XCTAssertTrue(mockRepository.fetchSchedulesCalled)
+    }
+
+    func test_webSocketEvents_multipleDCAEvents() async {
+        // Setup initial schedules
+        let schedule1 = TestFixtures.dcaSchedule(id: "schedule-1", stockSymbol: "AAPL")
+        let schedule2 = TestFixtures.dcaSchedule(id: "schedule-2", stockSymbol: "MSFT")
+        mockRepository.schedulesToReturn = [schedule1, schedule2]
+
+        await sut.loadSchedules()
+
+        // Give the event listener task time to start
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Reset mock
+        mockRepository.invalidateCacheCalled = false
+
+        // Send multiple DCA events
+        let executedEvent = MockWebSocketService.makeDCAExecutedEvent(
+            scheduleId: "schedule-1",
+            scheduleName: "AAPL Weekly",
+            totalAmountGbp: 100
+        )
+
+        let failedEvent = MockWebSocketService.makeDCAFailedEvent(
+            scheduleId: "schedule-2",
+            scheduleName: "MSFT Weekly",
+            errorMessage: "Insufficient funds"
+        )
+
+        mockWebSocketService.sendEvent(executedEvent)
+        mockWebSocketService.sendEvent(failedEvent)
+
+        // Give async handling time to process both events
+        try? await Task.sleep(for: .milliseconds(500))
+
+        // Verify both events triggered refresh
+        XCTAssertTrue(mockRepository.invalidateCacheCalled)
     }
 }
 

@@ -8,6 +8,9 @@
 import Foundation
 
 /// Actor-based singleton that stores all mock data with thread-safe access
+/// All mock repositories read/write to this shared state, ensuring consistency
+/// For example, creating a DCA schedule here makes it visible to both DCARepository and PortfolioRepository
+/// The actor ensures thread-safe mutations without manual synchronization
 actor MockDataStore {
 
     // MARK: - Singleton
@@ -65,6 +68,10 @@ actor MockDataStore {
     // MARK: - Initialization Methods
 
     /// Initialize the store with data for the specified persona
+    /// Each persona represents a different user scenario with appropriate seed data:
+    /// - newUser: Empty state for onboarding flows
+    /// - activeInvestor: Rich dataset for testing full app functionality
+    /// - familyAccount: Family-specific features and shared accounts
     func initialize(for persona: DemoPersona) async {
         await reset()
 

@@ -62,29 +62,36 @@ extension Decimal {
     }
 
     /// Format as compact currency (e.g., $1.2K, $3.4M)
+    /// Useful for displaying large numbers in a space-constrained UI
     var compactCurrencyString: String {
         let number = NSDecimalNumber(decimal: self).doubleValue
         let absNumber = abs(number)
+        // Preserve sign for negative numbers
         let sign = number < 0 ? "-" : ""
 
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.maximumFractionDigits = 1
 
+        // Scale down large numbers and append appropriate suffix
         if absNumber >= 1_000_000_000 {
+            // Billions: use 2 decimal places for precision
             formatter.maximumFractionDigits = 2
             let value = absNumber / 1_000_000_000
             let formatted = formatter.string(from: NSNumber(value: value)) ?? "$0"
             return "\(sign)\(formatted)B"
         } else if absNumber >= 1_000_000 {
+            // Millions
             let value = absNumber / 1_000_000
             let formatted = formatter.string(from: NSNumber(value: value)) ?? "$0"
             return "\(sign)\(formatted)M"
         } else if absNumber >= 1_000 {
+            // Thousands
             let value = absNumber / 1_000
             let formatted = formatter.string(from: NSNumber(value: value)) ?? "$0"
             return "\(sign)\(formatted)K"
         } else {
+            // Small numbers: display full amount
             return Decimal.currencyFormatter.string(from: self as NSDecimalNumber) ?? "$0.00"
         }
     }
@@ -267,7 +274,8 @@ struct Money: Codable, Sendable, Equatable, Comparable, Hashable {
     // MARK: - Comparable
 
     static func < (lhs: Money, rhs: Money) -> Bool {
-        // Only compare if same currency
+        // Only compare if same currency - comparing different currencies is meaningless
+        // Returns false if currencies don't match (undefined comparison)
         guard lhs.currencyCode == rhs.currencyCode else {
             return false
         }

@@ -76,6 +76,7 @@
 		41D8C7E260DAA8A1B8CFD37E /* TransferHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 177F0CB97ED2DF59ED599FEB /* TransferHistoryView.swift */; };
 		444F0F87286181442CC33CD1 /* FamilyRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04BB12A912682344608C88 /* FamilyRepositoryTests.swift */; };
 		4473CA2D8890C7DDD3250B9D /* ErrorAlertModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91ED1D846293BF1F6C1520D4 /* ErrorAlertModifier.swift */; };
+		44C18126BA78E79B2A8A89A8 /* PortfolioViewModelTests.swift.bak in Resources */ = {isa = PBXBuildFile; fileRef = E2BB38B37FFD884B12DF8E2E /* PortfolioViewModelTests.swift.bak */; };
 		46EF8064288E107CD5F13E82 /* CostBasisSummaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6876F80466F62071450B352A /* CostBasisSummaryTests.swift */; };
 		48FC987264EA054B86F72CF1 /* CostBasisLot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455B3D37A0436EBB400F0720 /* CostBasisLot.swift */; };
 		49F6A7120D30E073FC9CF99A /* GoalRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A62CBF33DCECA5C400979D8 /* GoalRepository.swift */; };
@@ -85,6 +86,7 @@
 		4D8CAFB6AA1EB8DDD9718609 /* CostBasisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C869B7B9F732EF3440D327 /* CostBasisView.swift */; };
 		4F56D19608611F9CD674B58A /* AIInsightsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E3AF1D1B28116EDE9D9887 /* AIInsightsViewModelTests.swift */; };
 		4F8C81DADDD67D6B790EAF85 /* ToastManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E91E6C244CACBD32E389E93F /* ToastManager.swift */; };
+		508FC83FFC0AD8490080CA92 /* BasketsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B238E2FD050E3A1C1BF76810 /* BasketsViewModelTests.swift */; };
 		50E413A524A4629BA42F21C1 /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B83F003C4BF3D64C438CC /* Goal.swift */; };
 		52D0279B293477570C60D886 /* AllActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D4A88C69703AC81095A145 /* AllActivityView.swift */; };
 		53237D0216137D7E4F3A9232 /* Family.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9188FEBF73EBD8407A9C4FCD /* Family.swift */; };
@@ -199,6 +201,7 @@
 		D1702A61B614A2DEA2DC5B78 /* CreateDCAScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2C4CF4180998B4DA74AAAE /* CreateDCAScheduleView.swift */; };
 		D1C51F0D7870E7DF0125EF51 /* CacheManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6712F42041C7E6EEC8F94B05 /* CacheManagerTests.swift */; };
 		D3372FFF86FFA86CF6344785 /* ChatMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D8841637329EEEFBD63395 /* ChatMessageView.swift */; };
+		D38743099CAA54090CA8B3EB /* BasketDetailViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39F46FE8ADC714380A27B59E /* BasketDetailViewModelTests.swift */; };
 		D496480F30760DDB05BAC12E /* DCAViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760DC97EED2BA594657E4AA4 /* DCAViewModelTests.swift */; };
 		D49B36EA818D2DA45CFDFF7A /* PortfolioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63607B6033A0B20638321D7E /* PortfolioTests.swift */; };
 		D4C1F16BEA7A77583E56B139 /* GoalsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B12B582F6B389B6BA1A9C4 /* GoalsViewModel.swift */; };
@@ -213,6 +216,7 @@
 		E0438F61DDEF160E1E9A90EF /* PortfolioRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9644364C87BDA9841E9EB6CC /* PortfolioRepository.swift */; };
 		E0E254C352F225E3E6C5C560 /* FundingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AB8F2D81F1A22520F566CB /* FundingView.swift */; };
 		E2011C8B491873BEE29E4279 /* TokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165F6BA3216AAD053D814F51 /* TokenManager.swift */; };
+		E28D74DCBF7458775DDC59BF /* MockWebSocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4FCE8E03B01C3A4353232D /* MockWebSocketService.swift */; };
 		E3212971F8078BF3272CC468 /* AIInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F079301780142795853A4C0 /* AIInsightsView.swift */; };
 		E37DFEE0AC180ABF150B1527 /* FamilyGoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B536AC8AA10FEBA343D78B4 /* FamilyGoalsView.swift */; };
 		E3E05415FAF8084A4AA129EB /* DisclosuresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3A2089565A8E4DFFB496DE /* DisclosuresView.swift */; };
@@ -223,6 +227,7 @@
 		EDE56BD5E05241AD1241BBD4 /* InviteMemberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D018EB4C7C5334EC7FB11AE /* InviteMemberView.swift */; };
 		EFE932E7E2C376DB037C2246 /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AAED8ADF9FAD6291829592 /* EditProfileView.swift */; };
 		F1C43F3C5CCF26172BD7EA2F /* WatchlistViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236F59D03673DF21705AEF5B /* WatchlistViewModelTests.swift */; };
+		F2F57EFA915388A2144E077D /* FundingViewModelTests.swift.bak in Resources */ = {isa = PBXBuildFile; fileRef = 31B1996D3E458F49366BCF04 /* FundingViewModelTests.swift.bak */; };
 		F47C066DCE8055F1FA7FA8A8 /* KYCRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F61DBA1EE4FC2B5614B4E /* KYCRepository.swift */; };
 		F4AEE2B1553641A9264BF9EB /* AddTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7575F824D79804EBC4FF66E9 /* AddTransactionView.swift */; };
 		F65C5124A7DEAAD9853E9960 /* GoalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DC9DD3A979242EAC09C52EF /* GoalTests.swift */; };
@@ -307,10 +312,12 @@
 		2F472D08D834EFFCCDC34059 /* MockGoalRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockGoalRepository.swift; sourceTree = "<group>"; };
 		2F90C1BB6300B8A899BF834E /* MockFamilyRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFamilyRepository.swift; sourceTree = "<group>"; };
 		3064CCFE5625DCE961B3B55E /* MockAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAPIClient.swift; sourceTree = "<group>"; };
+		31B1996D3E458F49366BCF04 /* FundingViewModelTests.swift.bak */ = {isa = PBXFileReference; path = FundingViewModelTests.swift.bak; sourceTree = "<group>"; };
 		3867960059EA7E85EE7A498E /* StocksRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StocksRepository.swift; sourceTree = "<group>"; };
 		38FF58A8D6BCB3C44B479BC0 /* AIChatViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatViewModelTests.swift; sourceTree = "<group>"; };
 		39AC0F180B04582EEE5FAA4A /* MockFundingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFundingRepository.swift; sourceTree = "<group>"; };
 		39B0732C6A95CE7CAE1D8E5D /* iPadSidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadSidebarView.swift; sourceTree = "<group>"; };
+		39F46FE8ADC714380A27B59E /* BasketDetailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasketDetailViewModelTests.swift; sourceTree = "<group>"; };
 		3A71098E921C1CAAD8185CCE /* Endpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoints.swift; sourceTree = "<group>"; };
 		3BD8ADF2D60B9465F369BCD2 /* ColorExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtensionsTests.swift; sourceTree = "<group>"; };
 		3DC9DD3A979242EAC09C52EF /* GoalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalTests.swift; sourceTree = "<group>"; };
@@ -417,6 +424,7 @@
 		98E114378444B9DF377F2137 /* FundingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FundingViewModelTests.swift; sourceTree = "<group>"; };
 		98EE9F72376064A9C5FF63F8 /* BiometricAuthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricAuthTests.swift; sourceTree = "<group>"; };
 		99C9E032C0242B485EDFE5FB /* WatchlistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistView.swift; sourceTree = "<group>"; };
+		9A4FCE8E03B01C3A4353232D /* MockWebSocketService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockWebSocketService.swift; sourceTree = "<group>"; };
 		9B7C103C4E1DB065C3302E04 /* MockDCARepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDCARepository.swift; sourceTree = "<group>"; };
 		9BF5F8C306532D6B9E420DF3 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		9D3E4FB230575F9C3F69231A /* NetworkErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrorTests.swift; sourceTree = "<group>"; };
@@ -440,6 +448,7 @@
 		AE939471FC72E3330264EA57 /* KYCViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCViewModel.swift; sourceTree = "<group>"; };
 		B0191D89E1C9136D82BC4B0B /* DepositView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepositView.swift; sourceTree = "<group>"; };
 		B16190D8638EC740F775AF56 /* KYCDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCDataTests.swift; sourceTree = "<group>"; };
+		B238E2FD050E3A1C1BF76810 /* BasketsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasketsViewModelTests.swift; sourceTree = "<group>"; };
 		B2767207D0BC3C584CFB79CB /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		B2B5C78244805EBDE9BF1AFB /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		B3D8841637329EEEFBD63395 /* ChatMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageView.swift; sourceTree = "<group>"; };
@@ -471,6 +480,7 @@
 		D117AE6E24FF92BFF935016B /* TransactionHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryView.swift; sourceTree = "<group>"; };
 		D5EFEF6DFEF9933E2B8D4928 /* BasketDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasketDetailView.swift; sourceTree = "<group>"; };
 		D69B0F4EFDD30CEE83E68D22 /* MemberDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberDetailView.swift; sourceTree = "<group>"; };
+		E2BB38B37FFD884B12DF8E2E /* PortfolioViewModelTests.swift.bak */ = {isa = PBXFileReference; path = PortfolioViewModelTests.swift.bak; sourceTree = "<group>"; };
 		E2F13A02FEA6C56F886C35C4 /* FamilyMember.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyMember.swift; sourceTree = "<group>"; };
 		E3D68EFB7DB62E4B42DD1884 /* DCAViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DCAViewModel.swift; sourceTree = "<group>"; };
 		E45A88ECA9654466B129925B /* TokenManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenManagerTests.swift; sourceTree = "<group>"; };
@@ -1022,6 +1032,7 @@
 			isa = PBXGroup;
 			children = (
 				4DAB42B9C834F0816AA1A809 /* MockAuthService.swift */,
+				9A4FCE8E03B01C3A4353232D /* MockWebSocketService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -1324,14 +1335,18 @@
 			children = (
 				38FF58A8D6BCB3C44B479BC0 /* AIChatViewModelTests.swift */,
 				C4E3AF1D1B28116EDE9D9887 /* AIInsightsViewModelTests.swift */,
+				39F46FE8ADC714380A27B59E /* BasketDetailViewModelTests.swift */,
+				B238E2FD050E3A1C1BF76810 /* BasketsViewModelTests.swift */,
 				C9595C2075819F7BE7F8B5C0 /* DashboardViewModelTests.swift */,
 				760DC97EED2BA594657E4AA4 /* DCAViewModelTests.swift */,
 				2CEC862761286795368D24F7 /* FamilyViewModelTests.swift */,
 				98E114378444B9DF377F2137 /* FundingViewModelTests.swift */,
+				31B1996D3E458F49366BCF04 /* FundingViewModelTests.swift.bak */,
 				0482ADF1FF4905F0CF5C012D /* GoalsViewModelTests.swift */,
 				524FF49F08F55E71A59F5954 /* KYCViewModelTests.swift */,
 				A1B2987DC3053A65D80D7E04 /* OnboardingViewModelTests.swift */,
 				3E514A258429D4D7D6782FFA /* PortfolioViewModelTests.swift */,
+				E2BB38B37FFD884B12DF8E2E /* PortfolioViewModelTests.swift.bak */,
 				7AD3602773A481702BEB4C1C /* SettingsViewModelTests.swift */,
 				C12118CF494BF12300E8B78A /* StockDetailViewModelTests.swift */,
 				236F59D03673DF21705AEF5B /* WatchlistViewModelTests.swift */,
@@ -1444,6 +1459,7 @@
 			buildConfigurationList = 287ECBEFDB33C9F0DD439F90 /* Build configuration list for PBXNativeTarget "GrowfolioTests" */;
 			buildPhases = (
 				3C1B2059526E60E2F7F80073 /* Sources */,
+				781AC81994B1818A7A848E3E /* Resources */,
 			);
 			buildRules = (
 			);
@@ -1503,6 +1519,15 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		781AC81994B1818A7A848E3E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F2F57EFA915388A2144E077D /* FundingViewModelTests.swift.bak in Resources */,
+				44C18126BA78E79B2A8A89A8 /* PortfolioViewModelTests.swift.bak in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8FB8E7030864F5F5A541DF23 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1534,7 +1559,9 @@
 				80F466C2B4FA816375E99496 /* APIClientTests.swift in Sources */,
 				A96B21E61420FA64C28EF303 /* AuthInterceptorTests.swift in Sources */,
 				C868135C0E30233F87F53D92 /* AuthServiceTests.swift in Sources */,
+				D38743099CAA54090CA8B3EB /* BasketDetailViewModelTests.swift in Sources */,
 				2A4F1E637C79101725DF6F7E /* BasketRepositoryTests.swift in Sources */,
+				508FC83FFC0AD8490080CA92 /* BasketsViewModelTests.swift in Sources */,
 				629EB65F1953CA6599F46F46 /* BiometricAuthTests.swift in Sources */,
 				D1C51F0D7870E7DF0125EF51 /* CacheManagerTests.swift in Sources */,
 				D6A1F3705C236B9403987195 /* ChatMessageTests.swift in Sources */,
@@ -1574,6 +1601,7 @@
 				854CF14DE7348EADBA51A9F4 /* MockPortfolioRepository.swift in Sources */,
 				9F011AF0DE5A13DCD4C53E24 /* MockStocksRepository.swift in Sources */,
 				1E4FC968260EF479E23185B9 /* MockUserRepository.swift in Sources */,
+				E28D74DCBF7458775DDC59BF /* MockWebSocketService.swift in Sources */,
 				A6689D1121190BFA04487EA8 /* NetworkErrorTests.swift in Sources */,
 				B220DC7DF79EC3CAB0A52506 /* OnboardingViewModelTests.swift in Sources */,
 				F8D874B49076D2BEA3209DA6 /* PortfolioRepositoryTests.swift in Sources */,

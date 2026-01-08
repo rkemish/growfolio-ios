@@ -60,6 +60,7 @@ struct Family: Identifiable, Codable, Sendable, Equatable, Hashable {
         self.name = name
         self.familyDescription = familyDescription
         self.ownerId = ownerId
+        // Ensure the owner is always included in the admin list
         self.adminIds = adminIds.contains(ownerId) ? adminIds : [ownerId] + adminIds
         self.members = members
         self.maxMembers = maxMembers
@@ -140,6 +141,7 @@ struct FamilyGoalsOverview: Codable, Sendable, Equatable {
     /// Overall family progress percentage
     var overallProgress: Double {
         guard totalTargetAmount > 0 else { return 0 }
+        // Convert Decimal to Double via NSNumber for UI display
         return Double(truncating: (totalCurrentAmount / totalTargetAmount) as NSNumber)
     }
 

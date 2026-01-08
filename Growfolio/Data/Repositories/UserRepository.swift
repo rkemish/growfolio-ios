@@ -67,13 +67,17 @@ struct UserDTO: Codable, Sendable {
         return User(
             id: id,
             email: email,
+            // Convert empty names to nil for cleaner UI display
             displayName: name.isEmpty ? nil : name,
+            // Safely parse URL string, returns nil if invalid
             profilePictureURL: pictureUrl.flatMap { URL(string: $0) },
             preferredCurrency: preferences.defaultCurrency,
             notificationsEnabled: preferences.notificationsEnabled,
             biometricEnabled: preferences.biometricEnabled,
+            // Fallback to current date if parsing fails
             createdAt: dateFormatter.date(from: createdAt) ?? Date(),
             updatedAt: dateFormatter.date(from: updatedAt) ?? Date(),
+            // Infer subscription tier: having Alpaca account = premium, otherwise free
             subscriptionTier: alpacaAccountId != nil ? .premium : .free,
             subscriptionExpiresAt: nil,
             timezoneIdentifier: TimeZone.current.identifier

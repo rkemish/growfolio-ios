@@ -34,6 +34,10 @@ final class DCAViewModel: @unchecked Sendable {
 
     // Repository
     private let repository: DCARepositoryProtocol
+    private let webSocketService: WebSocketServiceProtocol
+
+    // WebSocket Tasks
+    nonisolated(unsafe) private var dcaUpdatesTask: Task<Void, Never>?
 
     // MARK: - Computed Properties
 
@@ -86,8 +90,23 @@ final class DCAViewModel: @unchecked Sendable {
 
     // MARK: - Initialization
 
-    init(repository: DCARepositoryProtocol = RepositoryContainer.dcaRepository) {
+    nonisolated(unsafe) init(
+        repository: DCARepositoryProtocol = RepositoryContainer.dcaRepository,
+        webSocketService: WebSocketServiceProtocol? = nil
+    ) {
         self.repository = repository
+        if let webSocketService {
+            self.webSocketService = webSocketService
+        } else {
+            self.webSocketService = MainActor.assumeIsolated { WebSocketService.shared }
+        }
+    }
+
+    deinit {
+        dcaUpdatesTask?.cancel()
+
+        // Note: Cannot await in deinit, but WebSocketService handles cleanup internally
+        // The unsubscribe will happen when the service is deallocated or connection closes
     }
 
     // MARK: - Data Loading
@@ -101,6 +120,9 @@ final class DCAViewModel: @unchecked Sendable {
 
         do {
             schedules = try await repository.fetchSchedules()
+
+            // Start real-time DCA updates after successful data load
+            await startDCAUpdates()
         } catch {
             self.error = error
         }
@@ -205,6 +227,82 @@ final class DCAViewModel: @unchecked Sendable {
             return schedules.sorted { $0.totalInvested > $1.totalInvested }
         case .createdAt:
             return schedules.sorted { $0.createdAt > $1.createdAt }
+        }
+    }
+
+    // MARK: - WebSocket DCA Updates
+
+    @MainActor
+    private func startDCAUpdates() async {
+        // Subscribe to DCA channel
+        await webSocketService.subscribe(channels: [WebSocketChannel.dca.rawValue])
+
+        // Start event listener
+        startDCAUpdatesListener()
+    }
+
+    @MainActor
+    private func startDCAUpdatesListener() {
+        guard dcaUpdatesTask == nil else { return }
+
+        dcaUpdatesTask = Task { [weak self] in
+            guard let self else { return }
+
+            let stream = await webSocketService.eventUpdates()
+            for await event in stream {
+                await MainActor.run {
+                    self.handleWebSocketEvent(event)
+                }
+            }
+        }
+    }
+
+    @MainActor
+    private func handleWebSocketEvent(_ event: WebSocketEvent) {
+        switch event.name {
+        case .dcaExecuted:
+            if let payload = try? event.decodeData(WebSocketDCAExecutionPayload.self) {
+                handleDCAExecuted(payload)
+            }
+        case .dcaFailed:
+            if let payload = try? event.decodeData(WebSocketDCAExecutionPayload.self) {
+                handleDCAFailed(payload)
+            }
+        case .dcaStatusChanged:
+            // Refresh schedules when status changes
+            Task {
+                await refreshSchedules()
+            }
+        default:
+            break
+        }
+    }
+
+    @MainActor
+    private func handleDCAExecuted(_ payload: WebSocketDCAExecutionPayload) {
+        // Show success notification
+        let formattedAmount = payload.totalAmountGbp.value.formatted(.currency(code: "GBP"))
+        ToastManager.shared.showSuccess(
+            "DCA executed: \(payload.scheduleName) - \(formattedAmount) invested"
+        )
+
+        // Refresh schedules to show updated execution count and total invested
+        Task {
+            await refreshSchedules()
+        }
+    }
+
+    @MainActor
+    private func handleDCAFailed(_ payload: WebSocketDCAExecutionPayload) {
+        // Show error notification with details
+        let errorMessage = payload.errorMessage ?? "Unknown error"
+        ToastManager.shared.showError(
+            "DCA failed: \(payload.scheduleName) - \(errorMessage)"
+        )
+
+        // Refresh schedules to show updated status
+        Task {
+            await refreshSchedules()
         }
     }
 }

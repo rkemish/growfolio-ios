@@ -251,7 +251,8 @@ struct PortfolioInsightsResponse: Codable, Sendable {
         if let structuredInsights = try? container.decode([AIInsight].self, forKey: .insights) {
             self.insights = structuredInsights
         } else if let insightString = try? container.decode(String.self, forKey: .insights) {
-            // If insights is a string, parse it into a single insight
+            // Fallback: Backend may return a plain string instead of structured insights
+            // Wrap the string into a generic portfolio health insight for graceful handling
             self.insights = [
                 AIInsight(
                     type: .portfolioHealth,
@@ -261,9 +262,11 @@ struct PortfolioInsightsResponse: Codable, Sendable {
                 )
             ]
         } else {
+            // No insights data available - return empty array to avoid decoding failure
             self.insights = []
         }
 
+        // Use current date as fallback if generatedAt is missing
         self.generatedAt = (try? container.decode(Date.self, forKey: .generatedAt)) ?? Date()
         self.healthScore = try? container.decode(Int.self, forKey: .healthScore)
         self.summary = try? container.decode(String.self, forKey: .summary)
@@ -305,9 +308,11 @@ struct InvestingTip: Identifiable, Codable, Sendable, Equatable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        // Generate a UUID if the backend doesn't provide an ID
         self.id = (try? container.decode(String.self, forKey: .id)) ?? UUID().uuidString
         self.title = try container.decode(String.self, forKey: .title)
         self.content = try container.decode(String.self, forKey: .content)
+        // Category is optional - backend may not categorize all tips
         self.category = try? container.decode(TipCategory.self, forKey: .category)
     }
 }

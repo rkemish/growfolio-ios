@@ -569,9 +569,6 @@ final class FundingViewModelTests: XCTestCase {
 
         await sut.loadFundingData()
 
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(500))
-
         // Simulate FX rate update event
         let event = MockWebSocketService.makeFXRateUpdateEvent(
             rate: 1.27,
@@ -582,7 +579,7 @@ final class FundingViewModelTests: XCTestCase {
         mockWebSocketService.sendEvent(event)
 
         // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(500))
+        try? await Task.sleep(for: .milliseconds(100))
 
         // Verify FX rate was updated
         XCTAssertEqual(sut.fxRate?.rate, 1.27)
@@ -598,16 +595,13 @@ final class FundingViewModelTests: XCTestCase {
 
         await sut.loadFundingData()
 
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(500))
-
         // Simulate FX rate update event
         let event = MockWebSocketService.makeFXRateUpdateEvent(rate: 1.28)
 
         mockWebSocketService.sendEvent(event)
 
         // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(500))
+        try? await Task.sleep(for: .milliseconds(100))
 
         // Verify FX rate was created
         XCTAssertNotNil(sut.fxRate)
@@ -632,16 +626,13 @@ final class FundingViewModelTests: XCTestCase {
 
         await sut.loadFundingData()
 
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(500))
-
         // Simulate FX rate update event
         let event = MockWebSocketService.makeFXRateUpdateEvent(rate: 1.27)
 
         mockWebSocketService.sendEvent(event)
 
         // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(500))
+        try? await Task.sleep(for: .milliseconds(100))
 
         // Verify rate was updated but other properties preserved
         XCTAssertEqual(sut.fxRate?.rate, 1.27)
@@ -658,9 +649,6 @@ final class FundingViewModelTests: XCTestCase {
 
         await sut.loadFundingData()
 
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(500))
-
         // Simulate FX rate update with small change (<1%)
         let event = MockWebSocketService.makeFXRateUpdateEvent(
             rate: 1.255,
@@ -671,11 +659,10 @@ final class FundingViewModelTests: XCTestCase {
         mockWebSocketService.sendEvent(event)
 
         // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(500))
+        try? await Task.sleep(for: .milliseconds(100))
 
-        // Verify rate was updated (with tolerance for floating point precision)
-        XCTAssertNotNil(sut.fxRate)
-        XCTAssertEqual(sut.fxRate!.rate, 1.255, accuracy: 0.001)
+        // Verify rate was updated
+        XCTAssertEqual(sut.fxRate?.rate, 1.255)
         // Note: Testing toast notifications would require ToastManager integration
     }
 
@@ -685,9 +672,6 @@ final class FundingViewModelTests: XCTestCase {
         mockRepository.transfersToReturn = []
 
         await sut.loadFundingData()
-
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(500))
 
         // Reset to detect refresh call
         mockRepository.fetchBalanceCalled = false
@@ -699,7 +683,7 @@ final class FundingViewModelTests: XCTestCase {
         mockWebSocketService.sendEvent(event)
 
         // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(500))
+        try? await Task.sleep(for: .milliseconds(200))
 
         // Verify data was refreshed
         XCTAssertTrue(mockRepository.invalidateCacheCalled)
@@ -713,9 +697,6 @@ final class FundingViewModelTests: XCTestCase {
 
         await sut.loadFundingData()
 
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(500))
-
         // Send multiple FX rate updates
         let event1 = MockWebSocketService.makeFXRateUpdateEvent(rate: 1.26)
         let event2 = MockWebSocketService.makeFXRateUpdateEvent(rate: 1.27)
@@ -726,7 +707,7 @@ final class FundingViewModelTests: XCTestCase {
         mockWebSocketService.sendEvent(event3)
 
         // Give async handling time to process all events
-        try? await Task.sleep(for: .milliseconds(500))
+        try? await Task.sleep(for: .milliseconds(300))
 
         // Verify final rate was applied
         XCTAssertEqual(sut.fxRate?.rate, 1.28)
@@ -742,9 +723,6 @@ final class FundingViewModelTests: XCTestCase {
 
         await sut.loadFundingData()
 
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(500))
-
         XCTAssertNil(sut.fxRateUpdatedAt)
 
         // Simulate FX rate update
@@ -753,7 +731,7 @@ final class FundingViewModelTests: XCTestCase {
         mockWebSocketService.sendEvent(event)
 
         // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(500))
+        try? await Task.sleep(for: .milliseconds(100))
 
         // Verify timestamp was set
         XCTAssertNotNil(sut.fxRateUpdatedAt)

@@ -164,11 +164,7 @@ final class StockDetailViewModel: @unchecked Sendable {
         self.symbol = symbol.uppercased()
         self.stocksRepository = stocksRepository
         self.aiRepository = aiRepository
-        if let webSocketService {
-            self.webSocketService = webSocketService
-        } else {
-            self.webSocketService = WebSocketService.shared
-        }
+        self.webSocketService = webSocketService ?? MainActor.assumeIsolated { WebSocketService.shared }
     }
 
     // MARK: - Data Loading

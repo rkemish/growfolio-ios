@@ -7,13 +7,18 @@
 
 import Foundation
 
-/// Provides repository instances based on current configuration.
+/// Central DI container that provides repository instances based on current configuration.
 /// Uses mock repositories when mock mode is enabled, otherwise returns real implementations.
+/// This allows seamless switching between real API and mock data for:
+/// - SwiftUI previews (instant data, no network)
+/// - UI testing (reproducible, controlled state)
+/// - Development without backend (work offline)
 enum RepositoryContainer {
 
     // MARK: - User Repository
 
     /// Provides the appropriate UserRepository implementation
+    /// Returns MockUserRepository if mock mode is enabled, otherwise real UserRepository
     static var userRepository: UserRepositoryProtocol {
         if MockConfiguration.shared.isEnabled {
             return MockUserRepository()

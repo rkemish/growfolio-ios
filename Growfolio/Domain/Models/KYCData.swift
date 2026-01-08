@@ -296,12 +296,14 @@ struct KYCSubmissionRequest: Codable, Sendable {
     }
 
     init(from kycData: KYCData, email: String, ipAddress: String) {
+        // Format dates according to API requirements
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
 
         let isoFormatter = ISO8601DateFormatter()
         let signedAt = isoFormatter.string(from: Date())
 
+        // Build street address array - apartment/unit goes on second line if present
         var streetAddress = [kycData.streetAddress]
         if !kycData.apartmentUnit.isEmpty {
             streetAddress.append(kycData.apartmentUnit)
@@ -328,12 +330,14 @@ struct KYCSubmissionRequest: Codable, Sendable {
             fundingSource: [kycData.fundingSource.rawValue]
         )
 
+        // Regulatory disclosures - currently defaulted to false (may need user input in future)
         self.disclosures = Disclosures(
             isControlPerson: false,
             isAffiliatedExchangeOrFinra: false,
             isPoliticallyExposed: false,
             immediateFamilyExposed: false,
             employmentStatus: kycData.employmentStatus.rawValue,
+            // Only include employer details for employed/self-employed users
             employerName: kycData.employmentStatus == .employed || kycData.employmentStatus == .selfEmployed ? kycData.employer : nil,
             employerAddress: nil,
             employmentPosition: kycData.employmentStatus == .employed || kycData.employmentStatus == .selfEmployed ? kycData.occupation : nil

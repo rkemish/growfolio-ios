@@ -27,15 +27,18 @@ final class PortfolioRepository: PortfolioRepositoryProtocol, @unchecked Sendabl
     // MARK: - Portfolio Operations
 
     func fetchPortfolios() async throws -> [Portfolio] {
-        // Check cache first
+        // Check cache first to reduce API calls
+        // Cache is valid for 1 minute and must not be empty
         if let lastFetch = lastFetchTime,
            Date().timeIntervalSince(lastFetch) < cacheDuration,
            !cachedPortfolios.isEmpty {
             return cachedPortfolios
         }
 
+        // Cache miss or expired - fetch fresh data from API
         let portfolios: [Portfolio] = try await apiClient.request(Endpoints.GetPortfolios())
 
+        // Update cache with fresh data
         cachedPortfolios = portfolios
         lastFetchTime = Date()
 
@@ -57,8 +60,9 @@ final class PortfolioRepository: PortfolioRepositoryProtocol, @unchecked Sendabl
     }
 
     func createPortfolio(_ portfolio: Portfolio) async throws -> Portfolio {
-        // This would need a dedicated endpoint
-        // For now, throw an error - the backend handles portfolio creation through Alpaca
+        // Portfolio creation is handled server-side through Alpaca brokerage account setup
+        // Users don't directly create portfolios - they're auto-created during onboarding
+        // This method exists for protocol conformance but isn't used in the current flow
         throw PortfolioRepositoryError.invalidPortfolioData
     }
 

@@ -626,9 +626,6 @@ final class PortfolioViewModelTests: XCTestCase {
 
         await sut.loadPortfolioData()
 
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(500))
-
         // Simulate account update event
         let event = MockWebSocketService.makeAccountUpdateEvent(
             cashUsd: 2000,
@@ -641,7 +638,7 @@ final class PortfolioViewModelTests: XCTestCase {
         mockWebSocketService.sendEvent(event)
 
         // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(300))
+        try? await Task.sleep(for: .milliseconds(100))
 
         // Verify portfolio was updated
         XCTAssertEqual(sut.selectedPortfolio?.totalValue, 12000)
@@ -659,9 +656,6 @@ final class PortfolioViewModelTests: XCTestCase {
 
         await sut.loadPortfolioData()
 
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(500))
-
         // Simulate account update event
         let event = MockWebSocketService.makeAccountUpdateEvent(
             cashUsd: 2000,
@@ -674,7 +668,7 @@ final class PortfolioViewModelTests: XCTestCase {
         mockWebSocketService.sendEvent(event)
 
         // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(300))
+        try? await Task.sleep(for: .milliseconds(100))
 
         // Verify portfolios array was also updated
         let updatedPortfolio = sut.portfolios.first { $0.id == "p1" }
@@ -695,9 +689,6 @@ final class PortfolioViewModelTests: XCTestCase {
 
         await sut.loadPortfolioData()
 
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(500))
-
         let originalQuantity = sut.holdings.first?.quantity
 
         // Simulate position update for different symbol
@@ -713,7 +704,7 @@ final class PortfolioViewModelTests: XCTestCase {
         mockWebSocketService.sendEvent(event)
 
         // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(300))
+        try? await Task.sleep(for: .milliseconds(100))
 
         // Verify AAPL holding was NOT updated
         XCTAssertEqual(sut.holdings.first?.quantity, originalQuantity)
@@ -735,7 +726,7 @@ final class PortfolioViewModelTests: XCTestCase {
         mockWebSocketService.sendEvent(event)
 
         // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(300))
+        try? await Task.sleep(for: .milliseconds(100))
 
         // Verify nothing changed (no crash)
         XCTAssertNil(sut.selectedPortfolio)
@@ -759,9 +750,6 @@ final class PortfolioViewModelTests: XCTestCase {
 
         await sut.loadPortfolioData()
 
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(500))
-
         // Send multiple events
         let positionEvent = MockWebSocketService.makePositionUpdateEvent(
             symbol: "AAPL",
@@ -784,223 +772,12 @@ final class PortfolioViewModelTests: XCTestCase {
         mockWebSocketService.sendEvent(accountEvent)
 
         // Give async handling time to process both events
-        try? await Task.sleep(for: .milliseconds(500))
+        try? await Task.sleep(for: .milliseconds(200))
 
         // Verify both updates were applied
         XCTAssertEqual(sut.holdings.first?.quantity, 12)
         XCTAssertEqual(sut.selectedPortfolio?.totalValue, 12000)
         XCTAssertEqual(sut.selectedPortfolio?.cashBalance, 1600)
-    }
-
-    // MARK: - Position Milestone Tests
-
-    func test_handlePositionCreated_showsCelebrationNotification() async {
-        // Setup initial portfolio without holdings
-        mockRepository.portfoliosToReturn = [MockPortfolioRepository.samplePortfolio(id: "p1")]
-        mockRepository.holdingsToReturn = []
-
-        await sut.loadPortfolioData()
-
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(200))
-
-        // Reset mock to detect refresh call
-        mockRepository.refreshHoldingPricesPortfolioIdCalled = nil
-
-        // Simulate position created event
-        let event = MockWebSocketService.makePositionCreatedEvent(
-            symbol: "AAPL",
-            quantity: 10,
-            marketValueUsd: 1500,
-            marketValueGbp: 1200
-        )
-
-        mockWebSocketService.sendEvent(event)
-
-        // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(300))
-
-        // Toast notification would have been shown with celebration emoji
-        // Verify refresh was called to load the new position
-        XCTAssertNotNil(mockRepository.refreshHoldingPricesPortfolioIdCalled)
-    }
-
-    func test_handlePositionCreated_refreshesPortfolio() async {
-        // Setup initial portfolio
-        let portfolio = MockPortfolioRepository.samplePortfolio(id: "p1")
-        mockRepository.portfoliosToReturn = [portfolio]
-        mockRepository.holdingsToReturn = []
-
-        await sut.loadPortfolioData()
-
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(200))
-
-        // Reset mock
-        mockRepository.refreshHoldingPricesPortfolioIdCalled = nil
-
-        // Simulate position created event
-        let event = MockWebSocketService.makePositionCreatedEvent(
-            symbol: "MSFT",
-            quantity: 5,
-            marketValueUsd: 1500,
-            marketValueGbp: 1200
-        )
-
-        mockWebSocketService.sendEvent(event)
-
-        // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(500))
-
-        // Verify refreshPrices was called
-        XCTAssertEqual(mockRepository.refreshHoldingPricesPortfolioIdCalled, "p1")
-    }
-
-    func test_handlePositionClosed_showsP_LNotification() async {
-        // Setup initial portfolio with a holding
-        let holding = MockPortfolioRepository.sampleHolding(
-            id: "h1",
-            symbol: "TSLA",
-            quantity: 10,
-            currentPrice: 200
-        )
-        mockRepository.portfoliosToReturn = [MockPortfolioRepository.samplePortfolio(id: "p1")]
-        mockRepository.holdingsToReturn = [holding]
-
-        await sut.loadPortfolioData()
-
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(200))
-
-        // Reset mock
-        mockRepository.refreshHoldingPricesPortfolioIdCalled = nil
-
-        // Simulate position closed event with profit
-        let event = MockWebSocketService.makePositionClosedEvent(
-            symbol: "TSLA",
-            unrealizedPnlUsd: 500,
-            unrealizedPnlGbp: 400
-        )
-
-        mockWebSocketService.sendEvent(event)
-
-        // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(300))
-
-        // Toast notification would have been shown with P&L and checkmark emoji
-        // Verify refresh was called to remove the closed position
-        XCTAssertNotNil(mockRepository.refreshHoldingPricesPortfolioIdCalled)
-    }
-
-    func test_handlePositionClosed_showsCorrectEmojiForProfit() async {
-        // Setup initial portfolio with a holding
-        let holding = MockPortfolioRepository.sampleHolding(
-            id: "h1",
-            symbol: "GOOGL",
-            quantity: 5,
-            currentPrice: 150
-        )
-        mockRepository.portfoliosToReturn = [MockPortfolioRepository.samplePortfolio(id: "p1")]
-        mockRepository.holdingsToReturn = [holding]
-
-        await sut.loadPortfolioData()
-
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(200))
-
-        // Simulate position closed event with profit (positive P&L)
-        let event = MockWebSocketService.makePositionClosedEvent(
-            symbol: "GOOGL",
-            unrealizedPnlUsd: 250,
-            unrealizedPnlGbp: 200
-        )
-
-        mockWebSocketService.sendEvent(event)
-
-        // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(300))
-
-        // Toast would show "Position closed: GOOGL ✅ P&L: £200.00"
-        // Verify refresh was called
-        XCTAssertNotNil(mockRepository.refreshHoldingPricesPortfolioIdCalled)
-    }
-
-    func test_handlePositionClosed_showsCorrectEmojiForLoss() async {
-        // Setup initial portfolio with a holding
-        let holding = MockPortfolioRepository.sampleHolding(
-            id: "h1",
-            symbol: "NFLX",
-            quantity: 8,
-            currentPrice: 400
-        )
-        mockRepository.portfoliosToReturn = [MockPortfolioRepository.samplePortfolio(id: "p1")]
-        mockRepository.holdingsToReturn = [holding]
-
-        await sut.loadPortfolioData()
-
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(200))
-
-        // Simulate position closed event with loss (negative P&L)
-        let event = MockWebSocketService.makePositionClosedEvent(
-            symbol: "NFLX",
-            unrealizedPnlUsd: -150,
-            unrealizedPnlGbp: -120
-        )
-
-        mockWebSocketService.sendEvent(event)
-
-        // Give async handling time to process
-        try? await Task.sleep(for: .milliseconds(300))
-
-        // Toast would show "Position closed: NFLX 📉 P&L: -£120.00"
-        // Verify refresh was called
-        XCTAssertNotNil(mockRepository.refreshHoldingPricesPortfolioIdCalled)
-    }
-
-    func test_positionMilestones_multipleEvents() async {
-        // Setup initial portfolio
-        mockRepository.portfoliosToReturn = [MockPortfolioRepository.samplePortfolio(id: "p1")]
-        mockRepository.holdingsToReturn = []
-
-        await sut.loadPortfolioData()
-
-        // Give the event listener task time to start
-        try? await Task.sleep(for: .milliseconds(200))
-
-        // Reset mock
-        mockRepository.refreshHoldingPricesPortfolioIdCalled = nil
-
-        // Send multiple position milestone events
-        let createdEvent1 = MockWebSocketService.makePositionCreatedEvent(
-            symbol: "AAPL",
-            quantity: 10,
-            marketValueUsd: 1500,
-            marketValueGbp: 1200
-        )
-
-        let createdEvent2 = MockWebSocketService.makePositionCreatedEvent(
-            symbol: "MSFT",
-            quantity: 5,
-            marketValueUsd: 1500,
-            marketValueGbp: 1200
-        )
-
-        let closedEvent = MockWebSocketService.makePositionClosedEvent(
-            symbol: "TSLA",
-            unrealizedPnlUsd: 300,
-            unrealizedPnlGbp: 240
-        )
-
-        mockWebSocketService.sendEvent(createdEvent1)
-        mockWebSocketService.sendEvent(createdEvent2)
-        mockWebSocketService.sendEvent(closedEvent)
-
-        // Give async handling time to process all events
-        try? await Task.sleep(for: .milliseconds(500))
-
-        // Verify refresh was called (at least once, possibly multiple times)
-        XCTAssertNotNil(mockRepository.refreshHoldingPricesPortfolioIdCalled)
     }
 }
 

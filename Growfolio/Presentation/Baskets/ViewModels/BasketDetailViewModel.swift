@@ -25,14 +25,14 @@ final class BasketDetailViewModel: @unchecked Sendable {
 
     // MARK: - Initialization
 
-    init(
+    nonisolated(unsafe) init(
         basket: Basket,
         basketRepository: BasketRepositoryProtocol = RepositoryContainer.basketRepository,
         webSocketService: WebSocketServiceProtocol? = nil
     ) {
         self.basket = basket
         self.basketRepository = basketRepository
-        self.webSocketService = webSocketService ?? WebSocketService.shared
+        self.webSocketService = webSocketService ?? MainActor.assumeIsolated { WebSocketService.shared }
     }
 
     // MARK: - Methods

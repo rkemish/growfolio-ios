@@ -101,6 +101,7 @@ struct FamilyAccount: Identifiable, Codable, Sendable, Equatable, Hashable {
     // MARK: - Computed Properties
 
     /// Member's initials for avatar
+    /// Extracts first letter of first name and last name for avatar display
     var initials: String {
         let components = name.components(separatedBy: " ")
         let firstInitial = components.first?.first.map(String.init) ?? ""
@@ -109,6 +110,7 @@ struct FamilyAccount: Identifiable, Codable, Sendable, Equatable, Hashable {
     }
 
     /// Whether the member is a minor
+    /// US legal age is 18 - important for custodial account handling
     var isMinor: Bool {
         guard let dob = dateOfBirth else { return false }
         let years = Calendar.current.dateComponents([.year], from: dob, to: Date()).year ?? 0
@@ -284,11 +286,13 @@ struct FamilyPermissions: Codable, Sendable, Equatable, Hashable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         // Try both snake_case (API) and camelCase (auto-converted) keys for compatibility
+        // Defaults favor safety: view permissions default to true, modify permissions default to false
         canViewPortfolios = try container.decodeIfPresent(Bool.self, forKey: .canViewPortfolios) ?? true
         canManagePortfolios = try container.decodeIfPresent(Bool.self, forKey: .canManagePortfolios) ?? false
         canViewGoals = try container.decodeIfPresent(Bool.self, forKey: .canViewGoals) ?? true
         canManageGoals = try container.decodeIfPresent(Bool.self, forKey: .canManageGoals) ?? false
-        // Handle DCA acronym specially - may come as can_view_dca_schedules or canViewDcaSchedules
+        // Handle DCA acronym specially - Swift's auto snake_case converter may produce different results
+        // for acronyms (DCA vs Dca), so we try both variations for robustness
         if let value = try? container.decodeIfPresent(Bool.self, forKey: .canViewDCASchedules) {
             canViewDCASchedules = value ?? true
         } else if let value = try? container.decodeIfPresent(Bool.self, forKey: .canViewDcaSchedules) {

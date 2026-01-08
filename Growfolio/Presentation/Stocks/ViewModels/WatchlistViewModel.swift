@@ -50,11 +50,7 @@ final class WatchlistViewModel: @unchecked Sendable {
         webSocketService: WebSocketServiceProtocol? = nil
     ) {
         self.stocksRepository = stocksRepository
-        if let webSocketService {
-            self.webSocketService = webSocketService
-        } else {
-            self.webSocketService = WebSocketService.shared
-        }
+        self.webSocketService = webSocketService ?? MainActor.assumeIsolated { WebSocketService.shared }
         startConnectionObserver()
     }
 

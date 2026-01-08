@@ -32,6 +32,7 @@ struct WatchlistItem: Identifiable, Codable, Sendable, Equatable, Hashable {
         dateAdded: Date = Date(),
         notes: String? = nil
     ) {
+        // Normalize ticker symbols to uppercase for consistency
         self.symbol = symbol.uppercased()
         self.dateAdded = dateAdded
         self.notes = notes

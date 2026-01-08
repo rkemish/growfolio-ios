@@ -160,6 +160,7 @@ struct Holding: Identifiable, Codable, Sendable, Equatable, Hashable {
     // MARK: - Methods
 
     /// Calculate the new average cost after adding shares
+    /// Uses weighted average: (current cost basis + new purchase) / total shares
     func averageCostAfterAdding(shares: Decimal, at price: Decimal) -> Decimal {
         let newTotalCost = costBasis + (shares * price)
         let newQuantity = quantity + shares

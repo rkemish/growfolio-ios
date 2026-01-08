@@ -66,9 +66,11 @@ struct FamilyInvite: Identifiable, Codable, Sendable, Equatable, Hashable {
         inviteeUserId: String? = nil,
         role: FamilyMemberRole = .member,
         status: InviteStatus = .pending,
+        // Generate a short, user-friendly invite code from first 8 chars of UUID
         inviteCode: String = String(UUID().uuidString.prefix(8)).uppercased(),
         message: String? = nil,
         createdAt: Date = Date(),
+        // Default expiration: 7 days from now (fallback to current date if date math fails)
         expiresAt: Date = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date(),
         respondedAt: Date? = nil
     ) {
@@ -117,6 +119,8 @@ struct FamilyInvite: Identifiable, Codable, Sendable, Equatable, Hashable {
             return "Expired"
         }
 
+        // Calculate days and hours from seconds
+        // 86400 seconds = 1 day, 3600 seconds = 1 hour
         let days = Int(remaining / 86400)
         let hours = Int((remaining.truncatingRemainder(dividingBy: 86400)) / 3600)
 

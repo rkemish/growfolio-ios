@@ -17,31 +17,35 @@ final class DashboardViewModelTests: XCTestCase {
     var mockDCARepository: MockDCARepository!
     var mockPortfolioRepository: MockPortfolioRepository!
     var mockStocksRepository: MockStocksRepository!
+    var mockWebSocketService: MockWebSocketService!
     var sut: DashboardViewModel!
 
     // MARK: - Setup / Teardown
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         mockGoalRepository = MockGoalRepository()
         mockDCARepository = MockDCARepository()
         mockPortfolioRepository = MockPortfolioRepository()
         mockStocksRepository = MockStocksRepository()
+        mockWebSocketService = await MockWebSocketService()
         sut = DashboardViewModel(
             goalRepository: mockGoalRepository,
             dcaRepository: mockDCARepository,
             portfolioRepository: mockPortfolioRepository,
-            stocksRepository: mockStocksRepository
+            stocksRepository: mockStocksRepository,
+            webSocketService: mockWebSocketService
         )
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         mockGoalRepository = nil
         mockDCARepository = nil
         mockPortfolioRepository = nil
         mockStocksRepository = nil
+        mockWebSocketService = nil
         sut = nil
-        super.tearDown()
+        try await super.tearDown()
     }
 
     // MARK: - Initial State Tests
@@ -351,6 +355,222 @@ final class DashboardViewModelTests: XCTestCase {
 
         XCTAssertNil(sut.portfolio)
         XCTAssertEqual(sut.totalPortfolioValue, 0)
+    }
+
+    // MARK: - WebSocket Order Event Tests
+
+    func test_webSocketSubscription_subscribesToOrdersChannel() async {
+        mockPortfolioRepository.portfolioToReturn = TestFixtures.portfolio()
+
+        await sut.loadDashboardData()
+
+        // Give the subscription time to process
+        try? await Task.sleep(for: .milliseconds(200))
+
+        XCTAssertTrue(mockWebSocketService.subscribedChannels.contains("orders"))
+    }
+
+    func test_handleOrderCreated_addsOrderToRecentOrders() async {
+        mockPortfolioRepository.portfolioToReturn = TestFixtures.portfolio()
+
+        await sut.loadDashboardData()
+
+        // Give the event listener task time to start
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Simulate order created event
+        let event = MockWebSocketService.makeOrderCreatedEvent(
+            orderId: "order-123",
+            symbol: "AAPL",
+            side: "buy",
+            quantity: 10
+        )
+
+        await mockWebSocketService.sendEvent(event)
+
+        // Give async handling time to process
+        try? await Task.sleep(for: .milliseconds(300))
+
+        // Verify order was added
+        XCTAssertEqual(sut.recentOrders.count, 1)
+        XCTAssertEqual(sut.recentOrders.first?.id, "order-123")
+        XCTAssertEqual(sut.recentOrders.first?.symbol, "AAPL")
+        XCTAssertEqual(sut.recentOrders.first?.side, .buy)
+    }
+
+    func test_handleOrderStatus_updatesExistingOrder() async {
+        mockPortfolioRepository.portfolioToReturn = TestFixtures.portfolio()
+
+        await sut.loadDashboardData()
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Create initial order
+        let createEvent = MockWebSocketService.makeOrderCreatedEvent(
+            orderId: "order-123",
+            symbol: "AAPL",
+            status: "new"
+        )
+        await mockWebSocketService.sendEvent(createEvent)
+        try? await Task.sleep(for: .milliseconds(300))
+
+        // Update order status
+        let statusEvent = MockWebSocketService.makeOrderStatusEvent(
+            orderId: "order-123",
+            symbol: "AAPL",
+            status: "accepted",
+            filledQty: 0
+        )
+        await mockWebSocketService.sendEvent(statusEvent)
+        try? await Task.sleep(for: .milliseconds(300))
+
+        // Verify order was updated
+        XCTAssertEqual(sut.recentOrders.count, 1)
+        XCTAssertEqual(sut.recentOrders.first?.id, "order-123")
+        XCTAssertEqual(sut.recentOrders.first?.status, .accepted)
+    }
+
+    func test_handleOrderFill_updatesOrderAndShowsNotification() async {
+        mockPortfolioRepository.portfolioToReturn = TestFixtures.portfolio()
+        mockPortfolioRepository.holdingsToReturn = []
+
+        await sut.loadDashboardData()
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Create initial order
+        let createEvent = MockWebSocketService.makeOrderCreatedEvent(
+            orderId: "order-123",
+            symbol: "AAPL",
+            quantity: 10
+        )
+        await mockWebSocketService.sendEvent(createEvent)
+        try? await Task.sleep(for: .milliseconds(300))
+
+        // Fill order
+        let fillEvent = MockWebSocketService.makeOrderFillEvent(
+            orderId: "order-123",
+            symbol: "AAPL",
+            status: "filled",
+            quantity: 10,
+            filledQty: 10,
+            filledAvgPrice: 150.50
+        )
+        await mockWebSocketService.sendEvent(fillEvent)
+        try? await Task.sleep(for: .milliseconds(500))
+
+        // Verify order was updated
+        XCTAssertEqual(sut.recentOrders.count, 1)
+        XCTAssertEqual(sut.recentOrders.first?.status, .filled)
+        XCTAssertEqual(sut.recentOrders.first?.filledQuantity, 10)
+        XCTAssertEqual(sut.recentOrders.first?.filledAvgPrice, 150.50)
+    }
+
+    func test_handleOrderFill_partiallyFilledOrder() async {
+        mockPortfolioRepository.portfolioToReturn = TestFixtures.portfolio()
+
+        await sut.loadDashboardData()
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Fill order partially
+        let fillEvent = MockWebSocketService.makeOrderFillEvent(
+            orderId: "order-123",
+            symbol: "MSFT",
+            status: "partially_filled",
+            quantity: 20,
+            filledQty: 10,
+            filledAvgPrice: 300.25
+        )
+        await mockWebSocketService.sendEvent(fillEvent)
+        try? await Task.sleep(for: .milliseconds(500))
+
+        // Verify order was added with partial fill
+        XCTAssertEqual(sut.recentOrders.count, 1)
+        XCTAssertEqual(sut.recentOrders.first?.status, .partiallyFilled)
+        XCTAssertEqual(sut.recentOrders.first?.filledQuantity, 10)
+        XCTAssertEqual(sut.recentOrders.first?.quantity, 20)
+    }
+
+    func test_handleOrderCancelled_updatesOrderStatus() async {
+        mockPortfolioRepository.portfolioToReturn = TestFixtures.portfolio()
+
+        await sut.loadDashboardData()
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Create initial order
+        let createEvent = MockWebSocketService.makeOrderCreatedEvent(
+            orderId: "order-123",
+            symbol: "GOOGL"
+        )
+        await mockWebSocketService.sendEvent(createEvent)
+        try? await Task.sleep(for: .milliseconds(300))
+
+        // Cancel order
+        let cancelEvent = MockWebSocketService.makeOrderCancelledEvent(
+            orderId: "order-123",
+            symbol: "GOOGL",
+            status: "canceled"
+        )
+        await mockWebSocketService.sendEvent(cancelEvent)
+        try? await Task.sleep(for: .milliseconds(300))
+
+        // Verify order was updated
+        XCTAssertEqual(sut.recentOrders.count, 1)
+        XCTAssertEqual(sut.recentOrders.first?.status, .cancelled)
+    }
+
+    func test_recentOrders_limitsToMaximum10Orders() async {
+        mockPortfolioRepository.portfolioToReturn = TestFixtures.portfolio()
+
+        await sut.loadDashboardData()
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Create 15 orders
+        for i in 1...15 {
+            let event = MockWebSocketService.makeOrderCreatedEvent(
+                orderId: "order-\(i)",
+                symbol: "AAPL"
+            )
+            await mockWebSocketService.sendEvent(event)
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+
+        // Wait for all events to process
+        try? await Task.sleep(for: .milliseconds(500))
+
+        // Verify only 10 most recent orders are kept
+        XCTAssertEqual(sut.recentOrders.count, 10)
+        // Most recent order should be first
+        XCTAssertEqual(sut.recentOrders.first?.id, "order-15")
+    }
+
+    func test_webSocketEvents_multipleOrderTypes() async {
+        mockPortfolioRepository.portfolioToReturn = TestFixtures.portfolio()
+
+        await sut.loadDashboardData()
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Create multiple order types
+        let buyOrder = MockWebSocketService.makeOrderCreatedEvent(
+            orderId: "order-1",
+            symbol: "AAPL",
+            side: "buy",
+            type: "market"
+        )
+        await mockWebSocketService.sendEvent(buyOrder)
+        try? await Task.sleep(for: .milliseconds(200))
+
+        let sellOrder = MockWebSocketService.makeOrderCreatedEvent(
+            orderId: "order-2",
+            symbol: "MSFT",
+            side: "sell",
+            type: "limit"
+        )
+        await mockWebSocketService.sendEvent(sellOrder)
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Verify both orders were added
+        XCTAssertEqual(sut.recentOrders.count, 2)
+        XCTAssertTrue(sut.recentOrders.contains(where: { $0.side == .buy }))
+        XCTAssertTrue(sut.recentOrders.contains(where: { $0.side == .sell }))
     }
 }
 

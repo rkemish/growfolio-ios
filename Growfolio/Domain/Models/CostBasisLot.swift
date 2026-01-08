@@ -39,6 +39,7 @@ struct CostBasisLot: Identifiable, Codable, Sendable, Equatable, Hashable {
 
     /// Price per share in GBP (calculated from USD price and FX rate)
     var priceGbp: Decimal {
+        // Protect against division by zero if FX rate is missing or invalid
         guard fxRate > 0 else { return 0 }
         return priceUsd / fxRate
     }

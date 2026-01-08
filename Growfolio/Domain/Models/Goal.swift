@@ -134,6 +134,7 @@ struct Goal: Identifiable, Codable, Sendable, Equatable, Hashable {
     }
 
     /// Estimated monthly contribution needed to reach goal on time
+    /// Calculates simple linear monthly amount needed (doesn't account for investment growth)
     var estimatedMonthlyContribution: Decimal? {
         guard let targetDate = targetDate,
               targetDate > Date(),
@@ -153,6 +154,7 @@ struct Goal: Identifiable, Codable, Sendable, Equatable, Hashable {
     }
 
     /// Status of the goal
+    /// Categorizes goals into meaningful states based on progress and dates
     var status: GoalStatus {
         if isArchived {
             return .archived
@@ -161,6 +163,7 @@ struct Goal: Identifiable, Codable, Sendable, Equatable, Hashable {
         } else if isOverdue {
             return .overdue
         } else if progress >= 0.75 {
+            // At 75%+ progress, show encouraging "almost there" state
             return .almostThere
         } else if progress >= 0.5 {
             return .halfway

@@ -63,11 +63,18 @@ actor APIClient: APIClientProtocol {
         self.authInterceptor = authInterceptor
 
         self.decoder = JSONDecoder()
+        // Automatically convert snake_case JSON keys to camelCase properties
         self.decoder.keyDecodingStrategy = .convertFromSnakeCase
+        // Custom date decoder that tries multiple date formats for robustness
+        // Backend may return dates in various formats depending on the endpoint
         self.decoder.dateDecodingStrategy = .custom { decoder in
             let container = try decoder.singleValueContainer()
             let dateString = try container.decode(String.self)
 
+            // Try multiple formatters in order of likelihood
+            // 1. ISO8601 with fractional seconds (most common from API)
+            // 2. ISO8601 without fractional seconds (alternate API format)
+            // 3. Date-only format (yyyy-MM-dd) for date fields without time
             let formatters = [
                 ISO8601DateFormatter(),
                 {
@@ -82,6 +89,7 @@ actor APIClient: APIClientProtocol {
                 }()
             ] as [Any]
 
+            // Attempt to parse with each formatter until one succeeds
             for formatter in formatters {
                 if let isoFormatter = formatter as? ISO8601DateFormatter,
                    let date = isoFormatter.date(from: dateString) {
@@ -93,6 +101,7 @@ actor APIClient: APIClientProtocol {
                 }
             }
 
+            // If all formatters fail, throw an error with the problematic date string
             throw DecodingError.dataCorruptedError(
                 in: container,
                 debugDescription: "Cannot decode date: \(dateString)"

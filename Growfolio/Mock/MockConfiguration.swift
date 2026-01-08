@@ -144,6 +144,7 @@ final class MockConfiguration: @unchecked Sendable {
     }
 
     /// Simulate network delay if configured
+    /// Makes mock repositories feel more realistic and helps catch race conditions
     func simulateNetworkDelay() async throws {
         if networkDelay > 0 {
             try await Task.sleep(nanoseconds: UInt64(networkDelay * 1_000_000_000))
@@ -151,6 +152,8 @@ final class MockConfiguration: @unchecked Sendable {
     }
 
     /// Potentially throw a simulated error based on error rate
+    /// Useful for testing error handling UI without actually breaking things
+    /// errorRate of 0.1 = 10% of requests fail
     func maybeThrowSimulatedError() throws {
         if errorRate > 0 && Double.random(in: 0...1) < errorRate {
             throw MockError.simulatedNetworkError

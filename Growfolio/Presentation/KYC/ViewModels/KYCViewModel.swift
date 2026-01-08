@@ -307,6 +307,7 @@ final class KYCViewModel {
 
     // MARK: - Submission
 
+    nonisolated(nonsending)
     func submit() async {
         guard validateAll() else {
             submissionState = .error("Please complete all required fields")

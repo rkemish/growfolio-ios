@@ -57,13 +57,15 @@ final class GoalRepository: GoalRepositoryProtocol, @unchecked Sendable {
             Endpoints.GetGoals(page: page, limit: limit)
         )
 
-        // Update cache if fetching first page
+        // Update cache only when fetching first page to keep it synchronized
+        // Subsequent pages don't affect the cache since they're likely for scrolling
         if page == 1 {
             cachedGoals = response.data
             lastFetchTime = Date()
         }
 
-        // Filter archived if needed
+        // Client-side filtering of archived goals to avoid separate API endpoint
+        // This allows flexible display of active/archived goals without backend changes
         if !includeArchived {
             let filteredData = response.data.filter { !$0.isArchived }
             return PaginatedResponse(

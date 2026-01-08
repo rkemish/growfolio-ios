@@ -19,9 +19,11 @@ enum MockDataGenerator {
     ///   - precision: Number of decimal places
     /// - Returns: Random decimal value
     static func decimal(min: Decimal, max: Decimal, precision: Int = 2) -> Decimal {
+        // Convert Decimal to Double for random number generation
         let minDouble = NSDecimalNumber(decimal: min).doubleValue
         let maxDouble = NSDecimalNumber(decimal: max).doubleValue
         let randomDouble = Double.random(in: minDouble...maxDouble)
+        // Round to specified precision to avoid floating point artifacts
         let multiplier = pow(10.0, Double(precision))
         let rounded = (randomDouble * multiplier).rounded() / multiplier
         return Decimal(rounded)
@@ -50,10 +52,13 @@ enum MockDataGenerator {
     }
 
     /// Select a random element with weighted probabilities
+    /// Useful for generating realistic distributions (e.g., more "buy" than "sell" transactions)
     static func weightedRandom<T>(options: [(T, Double)]) -> T {
         let totalWeight = options.reduce(0) { $0 + $1.1 }
         let random = Double.random(in: 0..<totalWeight)
 
+        // Iterate through options accumulating weights
+        // Return first option whose cumulative weight exceeds random value
         var cumulative = 0.0
         for (item, weight) in options {
             cumulative += weight
@@ -61,6 +66,7 @@ enum MockDataGenerator {
                 return item
             }
         }
+        // Fallback to last option (handles floating point edge cases)
         return options.last!.0
     }
 

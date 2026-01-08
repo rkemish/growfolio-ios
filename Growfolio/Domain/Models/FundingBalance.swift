@@ -132,6 +132,7 @@ struct FXRate: Codable, Sendable, Equatable {
     let spread: Decimal
 
     /// The effective rate after spread
+    /// Spread is applied as a multiplier (e.g., 0.01 = 1% spread reduces the rate)
     var effectiveRate: Decimal {
         rate * (1 - spread)
     }
@@ -168,6 +169,7 @@ struct FXRate: Codable, Sendable, Equatable {
         self.rate = rate
         self.spread = spread
         self.timestamp = timestamp
+        // FX rates expire after 5 minutes by default (or fallback to timestamp if date math fails)
         self.expiresAt = expiresAt ?? timestamp.adding(minutes: 5) ?? timestamp
     }
 

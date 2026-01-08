@@ -252,11 +252,13 @@ struct MemberPrivacySettings: Codable, Sendable, Equatable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        // Privacy-safe defaults: share high-level info but not detailed holdings/schedules
         sharePortfolioValue = try container.decodeIfPresent(Bool.self, forKey: .sharePortfolioValue) ?? true
         shareHoldings = try container.decodeIfPresent(Bool.self, forKey: .shareHoldings) ?? false
         sharePerformance = try container.decodeIfPresent(Bool.self, forKey: .sharePerformance) ?? true
         shareGoals = try container.decodeIfPresent(Bool.self, forKey: .shareGoals) ?? true
-        // Handle DCA acronym specially - may come as share_dca_schedules or shareDcaSchedules
+        // Handle DCA acronym specially - Swift's snake_case converter may produce different results
+        // for acronyms (DCA vs Dca), so we try both key variations for robustness
         if let value = try? container.decodeIfPresent(Bool.self, forKey: .shareDCASchedules) {
             shareDCASchedules = value ?? false
         } else if let value = try? container.decodeIfPresent(Bool.self, forKey: .shareDcaSchedules) {

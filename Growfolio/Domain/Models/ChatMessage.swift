@@ -178,13 +178,15 @@ struct ChatConversation: Identifiable, Codable, Sendable {
         messages.append(message)
         updatedAt = Date()
 
-        // Update title from first user message
+        // Auto-generate a meaningful title from the first user message
+        // Truncate to 50 chars to keep titles concise
         if messages.count == 1 && message.isUser {
             title = String(message.content.prefix(50))
         }
     }
 
     /// Convert to API format for sending conversation history
+    /// Transforms messages into the format expected by the chat API (array of role/content dicts)
     func toAPIHistory() -> [[String: String]] {
         messages.map { ["role": $0.role.rawValue, "content": $0.content] }
     }

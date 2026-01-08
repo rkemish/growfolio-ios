@@ -228,6 +228,73 @@ struct WebSocketOrderFillPayload: Decodable, Sendable {
     }
 }
 
+struct WebSocketOrderPayload: Decodable, Sendable {
+    let orderId: String
+    let clientOrderId: String?
+    let symbol: String
+    let side: String
+    let type: String
+    let status: String
+    let timeInForce: String
+    let quantity: FlexibleDecimal?
+    let notional: FlexibleDecimal?
+    let filledQty: FlexibleDecimal
+    let filledAvgPrice: FlexibleDecimal?
+    let limitPrice: FlexibleDecimal?
+    let stopPrice: FlexibleDecimal?
+    let basketId: String?
+    let dcaScheduleId: String?
+    let submittedAt: Date
+    let filledAt: Date?
+    let canceledAt: Date?
+    let expiredAt: Date?
+
+    enum CodingKeys: String, CodingKey {
+        case orderId = "order_id"
+        case clientOrderId = "client_order_id"
+        case symbol
+        case side
+        case type
+        case status
+        case timeInForce = "time_in_force"
+        case quantity = "qty"
+        case notional
+        case filledQty = "filled_qty"
+        case filledAvgPrice = "filled_avg_price"
+        case limitPrice = "limit_price"
+        case stopPrice = "stop_price"
+        case basketId = "basket_id"
+        case dcaScheduleId = "dca_schedule_id"
+        case submittedAt = "submitted_at"
+        case filledAt = "filled_at"
+        case canceledAt = "canceled_at"
+        case expiredAt = "expired_at"
+    }
+
+    /// Convert WebSocket payload to domain StockOrder model
+    func toStockOrder() -> StockOrder {
+        return StockOrder(
+            id: orderId,
+            symbol: symbol,
+            side: OrderSide(rawValue: side) ?? .buy,
+            type: OrderType(rawValue: type) ?? .market,
+            status: OrderStatus(rawValue: status) ?? .new,
+            timeInForce: TimeInForce(rawValue: timeInForce),
+            notional: notional?.value,
+            quantity: quantity?.value,
+            filledQuantity: filledQty.value,
+            filledAvgPrice: filledAvgPrice?.value,
+            limitPrice: limitPrice?.value,
+            stopPrice: stopPrice?.value,
+            submittedAt: submittedAt,
+            filledAt: filledAt,
+            cancelledAt: canceledAt,
+            expiredAt: expiredAt,
+            clientOrderId: clientOrderId
+        )
+    }
+}
+
 struct WebSocketPositionUpdatePayload: Decodable, Sendable {
     let symbol: String
     let quantity: FlexibleDecimal

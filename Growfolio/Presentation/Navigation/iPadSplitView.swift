@@ -60,13 +60,15 @@ struct iPadSplitView: View {
     @MainActor
     private func observeConnectionState() async {
         let connectionStateStream = AsyncStream<WebSocketService.ConnectionState> { continuation in
-            let task = Task {
+            let task = Task { @MainActor in
                 while !Task.isCancelled {
                     _ = withObservationTracking {
                         _ = WebSocketService.shared.connectionState
                         _ = WebSocketService.shared.lastError
                     } onChange: {
-                        continuation.yield(WebSocketService.shared.connectionState)
+                        Task { @MainActor in
+                            continuation.yield(WebSocketService.shared.connectionState)
+                        }
                     }
                     try? await Task.sleep(for: .seconds(1))
                 }
@@ -87,7 +89,7 @@ struct iPadSplitView: View {
     private func handleConnectionStateChange(_ state: WebSocketService.ConnectionState) {
         // Check if disconnection was due to server shutdown
         if case .disconnected = state,
-           let error = WebSocketService.shared.lastError,
+           let error = WebSocketService.shared.lastError as? WebSocketServiceError,
            case .connectionClosed(let code) = error,
            code == 4006 {  // 4006 = server_shutdown
 

@@ -115,6 +115,7 @@ struct AllocationSuggestion: Identifiable, Codable, Sendable, Equatable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        // Provide sensible defaults for all optional fields to handle incomplete API responses
         self.id = (try? container.decode(String.self, forKey: .id)) ?? UUID().uuidString
         self.suggestion = try container.decode(String.self, forKey: .suggestion)
         self.investmentAmount = (try? container.decode(Decimal.self, forKey: .investmentAmount)) ?? 0

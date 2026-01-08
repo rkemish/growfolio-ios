@@ -44,18 +44,23 @@ actor AuthInterceptor: RequestInterceptor {
     // MARK: - Token Management
 
     private func getValidToken() async throws -> String {
+        // Check if the current token has expired
         if await tokenManager.isTokenExpired {
             throw NetworkError.unauthorized
         }
 
+        // Prefer ID token (from Apple Sign In) over access token
+        // ID token contains user identity claims for authenticated API requests
         if let idToken = await tokenManager.idToken {
             return idToken
         }
 
+        // Fallback to access token if ID token is not available
         if let accessToken = await tokenManager.accessToken {
             return accessToken
         }
 
+        // No valid token available - user needs to re-authenticate
         throw NetworkError.unauthorized
     }
 

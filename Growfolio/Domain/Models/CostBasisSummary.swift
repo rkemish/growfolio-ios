@@ -67,6 +67,7 @@ struct CostBasisSummary: Codable, Sendable, Equatable {
 
     /// Unrealized P&L percentage (based on USD cost)
     var unrealizedPnlPercentage: Decimal {
+        // Avoid division by zero for positions with no cost basis
         guard totalCostUsd > 0 else { return 0 }
         return ((currentValueUsd - totalCostUsd) / totalCostUsd) * 100
     }
@@ -166,8 +167,11 @@ struct CostBasisSummary: Codable, Sendable, Equatable {
     }
 
     /// Weighted average FX rate (by cost)
+    /// Calculates the average FX rate weighted by the USD cost of each lot
+    /// This is more accurate than simple average when lot sizes vary significantly
     var weightedAverageFxRate: Decimal {
         guard totalCostUsd > 0 else { return 0 }
+        // Sum of (FX rate * lot cost) for each lot
         let weightedSum = lots.reduce(Decimal(0)) { $0 + ($1.fxRate * $1.totalUsd) }
         return weightedSum / totalCostUsd
     }

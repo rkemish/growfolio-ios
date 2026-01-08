@@ -17,6 +17,7 @@ final class DashboardViewModel: @unchecked Sendable {
     private let dcaRepository: DCARepositoryProtocol
     private let portfolioRepository: PortfolioRepositoryProtocol
     private let stocksRepository: StocksRepositoryProtocol
+    private let webSocketService: WebSocketServiceProtocol
 
     // MARK: - Properties
 
@@ -47,6 +48,9 @@ final class DashboardViewModel: @unchecked Sendable {
     // Recent Activity
     var recentActivity: [LedgerEntry] = []
 
+    // Recent Orders
+    var recentOrders: [StockOrder] = []
+
     // Portfolio Summary
     var portfolio: Portfolio?
 
@@ -61,6 +65,8 @@ final class DashboardViewModel: @unchecked Sendable {
     var greeting: String {
         let hour = Calendar.current.component(.hour, from: Date())
 
+        // Time-based greeting for personalized UX
+        // 0-11: Morning, 12-16: Afternoon, 17-23: Evening
         switch hour {
         case 0..<12:
             return "Good Morning"
@@ -79,39 +85,62 @@ final class DashboardViewModel: @unchecked Sendable {
         totalReturn >= 0
     }
 
+    // WebSocket Tasks
+    nonisolated(unsafe) private var orderUpdatesTask: Task<Void, Never>?
+
     // MARK: - Initialization
 
-    init(
+    nonisolated(unsafe) init(
         goalRepository: GoalRepositoryProtocol = RepositoryContainer.goalRepository,
         dcaRepository: DCARepositoryProtocol = RepositoryContainer.dcaRepository,
         portfolioRepository: PortfolioRepositoryProtocol = RepositoryContainer.portfolioRepository,
-        stocksRepository: StocksRepositoryProtocol = RepositoryContainer.stocksRepository
+        stocksRepository: StocksRepositoryProtocol = RepositoryContainer.stocksRepository,
+        webSocketService: WebSocketServiceProtocol? = nil
     ) {
         self.goalRepository = goalRepository
         self.dcaRepository = dcaRepository
         self.portfolioRepository = portfolioRepository
         self.stocksRepository = stocksRepository
+        if let webSocketService {
+            self.webSocketService = webSocketService
+        } else {
+            self.webSocketService = MainActor.assumeIsolated { WebSocketService.shared }
+        }
+    }
+
+    deinit {
+        orderUpdatesTask?.cancel()
+
+        // Note: Cannot await in deinit, but WebSocketService handles cleanup internally
+        // The unsubscribe will happen when the service is deallocated or connection closes
     }
 
     // MARK: - Data Loading
 
     @MainActor
     func loadDashboardData() async {
+        // Prevent concurrent loads (e.g., from pull-to-refresh + view appear)
         guard !isLoading else { return }
 
         isLoading = true
         error = nil
 
         do {
-            // Parallel API calls for best performance
+            // Use structured concurrency to load all data in parallel
+            // This pattern is faster than sequential awaits and handles errors gracefully
+            // Each async let starts a child task that runs concurrently
             async let portfolio = loadPortfolioSummary()
             async let goals = loadTopGoals()
             async let dca = loadActiveDCASchedules()
             async let activity = loadRecentActivity()
             async let marketStatus = loadMarketStatus()
 
-            // Wait for all tasks
+            // Wait for all child tasks to complete before proceeding
+            // If any task throws, all others are automatically cancelled
             _ = try await (portfolio, goals, dca, activity, marketStatus)
+
+            // Start real-time order updates after successful data load
+            await startOrderUpdates()
 
         } catch {
             self.error = error
@@ -314,6 +343,137 @@ final class DashboardViewModel: @unchecked Sendable {
     func dismissError() {
         showError = false
         error = nil
+    }
+
+    // MARK: - WebSocket Order Updates
+
+    @MainActor
+    private func startOrderUpdates() async {
+        // Subscribe to orders channel
+        await webSocketService.subscribe(channels: [WebSocketChannel.orders.rawValue])
+
+        // Start event listener
+        startOrderUpdatesListener()
+    }
+
+    @MainActor
+    private func startOrderUpdatesListener() {
+        guard orderUpdatesTask == nil else { return }
+
+        orderUpdatesTask = Task { [weak self] in
+            guard let self else { return }
+
+            let stream = await webSocketService.eventUpdates()
+            for await event in stream {
+                await MainActor.run {
+                    self.handleWebSocketEvent(event)
+                }
+            }
+        }
+    }
+
+    @MainActor
+    private func handleWebSocketEvent(_ event: WebSocketEvent) {
+        switch event.name {
+        case .orderCreated:
+            if let payload = try? event.decodeData(WebSocketOrderPayload.self) {
+                handleOrderCreated(payload)
+            }
+        case .orderStatus:
+            if let payload = try? event.decodeData(WebSocketOrderPayload.self) {
+                handleOrderStatus(payload)
+            }
+        case .orderFill:
+            if let payload = try? event.decodeData(WebSocketOrderPayload.self) {
+                handleOrderFill(payload)
+            }
+        case .orderCancelled:
+            if let payload = try? event.decodeData(WebSocketOrderPayload.self) {
+                handleOrderCancelled(payload)
+            }
+        default:
+            break
+        }
+    }
+
+    @MainActor
+    private func handleOrderCreated(_ payload: WebSocketOrderPayload) {
+        let order = payload.toStockOrder()
+
+        // Add to recent orders (keep max 10)
+        recentOrders.insert(order, at: 0)
+        if recentOrders.count > 10 {
+            recentOrders = Array(recentOrders.prefix(10))
+        }
+
+        // Show toast notification
+        let displayType = "\(order.side.rawValue.capitalized) \(order.type.rawValue.capitalized)"
+        ToastManager.shared.showInfo(
+            "Order created: \(displayType) \(order.symbol)"
+        )
+    }
+
+    @MainActor
+    private func handleOrderStatus(_ payload: WebSocketOrderPayload) {
+        let order = payload.toStockOrder()
+
+        // Update existing order or add new one
+        if let index = recentOrders.firstIndex(where: { $0.id == order.id }) {
+            recentOrders[index] = order
+        } else {
+            recentOrders.insert(order, at: 0)
+            if recentOrders.count > 10 {
+                recentOrders = Array(recentOrders.prefix(10))
+            }
+        }
+    }
+
+    @MainActor
+    private func handleOrderFill(_ payload: WebSocketOrderPayload) {
+        let order = payload.toStockOrder()
+
+        // Update existing order
+        if let index = recentOrders.firstIndex(where: { $0.id == order.id }) {
+            recentOrders[index] = order
+        } else {
+            recentOrders.insert(order, at: 0)
+            if recentOrders.count > 10 {
+                recentOrders = Array(recentOrders.prefix(10))
+            }
+        }
+
+        // Show toast notification for filled orders
+        if order.status == .filled {
+            let displayType = "\(order.side.rawValue.capitalized) \(order.type.rawValue.capitalized)"
+            ToastManager.shared.showSuccess(
+                "Order filled: \(displayType) \(order.filledQuantity ?? 0) shares of \(order.symbol)"
+            )
+
+            // Refresh portfolio data to show updated positions
+            Task {
+                try? await loadPortfolioSummary()
+            }
+        } else if order.status == .partiallyFilled {
+            ToastManager.shared.showInfo(
+                "Order partially filled: \(order.filledQuantity) of \(order.quantity ?? 0) shares"
+            )
+        }
+    }
+
+    @MainActor
+    private func handleOrderCancelled(_ payload: WebSocketOrderPayload) {
+        let order = payload.toStockOrder()
+
+        // Update existing order
+        if let index = recentOrders.firstIndex(where: { $0.id == order.id }) {
+            recentOrders[index] = order
+        }
+
+        // Show toast notification
+        let displayType = "\(order.side.rawValue.capitalized) \(order.type.rawValue.capitalized)"
+        ToastManager.shared.showInfo(
+            "Order cancelled: \(displayType) \(order.symbol)"
+        )
     }
 }
 

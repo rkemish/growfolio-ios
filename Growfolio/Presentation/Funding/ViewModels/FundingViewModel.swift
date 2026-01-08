@@ -23,6 +23,7 @@ final class FundingViewModel: @unchecked Sendable {
     // Balance Data
     var balance: FundingBalance?
     var fxRate: FXRate?
+    var fxRateUpdatedAt: Date?
 
     // Transfer Data
     var transfers: [Transfer] = []
@@ -161,15 +162,14 @@ final class FundingViewModel: @unchecked Sendable {
         webSocketService: WebSocketServiceProtocol? = nil
     ) {
         self.repository = repository
-        if let webSocketService {
-            self.webSocketService = webSocketService
-        } else {
-            self.webSocketService = WebSocketService.shared
-        }
+        self.webSocketService = webSocketService ?? MainActor.assumeIsolated { WebSocketService.shared }
     }
 
     deinit {
         transferUpdatesTask?.cancel()
+
+        // Note: Cannot await in deinit, but WebSocketService handles cleanup internally
+        // The unsubscribe will happen when the service is deallocated or connection closes
     }
 
     // MARK: - Data Loading
@@ -236,13 +236,55 @@ final class FundingViewModel: @unchecked Sendable {
         transferUpdatesTask = Task { [weak self] in
             guard let self else { return }
 
-            await webSocketService.subscribe(channels: [.transfers])
+            await webSocketService.subscribe(channels: [
+                WebSocketChannel.transfers.rawValue,
+                WebSocketChannel.fx.rawValue
+            ])
 
             let stream = await webSocketService.eventUpdates()
             for await event in stream {
-                guard event.name == .transferComplete || event.name == .transferFailed else { continue }
-                await refreshFundingData()
+                if event.name == .fxRateUpdated {
+                    if let payload = try? event.decodeData(WebSocketFXRatePayload.self) {
+                        await MainActor.run {
+                            self.handleFXRateUpdate(payload)
+                        }
+                    }
+                } else if event.name == .transferComplete || event.name == .transferFailed {
+                    await refreshFundingData()
+                }
             }
+        }
+    }
+
+    @MainActor
+    private func handleFXRateUpdate(_ payload: WebSocketFXRatePayload) {
+        // Update FX rate with new value from WebSocket
+        if let currentRate = fxRate {
+            // Preserve existing FX rate properties, just update the rate value
+            fxRate = FXRate(
+                fromCurrency: currentRate.fromCurrency,
+                toCurrency: currentRate.toCurrency,
+                rate: payload.rate.value,
+                spread: currentRate.spread,
+                timestamp: Date(),
+                expiresAt: currentRate.expiresAt
+            )
+        } else {
+            // Create new FXRate if none exists
+            fxRate = FXRate(
+                rate: payload.rate.value,
+                timestamp: Date()
+            )
+        }
+
+        fxRateUpdatedAt = Date()
+
+        // Show toast for significant rate changes (>1%)
+        if let changePct = payload.changePct?.value, abs(changePct) >= 1.0 {
+            let direction = changePct > 0 ? "increased" : "decreased"
+            ToastManager.shared.showInfo(
+                "Exchange rate \(direction): £1 = $\(payload.rate.value.formatted())"
+            )
         }
     }
 
