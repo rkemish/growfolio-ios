@@ -10,7 +10,7 @@ import SwiftUI
 
 @MainActor
 @Observable
-final class OnboardingViewModel: @unchecked Sendable {
+final class OnboardingViewModel {
 
     // MARK: - Properties
 
