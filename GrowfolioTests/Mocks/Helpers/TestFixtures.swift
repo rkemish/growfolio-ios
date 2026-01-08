@@ -868,6 +868,94 @@ enum TestFixtures {
 
 extension TestFixtures {
 
+    // MARK: - Basket
+
+    static func basket(
+        id: String = "basket-123",
+        userId: String = "user-123",
+        familyId: String? = nil,
+        name: String = "Test Basket",
+        description: String? = "Test basket description",
+        category: String? = "Technology",
+        icon: String? = "chart.bar.fill",
+        color: String? = "#007AFF",
+        allocations: [BasketAllocation] = [],
+        dcaEnabled: Bool = false,
+        dcaScheduleId: String? = nil,
+        status: BasketStatus = .active,
+        currentValue: Decimal = 1000,
+        totalInvested: Decimal = 900,
+        totalGainLoss: Decimal = 100,
+        isShared: Bool = false,
+        createdAt: Date = referenceDate,
+        updatedAt: Date = referenceDate
+    ) -> Basket {
+        let summary = BasketSummary(
+            currentValue: currentValue,
+            totalInvested: totalInvested,
+            totalGainLoss: totalGainLoss
+        )
+
+        let defaultAllocations = allocations.isEmpty ? [
+            BasketAllocation(symbol: "AAPL", name: "Apple Inc.", percentage: 50, targetShares: nil),
+            BasketAllocation(symbol: "MSFT", name: "Microsoft Corp.", percentage: 50, targetShares: nil)
+        ] : allocations
+
+        return Basket(
+            id: id,
+            userId: userId,
+            familyId: familyId,
+            name: name,
+            description: description,
+            category: category,
+            icon: icon,
+            color: color,
+            allocations: defaultAllocations,
+            dcaEnabled: dcaEnabled,
+            dcaScheduleId: dcaScheduleId,
+            status: status,
+            summary: summary,
+            isShared: isShared,
+            createdAt: createdAt,
+            updatedAt: updatedAt
+        )
+    }
+
+    static var sampleBaskets: [Basket] {
+        [
+            basket(
+                id: "basket-1",
+                name: "Tech Growth",
+                category: "Technology",
+                icon: "laptopcomputer",
+                status: .active,
+                currentValue: 5000,
+                totalInvested: 4500,
+                totalGainLoss: 500
+            ),
+            basket(
+                id: "basket-2",
+                name: "Dividend Kings",
+                category: "Income",
+                icon: "dollarsign.circle",
+                status: .active,
+                currentValue: 3000,
+                totalInvested: 2800,
+                totalGainLoss: 200
+            ),
+            basket(
+                id: "basket-3",
+                name: "ESG Portfolio",
+                category: "Sustainable",
+                icon: "leaf",
+                status: .paused,
+                currentValue: 1500,
+                totalInvested: 1600,
+                totalGainLoss: -100
+            )
+        ]
+    }
+
     /// Helper to encode a model to JSON Data
     static func jsonData<T: Encodable>(for model: T) throws -> Data {
         let encoder = JSONEncoder()

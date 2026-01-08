@@ -38,6 +38,9 @@ let package = Package(
                 "Presentation/Family/Views",
                 "Presentation/Funding/Views",
                 "Presentation/KYC/Views",
+                "Presentation/Baskets/Views",
+                "Presentation/Invest/Views",
+                "Presentation/Navigation",
                 // Exclude iOS-only Authentication (uses UIApplication)
                 "Core/Authentication/AuthService.swift",
                 // Exclude SettingsViewModel (depends on AuthService)
@@ -59,6 +62,7 @@ let package = Package(
                 "Presentation/Family/ViewModels",
                 "Presentation/Funding/ViewModels",
                 "Presentation/KYC/ViewModels",
+                "Presentation/Baskets/ViewModels",
                 "Presentation/Components"
             ]
         ),

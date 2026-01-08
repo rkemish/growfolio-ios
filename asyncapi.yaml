@@ -1,0 +1,1245 @@
+asyncapi: 3.0.0
+
+info:
+  title: Growfolio API
+  version: 0.1.0
+  description: |
+    DCA (Dollar Cost Averaging) Investment Platform API for international users investing in US equities.
+
+    This API provides:
+    - Real-time WebSocket updates for orders, positions, account changes, and DCA executions
+    - REST endpoints for managing baskets, DCA schedules, orders, and portfolio
+    - Integration with Alpaca Broker API for order execution
+
+    ## Authentication
+    All endpoints require authentication via Apple Sign In JWT tokens.
+    For REST endpoints, use Bearer token in Authorization header.
+    For WebSocket, pass the token as a query parameter.
+
+    ## Key Concepts
+    **Baskets**: Groupings of fractional stock holdings with target allocations and linked DCA schedules.
+    Each basket tracks cost basis and P&L in both USD and GBP.
+
+    **DCA Schedules**: Automated recurring purchases executed during market hours.
+    Each schedule is linked to a basket and executes orders based on basket allocations.
+  contact:
+    name: Growfolio API Support
+    url: https://growfolio.app
+  license:
+    name: Proprietary
+
+servers:
+  production:
+    host: api.growfolio.app
+    protocol: wss
+    description: Production WebSocket server
+    security:
+      - $ref: '#/components/securitySchemes/appleJwt'
+  productionRest:
+    host: api.growfolio.app
+    protocol: https
+    description: Production REST API server
+    security:
+      - $ref: '#/components/securitySchemes/appleJwt'
+  staging:
+    host: staging-api.growfolio.app
+    protocol: wss
+    description: Staging WebSocket server
+    security:
+      - $ref: '#/components/securitySchemes/appleJwt'
+
+defaultContentType: application/json
+
+channels:
+  websocket:
+    address: /api/v1/ws
+    description: |
+      Real-time WebSocket connection for order fills, position updates, account changes, and DCA executions.
+
+      ## Connection
+      Connect with Apple JWT as query parameter: `wss://api.growfolio.app/api/v1/ws?token=<jwt>`
+
+      ## Default Subscriptions
+      On connect, clients are automatically subscribed to: orders, positions, account, dca, transfers
+
+      ## Additional Subscriptions
+      - `fx`: FX rate updates
+      - `quotes`: Real-time stock quotes (requires symbols list)
+      - `baskets`: Basket value changes
+
+      ## Heartbeat
+      Server sends heartbeat every 30 seconds. Clients must respond with pong within 10 seconds.
+
+      ## Token Refresh
+      Server sends `token_expiring` event 60 seconds before expiry.
+      Client should send `refresh_token` message with new JWT.
+    parameters:
+      token:
+        description: Apple JWT identity token for authentication
+        location: $message.header#/token
+      device_type:
+        description: Client device type
+        location: $message.header#/device_type
+      app_version:
+        description: Client application version
+        location: $message.header#/app_version
+    messages:
+      serverMessage:
+        $ref: '#/components/messages/WSServerMessage'
+      clientMessage:
+        $ref: '#/components/messages/WSClientMessage'
+
+operations:
+  receiveEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/websocket'
+    summary: Receive real-time events from server
+    description: |
+      Server pushes events to clients based on their subscriptions.
+      Events include order fills, position updates, account changes, DCA executions, and more.
+    messages:
+      - $ref: '#/channels/websocket/messages/serverMessage'
+
+  sendCommands:
+    action: send
+    channel:
+      $ref: '#/channels/websocket'
+    summary: Send commands to server
+    description: |
+      Client can send subscribe/unsubscribe commands, heartbeat responses, and token refresh requests.
+    messages:
+      - $ref: '#/channels/websocket/messages/clientMessage'
+
+x-rest-api-note: |
+  This AsyncAPI specification covers the WebSocket real-time API.
+
+  For REST API endpoints (88+ endpoints including auth, baskets, DCA, orders, portfolio, funding, etc.),
+  please use the OpenAPI specification available at:
+  - https://api.growfolio.app/openapi.json (when API is running in debug mode)
+  - Or run: uvicorn app.main:app --reload and visit http://localhost:8000/docs
+
+  Key REST endpoints:
+  - POST /api/v1/auth/token - Exchange Apple identity token
+  - GET /api/v1/baskets - List user baskets
+  - POST /api/v1/baskets - Create basket
+  - GET /api/v1/dca/schedules - List DCA schedules
+  - POST /api/v1/dca/schedules - Create DCA schedule
+  - POST /api/v1/orders - Submit order
+  - GET /api/v1/stocks/search - Search stocks
+
+x-code-generation-note: |
+  For Swift code generation from this AsyncAPI spec:
+  1. Install AsyncAPI CLI: npm install -g @asyncapi/cli
+  2. Generate: asyncapi generate fromTemplate asyncapi.yaml @asyncapi/swift-template -o ./generated
+
+  The spec uses string patterns for Decimal types to ensure proper Swift Decimal mapping.
+  All dates use ISO 8601 format (date-time).
+
+components:
+  securitySchemes:
+    appleJwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Apple Sign In identity token (JWT).
+        The token is validated against Apple's JWKS and the user ID is extracted from the `sub` claim.
+
+  messages:
+    WSServerMessage:
+      name: ServerMessage
+      title: WebSocket Server Message
+      summary: Message sent from server to client
+      contentType: application/json
+      payload:
+        type: object
+        required:
+          - id
+          - type
+          - timestamp
+        properties:
+          id:
+            type: string
+            format: uuid
+            description: Unique message ID
+          type:
+            $ref: '#/components/schemas/WSMessageType'
+            description: Message type (event, system, ack, error)
+          event:
+            $ref: '#/components/schemas/WSEventType'
+            description: Event type (only present when type=event)
+          timestamp:
+            type: string
+            format: date-time
+            description: Message timestamp in ISO 8601 format
+          data:
+            type: object
+            description: Event payload (structure depends on event type)
+            oneOf:
+              - $ref: '#/components/schemas/OrderFillPayload'
+              - $ref: '#/components/schemas/PositionUpdatePayload'
+              - $ref: '#/components/schemas/AccountUpdatePayload'
+              - $ref: '#/components/schemas/DCAExecutionPayload'
+              - $ref: '#/components/schemas/TransferPayload'
+              - $ref: '#/components/schemas/FXRatePayload'
+              - $ref: '#/components/schemas/QuotePayload'
+              - $ref: '#/components/schemas/BasketValuePayload'
+              - $ref: '#/components/schemas/TokenExpiringPayload'
+              - $ref: '#/components/schemas/SystemPayload'
+      examples:
+        - name: OrderFill
+          summary: Order fill event
+          payload:
+            id: "550e8400-e29b-41d4-a716-446655440000"
+            type: "event"
+            event: "order_fill"
+            timestamp: "2026-01-07T14:30:00Z"
+            data:
+              order_id: "alpaca-order-123"
+              symbol: "AAPL"
+              side: "buy"
+              filled_qty: "10.5"
+              filled_price: "150.25"
+              status: "filled"
+              basket_id: "basket-123"
+        - name: PositionUpdate
+          summary: Position update event
+          payload:
+            id: "550e8400-e29b-41d4-a716-446655440001"
+            type: "event"
+            event: "position_updated"
+            timestamp: "2026-01-07T14:30:15Z"
+            data:
+              symbol: "AAPL"
+              quantity: "10.5"
+              market_value_usd: "1578.75"
+              market_value_gbp: "1250.00"
+              unrealized_pnl_usd: "78.75"
+              unrealized_pnl_gbp: "62.50"
+              change_pct: "2.5"
+
+    WSClientMessage:
+      name: ClientMessage
+      title: WebSocket Client Message
+      summary: Message sent from client to server
+      contentType: application/json
+      payload:
+        type: object
+        required:
+          - type
+        properties:
+          type:
+            type: string
+            enum: [subscribe, unsubscribe, pong, refresh_token]
+            description: Command type
+          channels:
+            type: array
+            items:
+              $ref: '#/components/schemas/WSChannel'
+            description: Channels to subscribe/unsubscribe (required for subscribe/unsubscribe)
+          symbols:
+            type: array
+            items:
+              type: string
+              pattern: '^[A-Z]{1,5}$'
+            description: Stock symbols to subscribe to quotes (optional, for quotes channel)
+          token:
+            type: string
+            format: jwt
+            description: New Apple JWT token (required for refresh_token type)
+      examples:
+        - name: Subscribe
+          summary: Subscribe to channels
+          payload:
+            type: "subscribe"
+            channels: ["fx", "baskets"]
+        - name: SubscribeQuotes
+          summary: Subscribe to stock quotes
+          payload:
+            type: "subscribe"
+            channels: ["quotes"]
+            symbols: ["AAPL", "MSFT", "GOOGL"]
+        - name: Pong
+          summary: Heartbeat response
+          payload:
+            type: "pong"
+        - name: RefreshToken
+          summary: Refresh authentication token
+          payload:
+            type: "refresh_token"
+            token: "new-jwt-token-here"
+
+  schemas:
+    # Enums
+    WSMessageType:
+      type: string
+      enum:
+        - event
+        - system
+        - ack
+        - error
+        - subscribe
+        - unsubscribe
+        - pong
+        - refresh_token
+      description: WebSocket message type
+
+    WSEventType:
+      type: string
+      enum:
+        # Order events
+        - order_created
+        - order_status
+        - order_fill
+        - order_cancelled
+        # Position events
+        - position_created
+        - position_updated
+        - position_closed
+        # Account events
+        - cash_changed
+        - buying_power_changed
+        - account_status_changed
+        # DCA events
+        - dca_executed
+        - dca_failed
+        - dca_status_changed
+        # Transfer events
+        - transfer_complete
+        - transfer_failed
+        # FX events
+        - fx_rate_updated
+        # Quote events
+        - quote_updated
+        # Basket events
+        - basket_value_changed
+        # System events
+        - token_expiring
+        - token_refreshed
+        - server_shutdown
+        - heartbeat
+      description: WebSocket event type
+
+    WSChannel:
+      type: string
+      enum:
+        - orders
+        - positions
+        - account
+        - dca
+        - transfers
+        - fx
+        - quotes
+        - baskets
+      description: WebSocket subscription channel
+
+    WSCloseCode:
+      type: integer
+      enum:
+        - 4001
+        - 4002
+        - 4003
+        - 4004
+        - 4005
+        - 4006
+      description: |
+        WebSocket close codes:
+        - 4001: UNAUTHORIZED (invalid token)
+        - 4002: TOKEN_EXPIRED (token expired during connection)
+        - 4003: USER_NOT_FOUND (user not found in database)
+        - 4004: ACCOUNT_INACTIVE (user account inactive)
+        - 4005: RATE_LIMITED (too many connections)
+        - 4006: SERVER_SHUTDOWN (server shutting down)
+
+    # WebSocket Payloads
+    OrderFillPayload:
+      type: object
+      required:
+        - order_id
+        - symbol
+        - side
+        - filled_qty
+        - filled_price
+        - status
+      properties:
+        order_id:
+          type: string
+          description: Alpaca order ID
+        client_order_id:
+          type: string
+          description: Client-provided order ID
+        symbol:
+          type: string
+          pattern: '^[A-Z]{1,5}$'
+          description: Stock symbol
+        side:
+          type: string
+          enum: [buy, sell]
+          description: Order side
+        filled_qty:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Quantity filled (decimal as string)
+        filled_price:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Average fill price (decimal as string)
+        status:
+          type: string
+          enum: [new, partially_filled, filled, canceled, expired, replaced]
+          description: Order status
+        basket_id:
+          type: string
+          description: Associated basket ID (if order is part of a basket)
+        dca_schedule_id:
+          type: string
+          description: Associated DCA schedule ID (if order is part of DCA execution)
+
+    PositionUpdatePayload:
+      type: object
+      required:
+        - symbol
+        - quantity
+        - market_value_usd
+        - market_value_gbp
+        - unrealized_pnl_usd
+        - unrealized_pnl_gbp
+      properties:
+        symbol:
+          type: string
+          pattern: '^[A-Z]{1,5}$'
+          description: Stock symbol
+        quantity:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Current quantity (decimal as string)
+        market_value_usd:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Market value in USD
+        market_value_gbp:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Market value in GBP
+        unrealized_pnl_usd:
+          type: string
+          pattern: '^-?\d+(\.\d+)?$'
+          description: Unrealized P&L in USD
+        unrealized_pnl_gbp:
+          type: string
+          pattern: '^-?\d+(\.\d+)?$'
+          description: Unrealized P&L in GBP
+        change_pct:
+          type: string
+          pattern: '^-?\d+(\.\d+)?$'
+          description: Daily change percentage
+
+    AccountUpdatePayload:
+      type: object
+      required:
+        - cash_usd
+        - cash_gbp
+        - buying_power_usd
+        - portfolio_value_usd
+        - portfolio_value_gbp
+      properties:
+        cash_usd:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Available cash in USD
+        cash_gbp:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Available cash in GBP
+        buying_power_usd:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Buying power in USD
+        portfolio_value_usd:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Total portfolio value in USD
+        portfolio_value_gbp:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Total portfolio value in GBP
+
+    DCAExecutionPayload:
+      type: object
+      required:
+        - schedule_id
+        - schedule_name
+        - basket_id
+        - total_amount_gbp
+        - total_amount_usd
+        - status
+        - orders
+      properties:
+        schedule_id:
+          type: string
+          description: DCA schedule ID
+        schedule_name:
+          type: string
+          description: Schedule name
+        basket_id:
+          type: string
+          description: Associated basket ID
+        total_amount_gbp:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Total amount executed in GBP
+        total_amount_usd:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Total amount executed in USD
+        status:
+          type: string
+          enum: [success, partial, failed]
+          description: Execution status
+        orders:
+          type: array
+          items:
+            type: object
+            properties:
+              symbol:
+                type: string
+              amount_usd:
+                type: string
+              status:
+                type: string
+          description: Individual order details
+        error_message:
+          type: string
+          description: Error message if failed
+
+    TransferPayload:
+      type: object
+      required:
+        - transfer_id
+        - direction
+        - amount
+        - currency
+        - status
+      properties:
+        transfer_id:
+          type: string
+          description: Transfer ID
+        direction:
+          type: string
+          enum: [INCOMING, OUTGOING]
+          description: Transfer direction
+        amount:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Transfer amount
+        currency:
+          type: string
+          enum: [USD, GBP]
+          description: Currency code
+        status:
+          type: string
+          enum: [pending, complete, failed, returned, canceled]
+          description: Transfer status
+
+    FXRatePayload:
+      type: object
+      required:
+        - pair
+        - rate
+      properties:
+        pair:
+          type: string
+          default: GBP/USD
+          description: Currency pair
+        rate:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Current exchange rate
+        previous_rate:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Previous rate
+        change_pct:
+          type: string
+          pattern: '^-?\d+(\.\d+)?$'
+          description: Change percentage
+
+    QuotePayload:
+      type: object
+      required:
+        - symbol
+        - price
+        - timestamp
+      properties:
+        symbol:
+          type: string
+          pattern: '^[A-Z]{1,5}$'
+          description: Stock symbol
+        price:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Current price in USD
+        price_gbp:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Current price in GBP
+        change:
+          type: string
+          pattern: '^-?\d+(\.\d+)?$'
+          description: Price change
+        change_pct:
+          type: string
+          pattern: '^-?\d+(\.\d+)?$'
+          description: Percentage change
+        volume:
+          type: integer
+          description: Trading volume
+        timestamp:
+          type: string
+          format: date-time
+          description: Quote timestamp
+
+    BasketValuePayload:
+      type: object
+      required:
+        - basket_id
+        - current_value
+        - total_invested
+        - total_gain_loss
+      properties:
+        basket_id:
+          type: string
+          description: Basket ID
+        current_value:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Current portfolio value
+        total_invested:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Total amount invested
+        total_gain_loss:
+          type: string
+          pattern: '^-?\d+(\.\d+)?$'
+          description: Total gain/loss
+        change_pct:
+          type: string
+          pattern: '^-?\d+(\.\d+)?$'
+          description: Change percentage
+
+    TokenExpiringPayload:
+      type: object
+      required:
+        - expires_in_seconds
+        - expires_at
+      properties:
+        expires_in_seconds:
+          type: integer
+          description: Seconds until token expires
+        expires_at:
+          type: string
+          format: date-time
+          description: Token expiration time
+
+    SystemPayload:
+      type: object
+      properties:
+        connection_id:
+          type: string
+          format: uuid
+          description: Connection ID (sent in welcome message)
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/WSChannel'
+          description: Active subscriptions (sent in welcome message)
+        heartbeat_interval:
+          type: integer
+          description: Heartbeat interval in seconds (sent in welcome message)
+        message:
+          type: string
+          description: System message text
+
+    # Domain Models - Basket
+    BasketStatus:
+      type: string
+      enum:
+        - active
+        - paused
+        - cancelled
+      description: Basket status
+
+    BasketAllocation:
+      type: object
+      required:
+        - symbol
+        - name
+        - percentage
+      properties:
+        symbol:
+          type: string
+          pattern: '^[A-Z]{1,5}$'
+          description: Stock symbol
+        name:
+          type: string
+          description: Company name
+        percentage:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Allocation percentage (0-100)
+        target_shares:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Target number of shares
+
+    BasketSummary:
+      type: object
+      properties:
+        current_value:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Current portfolio value
+        total_invested:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Total amount invested
+        total_gain_loss:
+          type: string
+          pattern: '^-?\d+(\.\d+)?$'
+          description: Total gain/loss
+
+    BasketResponse:
+      type: object
+      required:
+        - id
+        - user_id
+        - name
+        - allocations
+        - dca_enabled
+        - status
+        - summary
+        - is_shared
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Basket ID
+        user_id:
+          type: string
+          description: Owner user ID
+        family_id:
+          type: string
+          description: Family ID if shared basket
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Basket name
+        description:
+          type: string
+          maxLength: 500
+          description: Basket description
+        category:
+          type: string
+          maxLength: 50
+          description: Category label
+        icon:
+          type: string
+          description: Basket icon name
+        color:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+          description: Basket color hex code
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/BasketAllocation'
+          description: Stock allocations
+        dca_enabled:
+          type: boolean
+          description: DCA enabled for this basket
+        dca_schedule_id:
+          type: string
+          description: Linked DCA schedule ID
+        status:
+          $ref: '#/components/schemas/BasketStatus'
+        summary:
+          $ref: '#/components/schemas/BasketSummary'
+        is_shared:
+          type: boolean
+          description: Shared with family
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    BasketCreate:
+      type: object
+      required:
+        - name
+        - allocations
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Basket name
+        description:
+          type: string
+          maxLength: 500
+          description: Basket description
+        category:
+          type: string
+          maxLength: 50
+          description: Category label
+        icon:
+          type: string
+          description: Basket icon name
+        color:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+          description: Basket color hex code
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/BasketAllocation'
+          minItems: 1
+          description: Stock allocations (must sum to 100%)
+        is_shared:
+          type: boolean
+          default: false
+          description: Share with family
+
+    # Domain Models - DCA
+    DCAFrequency:
+      type: string
+      enum:
+        - daily
+        - weekly
+        - biweekly
+        - monthly
+      description: DCA execution frequency
+
+    DCAStatus:
+      type: string
+      enum:
+        - active
+        - paused
+        - completed
+        - cancelled
+        - pending_funds
+      description: DCA schedule status
+
+    DCAAllocation:
+      type: object
+      required:
+        - symbol
+        - percentage
+      properties:
+        symbol:
+          type: string
+          pattern: '^[A-Z]{1,5}$'
+          description: Stock symbol
+        percentage:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Allocation percentage (0-100)
+        min_amount:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Minimum order amount
+
+    DCAScheduleResponse:
+      type: object
+      required:
+        - id
+        - user_id
+        - name
+        - amount
+        - currency
+        - frequency
+        - status
+        - allocations
+        - execution_time
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Schedule ID
+        user_id:
+          type: string
+          description: Owner user ID
+        basket_id:
+          type: string
+          description: Linked basket ID
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Schedule name
+        amount:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Amount per execution
+        currency:
+          type: string
+          enum: [GBP, USD]
+          description: Investment currency
+        frequency:
+          $ref: '#/components/schemas/DCAFrequency'
+        day_of_week:
+          type: integer
+          minimum: 0
+          maximum: 6
+          description: Day of week (0=Monday, 6=Sunday) for weekly
+        day_of_month:
+          type: integer
+          minimum: 1
+          maximum: 28
+          description: Day of month for monthly
+        execution_time:
+          type: string
+          pattern: '^\d{2}:\d{2}:\d{2}$'
+          description: Time of day to execute (UTC)
+        status:
+          $ref: '#/components/schemas/DCAStatus'
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/DCAAllocation'
+          description: Stock allocations
+        end_date:
+          type: string
+          format: date
+          description: Optional end date
+        max_executions:
+          type: integer
+          description: Maximum number of executions
+        execution_count:
+          type: integer
+          description: Number of times executed
+        total_invested:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Total amount invested to date
+        next_execution:
+          type: string
+          format: date-time
+          description: Next scheduled execution time
+        last_execution:
+          type: string
+          format: date-time
+          description: Last execution time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    DCAScheduleCreate:
+      type: object
+      required:
+        - name
+        - amount
+        - frequency
+        - allocations
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Schedule name
+        basket_id:
+          type: string
+          description: Link to existing basket
+        amount:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Amount per execution
+        currency:
+          type: string
+          enum: [GBP, USD]
+          default: GBP
+          description: Investment currency
+        frequency:
+          $ref: '#/components/schemas/DCAFrequency'
+        day_of_week:
+          type: integer
+          minimum: 0
+          maximum: 6
+          description: Day of week (0=Monday, 6=Sunday) for weekly
+        day_of_month:
+          type: integer
+          minimum: 1
+          maximum: 28
+          description: Day of month for monthly
+        execution_time:
+          type: string
+          pattern: '^\d{2}:\d{2}:\d{2}$'
+          default: '14:30:00'
+          description: Time of day to execute (UTC)
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/DCAAllocation'
+          minItems: 1
+          description: Stock allocations (must sum to 100%)
+        end_date:
+          type: string
+          format: date
+          description: Optional end date
+        max_executions:
+          type: integer
+          minimum: 1
+          description: Maximum number of executions
+
+    # Additional REST API Models
+    OrderSide:
+      type: string
+      enum: [buy, sell]
+      description: Order side
+
+    OrderType:
+      type: string
+      enum: [market, limit, stop, stop_limit]
+      description: Order type
+
+    TimeInForce:
+      type: string
+      enum: [day, gtc, ioc, fok]
+      description: |
+        Time in force:
+        - day: Day order (good until market close)
+        - gtc: Good til canceled
+        - ioc: Immediate or cancel
+        - fok: Fill or kill
+
+    OrderStatus:
+      type: string
+      enum:
+        - new
+        - partially_filled
+        - filled
+        - done_for_day
+        - canceled
+        - expired
+        - replaced
+        - pending_cancel
+        - pending_replace
+        - accepted
+        - pending_new
+        - accepted_for_bidding
+        - stopped
+        - rejected
+        - suspended
+        - calculated
+      description: Order status
+
+    SubmitOrderRequest:
+      type: object
+      required:
+        - symbol
+        - side
+        - type
+        - time_in_force
+      properties:
+        symbol:
+          type: string
+          pattern: '^[A-Z]{1,5}$'
+          description: Stock symbol
+        side:
+          $ref: '#/components/schemas/OrderSide'
+        type:
+          $ref: '#/components/schemas/OrderType'
+        time_in_force:
+          $ref: '#/components/schemas/TimeInForce'
+        qty:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Order quantity (mutually exclusive with notional)
+        notional:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Dollar amount to purchase (mutually exclusive with qty)
+        limit_price:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Limit price (required for limit and stop_limit orders)
+        stop_price:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Stop price (required for stop and stop_limit orders)
+        client_order_id:
+          type: string
+          maxLength: 48
+          description: Client-assigned order ID
+
+    OrderResponse:
+      type: object
+      required:
+        - id
+        - symbol
+        - side
+        - type
+        - status
+        - submitted_at
+      properties:
+        id:
+          type: string
+          description: Alpaca order ID
+        client_order_id:
+          type: string
+          description: Client order ID
+        symbol:
+          type: string
+          description: Stock symbol
+        side:
+          $ref: '#/components/schemas/OrderSide'
+        type:
+          $ref: '#/components/schemas/OrderType'
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        time_in_force:
+          $ref: '#/components/schemas/TimeInForce'
+        qty:
+          type: string
+          description: Order quantity
+        notional:
+          type: string
+          description: Dollar amount
+        filled_qty:
+          type: string
+          description: Quantity filled
+        filled_avg_price:
+          type: string
+          description: Average fill price
+        limit_price:
+          type: string
+          description: Limit price
+        stop_price:
+          type: string
+          description: Stop price
+        submitted_at:
+          type: string
+          format: date-time
+        filled_at:
+          type: string
+          format: date-time
+        canceled_at:
+          type: string
+          format: date-time
+        expired_at:
+          type: string
+          format: date-time
+
+    AppleTokenRequest:
+      type: object
+      required:
+        - identity_token
+      properties:
+        identity_token:
+          type: string
+          format: jwt
+          description: Apple identity token JWT
+        user_first_name:
+          type: string
+          description: User first name (only on first sign-in)
+        user_last_name:
+          type: string
+          description: User last name (only on first sign-in)
+
+    TokenResponse:
+      type: object
+      required:
+        - user_id
+        - is_new_user
+      properties:
+        user_id:
+          type: string
+          description: User ID
+        email:
+          type: string
+          format: email
+          description: User email
+        name:
+          type: string
+          description: User full name
+        is_new_user:
+          type: boolean
+          description: True if this is first sign-in
+        alpaca_account_id:
+          type: string
+          description: Alpaca brokerage account ID
+        alpaca_account_status:
+          type: string
+          description: Account status (ACTIVE, PENDING, etc)
+
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: User ID
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        picture_url:
+          type: string
+          format: uri
+        alpaca_account_id:
+          type: string
+        family_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    StockSearchResult:
+      type: object
+      properties:
+        symbol:
+          type: string
+          pattern: '^[A-Z]{1,5}$'
+        name:
+          type: string
+          description: Company name
+        exchange:
+          type: string
+          description: Exchange (NASDAQ, NYSE, etc)
+        asset_type:
+          type: string
+          description: Asset type (stock, ETF, etc)
+        status:
+          type: string
+          description: Trading status
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          description: Additional error details
+

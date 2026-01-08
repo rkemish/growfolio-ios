@@ -50,6 +50,52 @@ struct iPadSplitView: View {
                 break
             }
         }
+        .task(id: scenePhase) {
+            // Observe WebSocket connection state for server shutdown events
+            await observeConnectionState()
+        }
+    }
+
+    /// Observes WebSocket connection state changes to detect server maintenance
+    @MainActor
+    private func observeConnectionState() async {
+        let connectionStateStream = AsyncStream<WebSocketService.ConnectionState> { continuation in
+            let task = Task {
+                while !Task.isCancelled {
+                    _ = withObservationTracking {
+                        _ = WebSocketService.shared.connectionState
+                        _ = WebSocketService.shared.lastError
+                    } onChange: {
+                        continuation.yield(WebSocketService.shared.connectionState)
+                    }
+                    try? await Task.sleep(for: .seconds(1))
+                }
+            }
+
+            continuation.onTermination = { _ in
+                task.cancel()
+            }
+        }
+
+        for await state in connectionStateStream {
+            handleConnectionStateChange(state)
+        }
+    }
+
+    /// Handles WebSocket connection state changes to show user-friendly notifications
+    @MainActor
+    private func handleConnectionStateChange(_ state: WebSocketService.ConnectionState) {
+        // Check if disconnection was due to server shutdown
+        if case .disconnected = state,
+           let error = WebSocketService.shared.lastError,
+           case .connectionClosed(let code) = error,
+           code == 4006 {  // 4006 = server_shutdown
+
+            ToastManager.shared.showInfo(
+                "Server maintenance in progress. Reconnecting...",
+                duration: 5.0
+            )
+        }
     }
 }
 
