@@ -61,6 +61,33 @@ actor MockDataStore {
 
     private(set) var chatHistory: [ChatMessage] = []
 
+    // MARK: - Order Data
+
+    private(set) var orders: [Order] = []
+
+    // MARK: - Position Data
+
+    private(set) var positions: [Position] = []
+    private(set) var positionHistory: [Position] = []
+
+    // MARK: - Bank Account Data
+
+    private(set) var bankAccounts: [BankAccount] = []
+
+    // MARK: - Funding Wallet Data
+
+    private(set) var fundingWallet: FundingWallet?
+    private(set) var recipientBankInfo: RecipientBankInfo?
+    private(set) var walletTransfers: [PendingTransfer] = []
+
+    // MARK: - Document Data
+
+    private(set) var documents: [Document] = []
+
+    // MARK: - Corporate Action Data
+
+    private(set) var corporateActions: [CorporateAction] = []
+
     // MARK: - Initialization
 
     private init() {}
@@ -104,6 +131,15 @@ actor MockDataStore {
         family = nil
         familyInvites = []
         chatHistory = []
+        orders = []
+        positions = []
+        positionHistory = []
+        bankAccounts = []
+        fundingWallet = nil
+        recipientBankInfo = nil
+        walletTransfers = []
+        documents = []
+        corporateActions = []
     }
 
     // MARK: - User CRUD
@@ -383,6 +419,114 @@ actor MockDataStore {
 
     func clearChatHistory() {
         chatHistory = []
+    }
+
+    // MARK: - Order CRUD
+
+    func addOrder(_ order: Order) {
+        orders.append(order)
+    }
+
+    func updateOrder(_ order: Order) {
+        if let index = orders.firstIndex(where: { $0.id == order.id }) {
+            orders[index] = order
+        }
+    }
+
+    func getOrder(id: String) -> Order? {
+        orders.first { $0.id == id }
+    }
+
+    // MARK: - Position CRUD
+
+    func addPosition(_ position: Position) {
+        positions.append(position)
+    }
+
+    func updatePosition(_ position: Position) {
+        if let index = positions.firstIndex(where: { $0.symbol == position.symbol }) {
+            positions[index] = position
+        }
+    }
+
+    func getPosition(symbol: String) -> Position? {
+        positions.first { $0.symbol == symbol }
+    }
+
+    func addPositionHistory(_ position: Position) {
+        positionHistory.append(position)
+    }
+
+    // MARK: - Bank Account CRUD
+
+    func addBankAccount(_ account: BankAccount) {
+        bankAccounts.append(account)
+    }
+
+    func updateBankAccount(_ account: BankAccount) {
+        if let index = bankAccounts.firstIndex(where: { $0.relationshipId == account.relationshipId }) {
+            bankAccounts[index] = account
+        }
+    }
+
+    func deleteBankAccount(relationshipId: String) {
+        bankAccounts.removeAll { $0.relationshipId == relationshipId }
+    }
+
+    func getBankAccount(relationshipId: String) -> BankAccount? {
+        bankAccounts.first { $0.relationshipId == relationshipId }
+    }
+
+    // MARK: - Funding Wallet CRUD
+
+    func setFundingWallet(_ wallet: FundingWallet) {
+        fundingWallet = wallet
+    }
+
+    func setRecipientBankInfo(_ info: RecipientBankInfo) {
+        recipientBankInfo = info
+    }
+
+    func addWalletTransfer(_ transfer: PendingTransfer) {
+        walletTransfers.append(transfer)
+    }
+
+    func updateWalletTransfer(_ transfer: PendingTransfer) {
+        if let index = walletTransfers.firstIndex(where: { $0.id == transfer.id }) {
+            walletTransfers[index] = transfer
+        }
+    }
+
+    // MARK: - Document CRUD
+
+    func addDocument(_ document: Document) {
+        documents.append(document)
+    }
+
+    func updateDocument(_ document: Document) {
+        if let index = documents.firstIndex(where: { $0.id == document.id }) {
+            documents[index] = document
+        }
+    }
+
+    func getDocument(id: String) -> Document? {
+        documents.first { $0.id == id }
+    }
+
+    // MARK: - Corporate Action CRUD
+
+    func addCorporateAction(_ action: CorporateAction) {
+        corporateActions.append(action)
+    }
+
+    func updateCorporateAction(_ action: CorporateAction) {
+        if let index = corporateActions.firstIndex(where: { $0.id == action.id }) {
+            corporateActions[index] = action
+        }
+    }
+
+    func getCorporateAction(id: String) -> CorporateAction? {
+        corporateActions.first { $0.id == id }
     }
 
     // MARK: - Helper Methods

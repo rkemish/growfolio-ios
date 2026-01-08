@@ -115,6 +115,66 @@ enum RepositoryContainer {
         }
         return KYCRepository()
     }
+
+    // MARK: - Order Repository
+
+    /// Provides the appropriate OrderRepository implementation
+    static var orderRepository: OrderRepositoryProtocol {
+        if MockConfiguration.shared.isEnabled {
+            return MockOrderRepository()
+        }
+        return OrderRepository()
+    }
+
+    // MARK: - Position Repository
+
+    /// Provides the appropriate PositionRepository implementation
+    static var positionRepository: PositionRepositoryProtocol {
+        if MockConfiguration.shared.isEnabled {
+            return MockPositionRepository()
+        }
+        return PositionRepository()
+    }
+
+    // MARK: - Bank Repository
+
+    /// Provides the appropriate BankRepository implementation
+    static var bankRepository: BankRepositoryProtocol {
+        if MockConfiguration.shared.isEnabled {
+            return MockBankRepository()
+        }
+        return BankRepository()
+    }
+
+    // MARK: - Funding Wallet Repository
+
+    /// Provides the appropriate FundingWalletRepository implementation
+    static var fundingWalletRepository: FundingWalletRepositoryProtocol {
+        if MockConfiguration.shared.isEnabled {
+            return MockFundingWalletRepository()
+        }
+        return FundingWalletRepository()
+    }
+
+    // MARK: - Document Repository
+
+    /// Provides the appropriate DocumentRepository implementation
+    static var documentRepository: DocumentRepositoryProtocol {
+        if MockConfiguration.shared.isEnabled {
+            return MockDocumentRepository()
+        }
+        return DocumentRepository()
+    }
+
+    // MARK: - Corporate Action Repository
+
+    /// Provides the appropriate CorporateActionRepository implementation
+    static var corporateActionRepository: CorporateActionRepositoryProtocol {
+        if MockConfiguration.shared.isEnabled {
+            return MockCorporateActionRepository()
+        }
+        return CorporateActionRepository()
+    }
 }
 
 // MARK: - SwiftUI Preview Support
@@ -169,6 +229,36 @@ extension RepositoryContainer {
     /// Creates a mock KYC repository for SwiftUI previews
     static var previewKYCRepository: KYCRepositoryProtocol {
         MockKYCRepository()
+    }
+
+    /// Creates a mock order repository for SwiftUI previews
+    static var previewOrderRepository: OrderRepositoryProtocol {
+        MockOrderRepository()
+    }
+
+    /// Creates a mock position repository for SwiftUI previews
+    static var previewPositionRepository: PositionRepositoryProtocol {
+        MockPositionRepository()
+    }
+
+    /// Creates a mock bank repository for SwiftUI previews
+    static var previewBankRepository: BankRepositoryProtocol {
+        MockBankRepository()
+    }
+
+    /// Creates a mock funding wallet repository for SwiftUI previews
+    static var previewFundingWalletRepository: FundingWalletRepositoryProtocol {
+        MockFundingWalletRepository()
+    }
+
+    /// Creates a mock document repository for SwiftUI previews
+    static var previewDocumentRepository: DocumentRepositoryProtocol {
+        MockDocumentRepository()
+    }
+
+    /// Creates a mock corporate action repository for SwiftUI previews
+    static var previewCorporateActionRepository: CorporateActionRepositoryProtocol {
+        MockCorporateActionRepository()
     }
 
     /// Initialize mock data for previews

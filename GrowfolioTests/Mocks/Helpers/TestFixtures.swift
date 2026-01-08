@@ -956,6 +956,268 @@ extension TestFixtures {
         ]
     }
 
+    // MARK: - Order
+
+    static func order(
+        id: String = "order-123",
+        clientOrderId: String? = "client-order-123",
+        symbol: String = "AAPL",
+        side: OrderSide = .buy,
+        type: OrderType = .market,
+        status: OrderStatus = .filled,
+        timeInForce: TimeInForce = .day,
+        quantity: Decimal? = 10,
+        notional: Decimal? = nil,
+        filledQuantity: Decimal? = 10,
+        filledAvgPrice: Decimal? = 150.25,
+        limitPrice: Decimal? = nil,
+        stopPrice: Decimal? = nil,
+        submittedAt: Date = referenceDate,
+        filledAt: Date? = nil,
+        canceledAt: Date? = nil,
+        expiredAt: Date? = nil
+    ) -> Order {
+        Order(
+            id: id,
+            clientOrderId: clientOrderId,
+            symbol: symbol,
+            side: side,
+            type: type,
+            status: status,
+            timeInForce: timeInForce,
+            quantity: quantity,
+            notional: notional,
+            filledQuantity: filledQuantity,
+            filledAvgPrice: filledAvgPrice,
+            limitPrice: limitPrice,
+            stopPrice: stopPrice,
+            submittedAt: submittedAt,
+            filledAt: filledAt ?? referenceDate,
+            canceledAt: canceledAt,
+            expiredAt: expiredAt
+        )
+    }
+
+    static var sampleOrders: [Order] {
+        [
+            order(id: "order-1", symbol: "AAPL", side: .buy, status: .filled, quantity: 10),
+            order(id: "order-2", symbol: "MSFT", side: .buy, status: .partiallyFilled, quantity: 5),
+            order(id: "order-3", symbol: "GOOGL", side: .sell, status: .pendingNew, quantity: 3)
+        ]
+    }
+
+    // MARK: - Position
+
+    static func position(
+        symbol: String = "AAPL",
+        quantity: Decimal = 100,
+        marketValueUsd: Decimal = 15000,
+        marketValueGbp: Decimal = 11811.02,
+        costBasis: Decimal = 13000,
+        unrealizedPnlUsd: Decimal = 2000,
+        unrealizedPnlGbp: Decimal = 1574.80,
+        averageEntryPrice: Decimal = 130,
+        currentPrice: Decimal = 150,
+        changePct: Decimal = 15.38,
+        side: PositionSide = .long,
+        lastUpdated: Date = referenceDate
+    ) -> Position {
+        Position(
+            symbol: symbol,
+            quantity: quantity,
+            marketValueUsd: marketValueUsd,
+            marketValueGbp: marketValueGbp,
+            costBasis: costBasis,
+            unrealizedPnlUsd: unrealizedPnlUsd,
+            unrealizedPnlGbp: unrealizedPnlGbp,
+            averageEntryPrice: averageEntryPrice,
+            currentPrice: currentPrice,
+            changePct: changePct,
+            side: side,
+            lastUpdated: lastUpdated
+        )
+    }
+
+    static var samplePositions: [Position] {
+        [
+            position(symbol: "AAPL", quantity: 100, marketValueUsd: 15000),
+            position(symbol: "MSFT", quantity: 50, marketValueUsd: 17500),
+            position(symbol: "GOOGL", quantity: 25, marketValueUsd: 3375)
+        ]
+    }
+
+    // MARK: - BankAccount
+
+    static func bankAccount(
+        id: String = "bank-123",
+        relationshipId: String = "rel-123",
+        userId: String = "user-123",
+        bankName: String = "Chase Bank",
+        accountType: BankAccountType = .checking,
+        accountNumberLast4: String = "1234",
+        status: BankAccountStatus = .active,
+        capabilities: [String] = ["ach_debit", "ach_credit"],
+        linkedAt: Date = referenceDate
+    ) -> BankAccount {
+        BankAccount(
+            id: id,
+            relationshipId: relationshipId,
+            userId: userId,
+            bankName: bankName,
+            accountType: accountType,
+            accountNumberLast4: accountNumberLast4,
+            status: status,
+            capabilities: capabilities,
+            linkedAt: linkedAt
+        )
+    }
+
+    static var sampleBankAccounts: [BankAccount] {
+        [
+            bankAccount(id: "bank-1", bankName: "Chase Bank", accountNumberLast4: "1234"),
+            bankAccount(id: "bank-2", bankName: "Bank of America", accountNumberLast4: "5678"),
+            bankAccount(id: "bank-3", bankName: "Wells Fargo", accountNumberLast4: "9012", status: .pending)
+        ]
+    }
+
+    // MARK: - FundingWallet
+
+    static func fundingWallet(
+        balance: Decimal = 1000,
+        currency: String = "USD",
+        pendingTransfers: [PendingTransfer] = [],
+        fundingDetails: FundingDetails? = nil
+    ) -> FundingWallet {
+        FundingWallet(
+            balance: balance,
+            currency: currency,
+            pendingTransfers: pendingTransfers,
+            fundingDetails: fundingDetails ?? TestFixtures.fundingDetails()
+        )
+    }
+
+    static func fundingDetails(
+        accountNumber: String = "123456789",
+        routingNumber: String = "021000021",
+        swiftCode: String? = nil,
+        iban: String? = nil
+    ) -> FundingDetails {
+        FundingDetails(
+            accountNumber: accountNumber,
+            routingNumber: routingNumber,
+            swiftCode: swiftCode,
+            iban: iban
+        )
+    }
+
+    static func recipientBankInfo(
+        bankName: String = "Alpaca Securities LLC",
+        accountNumber: String = "987654321",
+        routingNumber: String = "021000021",
+        accountType: String = "checking",
+        wireInstructions: String? = "Reference: USER123456"
+    ) -> RecipientBankInfo {
+        RecipientBankInfo(
+            bankName: bankName,
+            accountNumber: accountNumber,
+            routingNumber: routingNumber,
+            accountType: accountType,
+            wireInstructions: wireInstructions
+        )
+    }
+
+    static func pendingTransfer(
+        id: String = "transfer-123",
+        amount: Decimal = 500,
+        direction: TransferDirection = .incoming,
+        status: String = "pending",
+        createdAt: Date = referenceDate
+    ) -> PendingTransfer {
+        PendingTransfer(
+            id: id,
+            amount: amount,
+            direction: direction,
+            status: status,
+            createdAt: createdAt
+        )
+    }
+
+    // MARK: - Document
+
+    static func document(
+        id: String = "doc-123",
+        userId: String = "user-123",
+        type: DocumentType = .statement,
+        title: String = "Monthly Statement - June 2024",
+        description: String? = "Portfolio statement for June 2024",
+        fileUrl: URL = URL(string: "https://example.com/doc.pdf")!,
+        fileSize: Int64 = 524288,
+        mimeType: String = "application/pdf",
+        createdAt: Date = referenceDate
+    ) -> Document {
+        Document(
+            id: id,
+            userId: userId,
+            type: type,
+            title: title,
+            description: description,
+            fileUrl: fileUrl,
+            fileSize: fileSize,
+            mimeType: mimeType,
+            createdAt: createdAt
+        )
+    }
+
+    static var sampleDocuments: [Document] {
+        [
+            document(id: "doc-1", type: .statement, title: "Statement - June 2024"),
+            document(id: "doc-2", type: .taxForm, title: "1099-DIV Tax Form"),
+            document(id: "doc-3", type: .confirmation, title: "Trade Confirmation - AAPL")
+        ]
+    }
+
+    // MARK: - CorporateAction
+
+    static func corporateAction(
+        id: String = "ca-123",
+        symbol: String = "AAPL",
+        type: CorporateActionType = .dividend,
+        announcedDate: Date = pastDate,
+        exDate: Date? = nil,
+        recordDate: Date? = nil,
+        payableDate: Date? = nil,
+        amount: Decimal? = 0.25,
+        oldRate: Decimal? = nil,
+        newRate: Decimal? = nil,
+        description: String = "Quarterly dividend payment",
+        status: CorporateActionStatus = .executed
+    ) -> CorporateAction {
+        CorporateAction(
+            id: id,
+            symbol: symbol,
+            type: type,
+            announcedDate: announcedDate,
+            exDate: exDate ?? referenceDate,
+            recordDate: recordDate,
+            payableDate: payableDate ?? futureDate,
+            amount: amount,
+            oldRate: oldRate,
+            newRate: newRate,
+            description: description,
+            status: status
+        )
+    }
+
+    static var sampleCorporateActions: [CorporateAction] {
+        [
+            corporateAction(id: "ca-1", symbol: "AAPL", type: .dividend, amount: 0.25),
+            corporateAction(id: "ca-2", symbol: "GOOGL", type: .split, oldRate: 1, newRate: 20),
+            corporateAction(id: "ca-3", symbol: "MSFT", type: .dividend, amount: 0.75, status: .pending)
+        ]
+    }
+
+    // MARK: - Helper Methods
+
     /// Helper to encode a model to JSON Data
     static func jsonData<T: Encodable>(for model: T) throws -> Data {
         let encoder = JSONEncoder()
