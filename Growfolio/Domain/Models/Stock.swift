@@ -733,3 +733,20 @@ enum OrderStatus: String, Codable, Sendable {
         }
     }
 }
+
+// MARK: - OrderType Display Name
+
+extension OrderType {
+    var displayName: String {
+        switch self {
+        case .market:
+            return "Market"
+        case .limit:
+            return "Limit"
+        case .stop:
+            return "Stop"
+        case .stopLimit:
+            return "Stop Limit"
+        }
+    }
+}

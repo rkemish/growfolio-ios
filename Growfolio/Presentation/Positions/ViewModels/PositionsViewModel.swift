@@ -277,18 +277,30 @@ final class PositionsViewModel: @unchecked Sendable {
 
     @MainActor
     private func handlePositionCreated(_ payload: WebSocketPositionUpdatePayload) {
+        // Calculate missing fields from available data
+        let quantity = payload.quantity.value
+        let marketValueUsd = payload.marketValueUsd.value
+        let unrealizedPnlUsd = payload.unrealizedPnlUsd.value
+
+        // Calculate cost basis: marketValue - unrealizedPnL
+        let costBasis = marketValueUsd - unrealizedPnlUsd
+
+        // Calculate prices
+        let currentPrice = quantity > 0 ? marketValueUsd / quantity : 0
+        let averageEntryPrice = quantity > 0 ? costBasis / quantity : 0
+
         let newPosition = Position(
             symbol: payload.symbol,
-            quantity: payload.quantity.value,
-            marketValueUsd: payload.marketValueUsd.value,
+            quantity: quantity,
+            marketValueUsd: marketValueUsd,
             marketValueGbp: payload.marketValueGbp.value,
-            costBasis: payload.costBasis.value,
-            unrealizedPnlUsd: payload.unrealizedPnlUsd.value,
+            costBasis: costBasis,
+            unrealizedPnlUsd: unrealizedPnlUsd,
             unrealizedPnlGbp: payload.unrealizedPnlGbp.value,
-            averageEntryPrice: payload.averageEntryPrice.value,
-            currentPrice: payload.currentPrice.value,
-            changePct: payload.changePct.value,
-            side: payload.side == "long" ? .long : .short,
+            averageEntryPrice: averageEntryPrice,
+            currentPrice: currentPrice,
+            changePct: payload.changePct?.value ?? 0,
+            side: .long, // WebSocket payload doesn't include side, default to long
             lastUpdated: Date()
         )
 
@@ -302,18 +314,33 @@ final class PositionsViewModel: @unchecked Sendable {
     private func handlePositionUpdate(_ payload: WebSocketPositionUpdatePayload) {
         if let index = positions.firstIndex(where: { $0.symbol == payload.symbol }) {
             let existingPosition = positions[index]
+
+            // Calculate missing fields from available data
+            let quantity = payload.quantity.value
+            let marketValueUsd = payload.marketValueUsd.value
+            let unrealizedPnlUsd = payload.unrealizedPnlUsd.value
+
+            // Calculate cost basis: marketValue - unrealizedPnL
+            let costBasis = marketValueUsd - unrealizedPnlUsd
+
+            // Calculate current price
+            let currentPrice = quantity > 0 ? marketValueUsd / quantity : existingPosition.currentPrice
+
+            // Preserve average entry price and side from existing position
+            let averageEntryPrice = quantity > 0 ? costBasis / quantity : existingPosition.averageEntryPrice
+
             let updatedPosition = Position(
                 symbol: payload.symbol,
-                quantity: payload.quantity.value,
-                marketValueUsd: payload.marketValueUsd.value,
+                quantity: quantity,
+                marketValueUsd: marketValueUsd,
                 marketValueGbp: payload.marketValueGbp.value,
-                costBasis: payload.costBasis.value,
-                unrealizedPnlUsd: payload.unrealizedPnlUsd.value,
+                costBasis: costBasis,
+                unrealizedPnlUsd: unrealizedPnlUsd,
                 unrealizedPnlGbp: payload.unrealizedPnlGbp.value,
-                averageEntryPrice: payload.averageEntryPrice.value,
-                currentPrice: payload.currentPrice.value,
-                changePct: payload.changePct.value,
-                side: payload.side == "long" ? .long : .short,
+                averageEntryPrice: averageEntryPrice,
+                currentPrice: currentPrice,
+                changePct: payload.changePct?.value ?? existingPosition.changePct,
+                side: existingPosition.side, // Preserve side from existing position
                 lastUpdated: Date()
             )
             positions[index] = updatedPosition

@@ -305,22 +305,22 @@ final class OrdersViewModel: @unchecked Sendable {
         // Add new order to the list
         let newOrder = Order(
             id: payload.orderId,
-            clientOrderId: nil,
+            clientOrderId: payload.clientOrderId,
             symbol: payload.symbol,
             side: payload.side.toOrderSide(),
             type: payload.type.toOrderType(),
             status: payload.status.toOrderStatus(),
-            timeInForce: .day,
+            timeInForce: payload.timeInForce.toTimeInForce(),
             quantity: payload.quantity?.value,
             notional: payload.notional?.value,
-            filledQuantity: payload.filledQuantity?.value,
-            filledAvgPrice: nil,
+            filledQuantity: payload.filledQty.value,
+            filledAvgPrice: payload.filledAvgPrice?.value,
             limitPrice: payload.limitPrice?.value,
             stopPrice: payload.stopPrice?.value,
-            submittedAt: Date(),
-            filledAt: nil,
-            canceledAt: nil,
-            expiredAt: nil
+            submittedAt: payload.submittedAt,
+            filledAt: payload.filledAt,
+            canceledAt: payload.canceledAt,
+            expiredAt: payload.expiredAt
         )
 
         if !orders.contains(where: { $0.id == newOrder.id }) {
@@ -343,8 +343,8 @@ final class OrdersViewModel: @unchecked Sendable {
                 timeInForce: updatedOrder.timeInForce,
                 quantity: updatedOrder.quantity,
                 notional: updatedOrder.notional,
-                filledQuantity: payload.filledQuantity?.value ?? updatedOrder.filledQuantity,
-                filledAvgPrice: updatedOrder.filledAvgPrice,
+                filledQuantity: payload.filledQty.value,
+                filledAvgPrice: payload.filledAvgPrice?.value ?? updatedOrder.filledAvgPrice,
                 limitPrice: updatedOrder.limitPrice,
                 stopPrice: updatedOrder.stopPrice,
                 submittedAt: updatedOrder.submittedAt,
@@ -370,8 +370,8 @@ final class OrdersViewModel: @unchecked Sendable {
                 timeInForce: updatedOrder.timeInForce,
                 quantity: updatedOrder.quantity,
                 notional: updatedOrder.notional,
-                filledQuantity: payload.filledQuantity.value,
-                filledAvgPrice: payload.filledAvgPrice.value,
+                filledQuantity: payload.filledQty.value,
+                filledAvgPrice: payload.filledPrice.value,
                 limitPrice: updatedOrder.limitPrice,
                 stopPrice: updatedOrder.stopPrice,
                 submittedAt: updatedOrder.submittedAt,
@@ -461,4 +461,17 @@ private extension String {
         default: return .new
         }
     }
+
+    func toTimeInForce() -> TimeInForce {
+        switch self.lowercased() {
+        case "day": return .day
+        case "gtc": return .gtc
+        case "ioc": return .ioc
+        case "fok": return .fok
+        case "opg": return .opg
+        case "cls": return .cls
+        default: return .day
+        }
+    }
 }
+

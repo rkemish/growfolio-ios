@@ -10,6 +10,8 @@
 		010C43A5124CA770B3D55D88 /* FamilyRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96359B77B7E6A039EC133463 /* FamilyRepository.swift */; };
 		01A58B0282D6E8B597D60FB2 /* DecimalExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7E6B6864C25CA43D65C6C45 /* DecimalExtensionsTests.swift */; };
 		01CC71EFADAED1195BA89654 /* PortfolioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D602938BC1F2C3188C3D90 /* PortfolioView.swift */; };
+		02DF71FFF86B54AFE060305F /* MockFundingWalletRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B461EB8F7FE302EB5F60F97A /* MockFundingWalletRepository.swift */; };
+		033AFD87D7D22ADAD07CF4CC /* OrdersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93837A2DB8B07180CCC5E2FB /* OrdersView.swift */; };
 		04646C0FF9B197E13F998F50 /* HoldingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5DC3AC958CCFBAA320BFD0 /* HoldingTests.swift */; };
 		05C8F2001E4D89F19B61D521 /* MockAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3064CCFE5625DCE961B3B55E /* MockAPIClient.swift */; };
 		05EBFB0F4E1F01E18162AB71 /* MockFundingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE552855A6BE7D30BF0D7D7E /* MockFundingRepository.swift */; };
@@ -24,16 +26,20 @@
 		102FF9F301957AC00AB9522D /* MockBasketRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B910984482BE25DC5EA8C1C2 /* MockBasketRepository.swift */; };
 		105F0BD15033FE6C2CA1A54C /* ThemePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE3A2B31FDEADFBC11DDAB9 /* ThemePickerView.swift */; };
 		1172742DDCA1B4EDFCBBB2D5 /* TransferDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E898189518439B7391D2FE /* TransferDetailView.swift */; };
+		12178188E9A87D8D29FC5FE4 /* PositionRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA6675552F12C1F9F228F1D /* PositionRepositoryProtocol.swift */; };
 		13732DE477A0133758CD0BAA /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CEBB3CF3C2C6F84041996C /* NotificationSettingsView.swift */; };
 		138ABF5C56C469523046303A /* WatchlistViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5759C7391ECA91B7B7514AAA /* WatchlistViewModel.swift */; };
 		1445413FF516796470366A4C /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09085166E8DAFF3CFF9A5516 /* Environment.swift */; };
 		148659C8AE60CE89FC17DC2B /* StockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F067E815AD4EDE79F9A02189 /* StockTests.swift */; };
 		14EE3ABEFC3AEDAE20213D76 /* WatchlistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C9E032C0242B485EDFE5FB /* WatchlistView.swift */; };
 		15711E1306242CE833360C41 /* AIRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E110A80BB83393DAF97BFA9 /* AIRepositoryTests.swift */; };
+		166A75268E62FB84FB4A22A5 /* BankRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C49A499861C7166A52ECB3C /* BankRepositoryProtocol.swift */; };
 		16D923086E111F3E3D90ED4C /* WebSocketServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CFD7BA9E2D86CCB8ED4996F /* WebSocketServiceTests.swift */; };
 		194153A49981DDC20648F446 /* FamilyAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4BB3FF5067B49A5E8DDBE4 /* FamilyAccount.swift */; };
+		1A2FB8FD98D9D31CD807CFF3 /* CorporateAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C265F457F89B509F278AA52 /* CorporateAction.swift */; };
 		1BD1A80A78380645E2D793DE /* MockDCARepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7C103C4E1DB065C3302E04 /* MockDCARepository.swift */; };
 		1C4926A821449844550A132B /* GoalsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0482ADF1FF4905F0CF5C012D /* GoalsViewModelTests.swift */; };
+		1CD5AFD98BEC3D65CEDD1464 /* Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473C0A4F92E5121BD06E2588 /* Order.swift */; };
 		1CFBE017007404523F3F5898 /* MemberDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69B0F4EFDD30CEE83E68D22 /* MemberDetailView.swift */; };
 		1D2C792A48F68B76FAC7C861 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A603BB902E4E24E899990E9 /* SettingsView.swift */; };
 		1D4E2E31CDD3CF37DC82AE56 /* StockActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B50877B71E43B5CBAF50F2 /* StockActionsView.swift */; };
@@ -43,7 +49,10 @@
 		201B474F62EFD2B181395D85 /* StockDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2041F81D77C512A960AA1F1 /* StockDetailViewModel.swift */; };
 		21780E28B2F1301B9F8B6483 /* UserRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228E0E7BB4DE287AA6D59C84 /* UserRepositoryTests.swift */; };
 		227D35595B9DD033FC0ECF1F /* MockPortfolioRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2ED62B375A2443C8A4967A9 /* MockPortfolioRepository.swift */; };
+		23716998F8EFBF7C07806893 /* PositionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BDC80CA0A074AE9291836ED /* PositionsView.swift */; };
+		2508AC689C9223763ADAEEB5 /* OrderRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24CD850347F4FD11E01C25C1 /* OrderRepository.swift */; };
 		258DB74D9A7929F486243CFA /* MockDCARepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807C36087CF198162862129 /* MockDCARepository.swift */; };
+		278DA1B4201FB544D69E5B74 /* PositionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5700273D000A3581F15FA1F9 /* PositionRepository.swift */; };
 		286177CD097A43C0286923A8 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 40DFFA420ACFB22A104DF544 /* Localizable.strings */; };
 		28D1A0A00C00BB625D553275 /* AuthModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2B2E571DCD5DD7698222B8A /* AuthModels.swift */; };
 		2A4F1E637C79101725DF6F7E /* BasketRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B010DCA1774CAEE0F48A982 /* BasketRepositoryTests.swift */; };
@@ -77,7 +86,9 @@
 		444F0F87286181442CC33CD1 /* FamilyRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04BB12A912682344608C88 /* FamilyRepositoryTests.swift */; };
 		4473CA2D8890C7DDD3250B9D /* ErrorAlertModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91ED1D846293BF1F6C1520D4 /* ErrorAlertModifier.swift */; };
 		44C18126BA78E79B2A8A89A8 /* PortfolioViewModelTests.swift.bak in Resources */ = {isa = PBXBuildFile; fileRef = E2BB38B37FFD884B12DF8E2E /* PortfolioViewModelTests.swift.bak */; };
+		44CE5E7CD9E8068242EE9996 /* PositionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DDD61D73D205302C09602B7 /* PositionsViewModel.swift */; };
 		46EF8064288E107CD5F13E82 /* CostBasisSummaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6876F80466F62071450B352A /* CostBasisSummaryTests.swift */; };
+		48860BE1FEEAF6B3B6F3A993 /* MockOrderRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5882FA2922E6D338049FB6 /* MockOrderRepository.swift */; };
 		48FC987264EA054B86F72CF1 /* CostBasisLot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455B3D37A0436EBB400F0720 /* CostBasisLot.swift */; };
 		49F6A7120D30E073FC9CF99A /* GoalRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A62CBF33DCECA5C400979D8 /* GoalRepository.swift */; };
 		4A3405C02494DEB749DF7C06 /* AIInsightTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D6F9CDBEE1E7E7128E84FB /* AIInsightTests.swift */; };
@@ -92,6 +103,7 @@
 		53237D0216137D7E4F3A9232 /* Family.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9188FEBF73EBD8407A9C4FCD /* Family.swift */; };
 		534437E11C712A90F26BCEC6 /* CreateGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E9B603A1B0F50BAF5131C4 /* CreateGoalView.swift */; };
 		53E47E3E231C0FD93A8E827F /* MockStockDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA63D9BE256DBC6456D22FCB /* MockStockDataProvider.swift */; };
+		550551585AF43A595B1F680B /* CorporateActionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F1A220F623B892149303D0 /* CorporateActionRepository.swift */; };
 		550F68E043270F866EB5A19B /* StocksRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE3C23B0CAAA350A8EF8AEC1 /* StocksRepositoryTests.swift */; };
 		575EF57A8FF9938B26927FC1 /* AIChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78C8935449D36E949BFBC882 /* AIChatView.swift */; };
 		58D13A842D72F37000B71444 /* WithdrawalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D18763AD92D0C0300333045 /* WithdrawalView.swift */; };
@@ -137,9 +149,14 @@
 		8A21ABF720AFB9E8B2FFE1B0 /* iPadContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B1B2E33E09AB2B1CA3B814 /* iPadContentView.swift */; };
 		8AD4122F2FA7BE1930953F0E /* PersonalInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834ED747E890AC625DCD63C7 /* PersonalInfoView.swift */; };
 		8B61BCEEBD7191A239B7BF71 /* FundingBalanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548BBC1648FDA0DE7C66F0FD /* FundingBalanceTests.swift */; };
+		8CC4852C965BB1B49BA4A4B7 /* DocumentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E666E567CD8EFB7E8D90B29 /* DocumentRepository.swift */; };
 		8EA38ECC28BAEEF62529B9D4 /* Stock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6A8396161EDC88821D929 /* Stock.swift */; };
+		8EEA0D67E56090BA9CACFAD9 /* MockPositionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4EB47BEDF865106E6301CF /* MockPositionRepository.swift */; };
+		90E6D18068ABF9DFB922C102 /* MockBankRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893D591487C579F1B8B348 /* MockBankRepository.swift */; };
 		91110B14438A43FA5ACB0FC1 /* DCASchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A55C0E521902E0799337B1E /* DCASchedule.swift */; };
+		92073A9B56926090D983D6DC /* MockDocumentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4605EE07FF0EDA2928FF7B5 /* MockDocumentRepository.swift */; };
 		92C6BCDCE0799949C95CFE5A /* StockExplanation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E066754EE81CD0A21FE923C /* StockExplanation.swift */; };
+		9344CB8698A1A152864A4DB3 /* CorporateActionRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841B3ACB225796253C1D9DE0 /* CorporateActionRepositoryProtocol.swift */; };
 		94009AC070C256CA644DCC73 /* KYCViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE939471FC72E3330264EA57 /* KYCViewModel.swift */; };
 		96EE69AE1EAB38748F0A25B2 /* AuthInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83247EFE050C9BC6709D938D /* AuthInterceptor.swift */; };
 		98A9CEE50CC389BB95650F49 /* FundingBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0628D6CEB855599362D8437A /* FundingBalance.swift */; };
@@ -150,6 +167,7 @@
 		9CB2D3AD0BAEEFAFB608F96D /* PortfolioViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FBA5304AD82CB99C7AD377D /* PortfolioViewModel.swift */; };
 		9F011AF0DE5A13DCD4C53E24 /* MockStocksRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC19F4D722C0EF50BB035321 /* MockStocksRepository.swift */; };
 		A02407AD500B4532962B95D4 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6276C28CA01D14F2C2E2C4 /* AboutView.swift */; };
+		A141C5F4D9E4084E840A7993 /* BankAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 745C7BF21712507380E9DCCA /* BankAccount.swift */; };
 		A184ED58B719CEF370D41C4C /* FundingRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D680A97B4347064A9A32BAF /* FundingRepositoryTests.swift */; };
 		A19391C59687463C8CF686F1 /* FamilyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2F6484706F9F905BDDD0B5 /* FamilyTests.swift */; };
 		A2D4CD525CCFA3F7656579C8 /* BuyStockSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468F9FA3A16CB49D39FE5AF /* BuyStockSheet.swift */; };
@@ -159,8 +177,14 @@
 		A5334C12E385ECE749F58A40 /* CostBasisSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 942F94EEAF16326C8A876648 /* CostBasisSummary.swift */; };
 		A6689D1121190BFA04487EA8 /* NetworkErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D3E4FB230575F9C3F69231A /* NetworkErrorTests.swift */; };
 		A69F92CF32268FA93ECB93EE /* Basket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B60A5FC25EDD828A5914612 /* Basket.swift */; };
+		A88D705043387F6BAB781395 /* OrdersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED43B04D825A468FF1261D41 /* OrdersViewModel.swift */; };
+		A8F6D7A62434F8D6433A057F /* OrderRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC238A84BF84FD1A56476E03 /* OrderRepositoryProtocol.swift */; };
 		A96B21E61420FA64C28EF303 /* AuthInterceptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6EEDAAFF142D270180DABB /* AuthInterceptorTests.swift */; };
 		A99D1DD4C74973F26B277295 /* Endpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A71098E921C1CAAD8185CCE /* Endpoints.swift */; };
+		AA5EF5F1FCCE63D8EACB3D41 /* Position.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD7D8E1B3B26D5A544363AFD /* Position.swift */; };
+		ACA986675E0F90DA14EDFD18 /* FundingWalletRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA882D4D7579C2B9AD72A75 /* FundingWalletRepositoryProtocol.swift */; };
+		AEC13B412192AB25BB7DED6E /* MockCorporateActionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070585663E600D40B97C8DE9 /* MockCorporateActionRepository.swift */; };
+		AEF95DC29EBFE28D829747FF /* DocumentRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6745F8319597256577299D1 /* DocumentRepositoryProtocol.swift */; };
 		AFC775C2BC90DBE10A72C94E /* MockGoalRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F472D08D834EFFCCDC34059 /* MockGoalRepository.swift */; };
 		AFFD6437B2DE26CAA5E65B98 /* DCASchedulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51427BC35A63EF779073BF83 /* DCASchedulesView.swift */; };
 		B0DC049F2053BD9924B50015 /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D53097EF07E8283F3DAEFF /* GoalDetailView.swift */; };
@@ -168,6 +192,7 @@
 		B20271536041186CD661784E /* AddToDCASheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C7BA97435DEF816AC6EAA6 /* AddToDCASheet.swift */; };
 		B220DC7DF79EC3CAB0A52506 /* OnboardingViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2987DC3053A65D80D7E04 /* OnboardingViewModelTests.swift */; };
 		B2242E46F2744A4506C356F4 /* BasketDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EFEF6DFEF9933E2B8D4928 /* BasketDetailView.swift */; };
+		B35CD05378A7F6ED915A8BBE /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF2C0F81C045AC78C86ED0 /* Document.swift */; };
 		B3CC9C418664D1B2D379AB68 /* BasketDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44EB380F31321D62496D2317 /* BasketDetailViewModel.swift */; };
 		B4537606FA1384528EB52F6F /* KYCDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B16190D8638EC740F775AF56 /* KYCDataTests.swift */; };
 		B546AC39A98D5A56CA1E3C44 /* TokenManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45A88ECA9654466B129925B /* TokenManagerTests.swift */; };
@@ -186,6 +211,8 @@
 		BF50A694DC1F3CF240386B75 /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB5B378C53DDCE5D010167E /* GoalsView.swift */; };
 		BFFA283E0BE7AEA188CCE5B8 /* HoldingDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF1C0571BEE783982F16752 /* HoldingDetailView.swift */; };
 		C1C9622DE8DC17DE72484C67 /* GoalRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82F584E463C3891EF645B9F6 /* GoalRepositoryProtocol.swift */; };
+		C64DCC51CE3E6A448A4A6FCE /* FundingWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9296CAD8D4D7E8AA21E8672B /* FundingWallet.swift */; };
+		C68F6248E598F11705102EF6 /* FundingWalletRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55C0DDDDAB200BCDC879774 /* FundingWalletRepository.swift */; };
 		C868135C0E30233F87F53D92 /* AuthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C9649D1B5FC48B447B5BCB /* AuthServiceTests.swift */; };
 		C8BA2370152CA40954C8B226 /* FundingRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F721726852F2808AC8F7D8 /* FundingRepositoryProtocol.swift */; };
 		C9D883BFDA23BFC2E58DCE2D /* BiometricAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C13E717CE5AD8C0A0C048FE /* BiometricAuth.swift */; };
@@ -208,6 +235,7 @@
 		D4D80036D606594E55FBB50C /* PortfolioViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E514A258429D4D7D6782FFA /* PortfolioViewModelTests.swift */; };
 		D6A1F3705C236B9403987195 /* ChatMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF28FF8861C4398605CF8AC /* ChatMessageTests.swift */; };
 		D81B332A8402CEF737D6D29C /* SettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD3602773A481702BEB4C1C /* SettingsViewModelTests.swift */; };
+		D8EE09E5D097FB3DE6F51E82 /* BankRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C743083B9E398490546E64C /* BankRepository.swift */; };
 		D91480C588BA3B85A48279CC /* MockAIRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5941AAF43950D5A6FB43A0E2 /* MockAIRepository.swift */; };
 		D977A726F0A1E2FDDBBA0651 /* DCAScheduleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ECC7D6BBEF14EB2DD4C8E5E /* DCAScheduleTests.swift */; };
 		DAE6B88DC5C02F012E5571AB /* DCAScheduleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6A41352E5DCE7B11321383 /* DCAScheduleDetailView.swift */; };
@@ -266,6 +294,7 @@
 		055288F63F11B2F3062E331A /* FundingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FundingViewModel.swift; sourceTree = "<group>"; };
 		0628D6CEB855599362D8437A /* FundingBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FundingBalance.swift; sourceTree = "<group>"; };
 		06C50DFA430EA30E04285AC1 /* WatchlistItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistItem.swift; sourceTree = "<group>"; };
+		070585663E600D40B97C8DE9 /* MockCorporateActionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCorporateActionRepository.swift; sourceTree = "<group>"; };
 		0709BEE43505D0FAB55D87D3 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		073FD868FF9398860B6EFE07 /* PortfolioRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioRepositoryProtocol.swift; sourceTree = "<group>"; };
 		0750311FAE3DE473DFF6A6CC /* WebSocketModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketModelsTests.swift; sourceTree = "<group>"; };
@@ -299,6 +328,7 @@
 		228E0E7BB4DE287AA6D59C84 /* UserRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepositoryTests.swift; sourceTree = "<group>"; };
 		236F59D03673DF21705AEF5B /* WatchlistViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistViewModelTests.swift; sourceTree = "<group>"; };
 		23EF366E982E957039AB4F5D /* GlassMaterial+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GlassMaterial+Extensions.swift"; sourceTree = "<group>"; };
+		24CD850347F4FD11E01C25C1 /* OrderRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderRepository.swift; sourceTree = "<group>"; };
 		2568E360CEF8BE5AD3FD7CB0 /* KYCRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCRepositoryTests.swift; sourceTree = "<group>"; };
 		26D9297B7D6AB25C2DF63805 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		26F721726852F2808AC8F7D8 /* FundingRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FundingRepositoryProtocol.swift; sourceTree = "<group>"; };
@@ -307,11 +337,14 @@
 		2A55C0E521902E0799337B1E /* DCASchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DCASchedule.swift; sourceTree = "<group>"; };
 		2CEC862761286795368D24F7 /* FamilyViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyViewModelTests.swift; sourceTree = "<group>"; };
 		2CF28FF8861C4398605CF8AC /* ChatMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageTests.swift; sourceTree = "<group>"; };
+		2D4EB47BEDF865106E6301CF /* MockPositionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPositionRepository.swift; sourceTree = "<group>"; };
 		2E110A80BB83393DAF97BFA9 /* AIRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIRepositoryTests.swift; sourceTree = "<group>"; };
+		2E666E567CD8EFB7E8D90B29 /* DocumentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentRepository.swift; sourceTree = "<group>"; };
 		2E9CF8BEB145F6C5FFB8030D /* BasketsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasketsListView.swift; sourceTree = "<group>"; };
 		2F472D08D834EFFCCDC34059 /* MockGoalRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockGoalRepository.swift; sourceTree = "<group>"; };
 		2F90C1BB6300B8A899BF834E /* MockFamilyRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFamilyRepository.swift; sourceTree = "<group>"; };
 		3064CCFE5625DCE961B3B55E /* MockAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAPIClient.swift; sourceTree = "<group>"; };
+		30F1A220F623B892149303D0 /* CorporateActionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorporateActionRepository.swift; sourceTree = "<group>"; };
 		31B1996D3E458F49366BCF04 /* FundingViewModelTests.swift.bak */ = {isa = PBXFileReference; path = FundingViewModelTests.swift.bak; sourceTree = "<group>"; };
 		3867960059EA7E85EE7A498E /* StocksRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StocksRepository.swift; sourceTree = "<group>"; };
 		38FF58A8D6BCB3C44B479BC0 /* AIChatViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatViewModelTests.swift; sourceTree = "<group>"; };
@@ -336,6 +369,7 @@
 		4683A60D86C205EDD721DC83 /* RepositoryContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryContainer.swift; sourceTree = "<group>"; };
 		468F5D2BAA0021AC2420E453 /* MockPortfolioRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPortfolioRepository.swift; sourceTree = "<group>"; };
 		472FA1FF9C6021E9AEB101FA /* MockUserDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUserDataProvider.swift; sourceTree = "<group>"; };
+		473C0A4F92E5121BD06E2588 /* Order.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
 		49F770099E49FCB7322DC748 /* KYCFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCFlowView.swift; sourceTree = "<group>"; };
 		4C09E7CB4B5B90FAD3F1EC63 /* TransferTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferTests.swift; sourceTree = "<group>"; };
 		4CA21CF01F28608250CB8E5E /* Transfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transfer.swift; sourceTree = "<group>"; };
@@ -343,6 +377,7 @@
 		4D2A58982A0708B23FB74292 /* MockKYCRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockKYCRepository.swift; sourceTree = "<group>"; };
 		4DA3D5E4488F3BC325601A2F /* GrowfolioUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowfolioUITests.swift; sourceTree = "<group>"; };
 		4DAB42B9C834F0816AA1A809 /* MockAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthService.swift; sourceTree = "<group>"; };
+		4DDD61D73D205302C09602B7 /* PositionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionsViewModel.swift; sourceTree = "<group>"; };
 		4E0752B13D891D33E904BFBD /* WebSocketModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketModels.swift; sourceTree = "<group>"; };
 		4F37520EA7A592B6C9818CCA /* WatchlistItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistItemTests.swift; sourceTree = "<group>"; };
 		4F6F61DBA1EE4FC2B5614B4E /* KYCRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCRepository.swift; sourceTree = "<group>"; };
@@ -352,12 +387,15 @@
 		524FF49F08F55E71A59F5954 /* KYCViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCViewModelTests.swift; sourceTree = "<group>"; };
 		548BBC1648FDA0DE7C66F0FD /* FundingBalanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FundingBalanceTests.swift; sourceTree = "<group>"; };
 		56E5ADD673DA6214E4ABE4AA /* MockUserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUserRepository.swift; sourceTree = "<group>"; };
+		5700273D000A3581F15FA1F9 /* PositionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionRepository.swift; sourceTree = "<group>"; };
 		5759C7391ECA91B7B7514AAA /* WatchlistViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistViewModel.swift; sourceTree = "<group>"; };
 		5807C36087CF198162862129 /* MockDCARepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDCARepository.swift; sourceTree = "<group>"; };
 		5940990486AC66FB99F91E4F /* LedgerEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerEntry.swift; sourceTree = "<group>"; };
 		5940F21378A75925744517A8 /* DCARepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DCARepositoryProtocol.swift; sourceTree = "<group>"; };
 		5941AAF43950D5A6FB43A0E2 /* MockAIRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAIRepository.swift; sourceTree = "<group>"; };
 		59A36253F48B9E8D0C9BA979 /* GrowfolioTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = GrowfolioTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5C49A499861C7166A52ECB3C /* BankRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BankRepositoryProtocol.swift; sourceTree = "<group>"; };
+		5CA882D4D7579C2B9AD72A75 /* FundingWalletRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FundingWalletRepositoryProtocol.swift; sourceTree = "<group>"; };
 		5CBDA0B05BCB16807BCBF8DB /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		5D6511548C9D2A38AC13643A /* WebSocketService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketService.swift; sourceTree = "<group>"; };
 		5DF1C0571BEE783982F16752 /* HoldingDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoldingDetailView.swift; sourceTree = "<group>"; };
@@ -373,6 +411,7 @@
 		6712F42041C7E6EEC8F94B05 /* CacheManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManagerTests.swift; sourceTree = "<group>"; };
 		6876F80466F62071450B352A /* CostBasisSummaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostBasisSummaryTests.swift; sourceTree = "<group>"; };
 		6B115B2CC77866025D3BB389 /* BasketsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasketsViewModel.swift; sourceTree = "<group>"; };
+		6BDC80CA0A074AE9291836ED /* PositionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionsView.swift; sourceTree = "<group>"; };
 		6D18763AD92D0C0300333045 /* WithdrawalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithdrawalView.swift; sourceTree = "<group>"; };
 		6D93E202732950596FF39AFE /* MockStocksRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockStocksRepository.swift; sourceTree = "<group>"; };
 		6E6276C28CA01D14F2C2E2C4 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
@@ -381,6 +420,7 @@
 		717D49F14C75CB96C43E408B /* FamilyMemberTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyMemberTests.swift; sourceTree = "<group>"; };
 		7351D37F80A3CC2BB29471AA /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		73659C0A0BD06CE53FCAE4EA /* MockAIRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAIRepository.swift; sourceTree = "<group>"; };
+		745C7BF21712507380E9DCCA /* BankAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BankAccount.swift; sourceTree = "<group>"; };
 		7575F824D79804EBC4FF66E9 /* AddTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTransactionView.swift; sourceTree = "<group>"; };
 		760DC97EED2BA594657E4AA4 /* DCAViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DCAViewModelTests.swift; sourceTree = "<group>"; };
 		76106EB74F72354F5F67BA67 /* AIInsightsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIInsightsViewModel.swift; sourceTree = "<group>"; };
@@ -401,19 +441,25 @@
 		83247EFE050C9BC6709D938D /* AuthInterceptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthInterceptor.swift; sourceTree = "<group>"; };
 		8344A3D6EEAC15E8E7094344 /* FamilyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyViewModel.swift; sourceTree = "<group>"; };
 		834ED747E890AC625DCD63C7 /* PersonalInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalInfoView.swift; sourceTree = "<group>"; };
+		841B3ACB225796253C1D9DE0 /* CorporateActionRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorporateActionRepositoryProtocol.swift; sourceTree = "<group>"; };
 		8468F9FA3A16CB49D39FE5AF /* BuyStockSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyStockSheet.swift; sourceTree = "<group>"; };
+		84893D591487C579F1B8B348 /* MockBankRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBankRepository.swift; sourceTree = "<group>"; };
 		89FC44D3F8BD26037D3E5550 /* UserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepository.swift; sourceTree = "<group>"; };
 		8A603BB902E4E24E899990E9 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8A62CBF33DCECA5C400979D8 /* GoalRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalRepository.swift; sourceTree = "<group>"; };
 		8B010DCA1774CAEE0F48A982 /* BasketRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasketRepositoryTests.swift; sourceTree = "<group>"; };
 		8B536AC8AA10FEBA343D78B4 /* FamilyGoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyGoalsView.swift; sourceTree = "<group>"; };
 		8B60A5FC25EDD828A5914612 /* Basket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Basket.swift; sourceTree = "<group>"; };
+		8C265F457F89B509F278AA52 /* CorporateAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorporateAction.swift; sourceTree = "<group>"; };
+		8C743083B9E398490546E64C /* BankRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BankRepository.swift; sourceTree = "<group>"; };
 		8D018EB4C7C5334EC7FB11AE /* InviteMemberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMemberView.swift; sourceTree = "<group>"; };
 		8F8B1BD32FDC2E97B443EF38 /* FamilyMembersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyMembersView.swift; sourceTree = "<group>"; };
 		8FBA5304AD82CB99C7AD377D /* PortfolioViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioViewModel.swift; sourceTree = "<group>"; };
 		90C7BA97435DEF816AC6EAA6 /* AddToDCASheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddToDCASheet.swift; sourceTree = "<group>"; };
 		9188FEBF73EBD8407A9C4FCD /* Family.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Family.swift; sourceTree = "<group>"; };
 		91ED1D846293BF1F6C1520D4 /* ErrorAlertModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorAlertModifier.swift; sourceTree = "<group>"; };
+		9296CAD8D4D7E8AA21E8672B /* FundingWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FundingWallet.swift; sourceTree = "<group>"; };
+		93837A2DB8B07180CCC5E2FB /* OrdersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersView.swift; sourceTree = "<group>"; };
 		942F94EEAF16326C8A876648 /* CostBasisSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostBasisSummary.swift; sourceTree = "<group>"; };
 		959C2BFE2B04CB2F5A1450B8 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		962C726648E29FFC4286D99C /* GoalPositionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalPositionsView.swift; sourceTree = "<group>"; };
@@ -437,6 +483,7 @@
 		A293020BA2389235A56AB569 /* FamilyInviteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyInviteTests.swift; sourceTree = "<group>"; };
 		A40A1E6DA329EAF8733338F2 /* KYCReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCReviewView.swift; sourceTree = "<group>"; };
 		A4B50877B71E43B5CBAF50F2 /* StockActionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockActionsView.swift; sourceTree = "<group>"; };
+		A55C0DDDDAB200BCDC879774 /* FundingWalletRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FundingWalletRepository.swift; sourceTree = "<group>"; };
 		A5B1B2E33E09AB2B1CA3B814 /* iPadContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadContentView.swift; sourceTree = "<group>"; };
 		A7943C6B99E7E75AFA658D2E /* DCARepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DCARepository.swift; sourceTree = "<group>"; };
 		AA99002EB453E82424873460 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
@@ -452,6 +499,7 @@
 		B2767207D0BC3C584CFB79CB /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		B2B5C78244805EBDE9BF1AFB /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		B3D8841637329EEEFBD63395 /* ChatMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageView.swift; sourceTree = "<group>"; };
+		B461EB8F7FE302EB5F60F97A /* MockFundingWalletRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFundingWalletRepository.swift; sourceTree = "<group>"; };
 		B4AAED8ADF9FAD6291829592 /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
 		B6230657473DD41353BF6DFD /* AIInsight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIInsight.swift; sourceTree = "<group>"; };
 		B6BB826C670B23D03D25198F /* MockDataGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataGenerator.swift; sourceTree = "<group>"; };
@@ -460,12 +508,14 @@
 		B9F904A0B4EFD4776A146153 /* SuggestedActionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedActionsView.swift; sourceTree = "<group>"; };
 		BB47320DF0D703A381DFA9C4 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		BB4BB3FF5067B49A5E8DDBE4 /* FamilyAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyAccount.swift; sourceTree = "<group>"; };
+		BB5882FA2922E6D338049FB6 /* MockOrderRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockOrderRepository.swift; sourceTree = "<group>"; };
 		BDD5AE36E1EE35D190DAE26B /* FamilyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyView.swift; sourceTree = "<group>"; };
 		C12118CF494BF12300E8B78A /* StockDetailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockDetailViewModelTests.swift; sourceTree = "<group>"; };
 		C2041F81D77C512A960AA1F1 /* StockDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockDetailViewModel.swift; sourceTree = "<group>"; };
 		C23EB6B8E3A2327ECE8DAC4D /* PortfolioRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioRepositoryTests.swift; sourceTree = "<group>"; };
 		C43D0DF5A9567599FE1F3824 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 		C4E3AF1D1B28116EDE9D9887 /* AIInsightsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIInsightsViewModelTests.swift; sourceTree = "<group>"; };
+		C5FF2C0F81C045AC78C86ED0 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		C636285FB96EA4C48273E187 /* BasketRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasketRepository.swift; sourceTree = "<group>"; };
 		C7311442910BB004C4C8456F /* FamilyInvite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyInvite.swift; sourceTree = "<group>"; };
 		C9595C2075819F7BE7F8B5C0 /* DashboardViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModelTests.swift; sourceTree = "<group>"; };
@@ -478,6 +528,7 @@
 		CEFEF3BEFEC446FA1891192A /* ChatInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInputView.swift; sourceTree = "<group>"; };
 		D0E898189518439B7391D2FE /* TransferDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferDetailView.swift; sourceTree = "<group>"; };
 		D117AE6E24FF92BFF935016B /* TransactionHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryView.swift; sourceTree = "<group>"; };
+		D4605EE07FF0EDA2928FF7B5 /* MockDocumentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDocumentRepository.swift; sourceTree = "<group>"; };
 		D5EFEF6DFEF9933E2B8D4928 /* BasketDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasketDetailView.swift; sourceTree = "<group>"; };
 		D69B0F4EFDD30CEE83E68D22 /* MemberDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberDetailView.swift; sourceTree = "<group>"; };
 		E2BB38B37FFD884B12DF8E2E /* PortfolioViewModelTests.swift.bak */ = {isa = PBXFileReference; path = PortfolioViewModelTests.swift.bak; sourceTree = "<group>"; };
@@ -487,11 +538,15 @@
 		E4926A11BA2D4260435AB772 /* Portfolio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
 		E5F919947F7FD9C6DFE22B67 /* FundingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FundingRepository.swift; sourceTree = "<group>"; };
 		E644F781397177ACAE6F3B73 /* EmploymentInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmploymentInfoView.swift; sourceTree = "<group>"; };
+		E6745F8319597256577299D1 /* DocumentRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentRepositoryProtocol.swift; sourceTree = "<group>"; };
 		E6E7E24A9476149049B81DFE /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		E91E6C244CACBD32E389E93F /* ToastManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastManager.swift; sourceTree = "<group>"; };
 		EBA842C35F69106023E372ED /* AdaptiveHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveHelpers.swift; sourceTree = "<group>"; };
+		EC238A84BF84FD1A56476E03 /* OrderRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderRepositoryProtocol.swift; sourceTree = "<group>"; };
 		EC2C4CF4180998B4DA74AAAE /* CreateDCAScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateDCAScheduleView.swift; sourceTree = "<group>"; };
 		EC9D23F0795D0F12DB289171 /* AIRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIRepository.swift; sourceTree = "<group>"; };
+		ED43B04D825A468FF1261D41 /* OrdersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersViewModel.swift; sourceTree = "<group>"; };
+		EDA6675552F12C1F9F228F1D /* PositionRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionRepositoryProtocol.swift; sourceTree = "<group>"; };
 		EDFEDC1A90F2C6242FE58B7A /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		EF04BB12A912682344608C88 /* FamilyRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyRepositoryTests.swift; sourceTree = "<group>"; };
 		F067E815AD4EDE79F9A02189 /* StockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockTests.swift; sourceTree = "<group>"; };
@@ -509,6 +564,7 @@
 		FA63D9BE256DBC6456D22FCB /* MockStockDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockStockDataProvider.swift; sourceTree = "<group>"; };
 		FADBD44BA54BD494C78B05FE /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
 		FB68F9285BF8F5C27BE011B8 /* CreateFamilyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFamilyView.swift; sourceTree = "<group>"; };
+		FD7D8E1B3B26D5A544363AFD /* Position.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Position.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -542,21 +598,27 @@
 			isa = PBXGroup;
 			children = (
 				B6230657473DD41353BF6DFD /* AIInsight.swift */,
+				745C7BF21712507380E9DCCA /* BankAccount.swift */,
 				8B60A5FC25EDD828A5914612 /* Basket.swift */,
 				7D6D743C99DC1479E0C3EAF1 /* ChatMessage.swift */,
+				8C265F457F89B509F278AA52 /* CorporateAction.swift */,
 				455B3D37A0436EBB400F0720 /* CostBasisLot.swift */,
 				942F94EEAF16326C8A876648 /* CostBasisSummary.swift */,
 				2A55C0E521902E0799337B1E /* DCASchedule.swift */,
+				C5FF2C0F81C045AC78C86ED0 /* Document.swift */,
 				9188FEBF73EBD8407A9C4FCD /* Family.swift */,
 				BB4BB3FF5067B49A5E8DDBE4 /* FamilyAccount.swift */,
 				C7311442910BB004C4C8456F /* FamilyInvite.swift */,
 				E2F13A02FEA6C56F886C35C4 /* FamilyMember.swift */,
 				0628D6CEB855599362D8437A /* FundingBalance.swift */,
+				9296CAD8D4D7E8AA21E8672B /* FundingWallet.swift */,
 				521B83F003C4BF3D64C438CC /* Goal.swift */,
 				7C5E5C83B871BF0983AF177E /* Holding.swift */,
 				97699DF41A4CE9EB0F778911 /* KYCData.swift */,
 				5940990486AC66FB99F91E4F /* LedgerEntry.swift */,
+				473C0A4F92E5121BD06E2588 /* Order.swift */,
 				E4926A11BA2D4260435AB772 /* Portfolio.swift */,
+				FD7D8E1B3B26D5A544363AFD /* Position.swift */,
 				1AC6A8396161EDC88821D929 /* Stock.swift */,
 				9E066754EE81CD0A21FE923C /* StockExplanation.swift */,
 				4CA21CF01F28608250CB8E5E /* Transfer.swift */,
@@ -671,6 +733,15 @@
 			path = Portfolio;
 			sourceTree = "<group>";
 		};
+		35073A7AC9A5E3EE870B3D3D /* Positions */ = {
+			isa = PBXGroup;
+			children = (
+				83C1EC5A1D8A00086A2C20EC /* ViewModels */,
+				4E830562DA55BB25733B2BA6 /* Views */,
+			);
+			path = Positions;
+			sourceTree = "<group>";
+		};
 		35748A5045AF05C8E9094389 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -718,6 +789,22 @@
 				557F4790DC1F3EB37719CCDC /* GrowfolioUITests */,
 				2B050685E961406C9FDC93EB /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		43C671C2B306C96CC87F96E9 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				ED43B04D825A468FF1261D41 /* OrdersViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		4E830562DA55BB25733B2BA6 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				6BDC80CA0A074AE9291836ED /* PositionsView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		504758879B45244BA53FF8F2 /* Network */ = {
@@ -848,13 +935,19 @@
 			isa = PBXGroup;
 			children = (
 				5941AAF43950D5A6FB43A0E2 /* MockAIRepository.swift */,
+				84893D591487C579F1B8B348 /* MockBankRepository.swift */,
 				B910984482BE25DC5EA8C1C2 /* MockBasketRepository.swift */,
+				070585663E600D40B97C8DE9 /* MockCorporateActionRepository.swift */,
 				9B7C103C4E1DB065C3302E04 /* MockDCARepository.swift */,
+				D4605EE07FF0EDA2928FF7B5 /* MockDocumentRepository.swift */,
 				2F90C1BB6300B8A899BF834E /* MockFamilyRepository.swift */,
 				39AC0F180B04582EEE5FAA4A /* MockFundingRepository.swift */,
+				B461EB8F7FE302EB5F60F97A /* MockFundingWalletRepository.swift */,
 				149F1092B55BFB3642749599 /* MockGoalRepository.swift */,
 				4D2A58982A0708B23FB74292 /* MockKYCRepository.swift */,
+				BB5882FA2922E6D338049FB6 /* MockOrderRepository.swift */,
 				F2ED62B375A2443C8A4967A9 /* MockPortfolioRepository.swift */,
+				2D4EB47BEDF865106E6301CF /* MockPositionRepository.swift */,
 				6D93E202732950596FF39AFE /* MockStocksRepository.swift */,
 				56E5ADD673DA6214E4ABE4AA /* MockUserRepository.swift */,
 			);
@@ -911,6 +1004,14 @@
 				4683A60D86C205EDD721DC83 /* RepositoryContainer.swift */,
 			);
 			path = Mock;
+			sourceTree = "<group>";
+		};
+		83C1EC5A1D8A00086A2C20EC /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				4DDD61D73D205302C09602B7 /* PositionsViewModel.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		899CD652FD7B624A215721A7 /* Dashboard */ = {
@@ -999,6 +1100,15 @@
 				055288F63F11B2F3062E331A /* FundingViewModel.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A50A54216F1141460BCE16FF /* Orders */ = {
+			isa = PBXGroup;
+			children = (
+				43C671C2B306C96CC87F96E9 /* ViewModels */,
+				C61094D6A75DD8E205ED727B /* Views */,
+			);
+			path = Orders;
 			sourceTree = "<group>";
 		};
 		A7A338309A333EFDC39493B9 /* Settings */ = {
@@ -1103,6 +1213,14 @@
 				CA2E26EA07075703446F8463 /* .gitkeep */,
 			);
 			path = AIInsights;
+			sourceTree = "<group>";
+		};
+		C61094D6A75DD8E205ED727B /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				93837A2DB8B07180CCC5E2FB /* OrdersView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		C6AC59BFCEF1CF3DA1DF06A9 /* Views */ = {
@@ -1213,13 +1331,19 @@
 			children = (
 				959C2BFE2B04CB2F5A1450B8 /* .gitkeep */,
 				EC9D23F0795D0F12DB289171 /* AIRepository.swift */,
+				8C743083B9E398490546E64C /* BankRepository.swift */,
 				C636285FB96EA4C48273E187 /* BasketRepository.swift */,
+				30F1A220F623B892149303D0 /* CorporateActionRepository.swift */,
 				A7943C6B99E7E75AFA658D2E /* DCARepository.swift */,
+				2E666E567CD8EFB7E8D90B29 /* DocumentRepository.swift */,
 				96359B77B7E6A039EC133463 /* FamilyRepository.swift */,
 				E5F919947F7FD9C6DFE22B67 /* FundingRepository.swift */,
+				A55C0DDDDAB200BCDC879774 /* FundingWalletRepository.swift */,
 				8A62CBF33DCECA5C400979D8 /* GoalRepository.swift */,
 				4F6F61DBA1EE4FC2B5614B4E /* KYCRepository.swift */,
+				24CD850347F4FD11E01C25C1 /* OrderRepository.swift */,
 				9644364C87BDA9841E9EB6CC /* PortfolioRepository.swift */,
+				5700273D000A3581F15FA1F9 /* PositionRepository.swift */,
 				3867960059EA7E85EE7A498E /* StocksRepository.swift */,
 				89FC44D3F8BD26037D3E5550 /* UserRepository.swift */,
 			);
@@ -1229,11 +1353,17 @@
 		E06545573D717FC0A3A39E96 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				5C49A499861C7166A52ECB3C /* BankRepositoryProtocol.swift */,
 				13F63D499F16B77EF853B6A4 /* BasketRepositoryProtocol.swift */,
+				841B3ACB225796253C1D9DE0 /* CorporateActionRepositoryProtocol.swift */,
 				5940F21378A75925744517A8 /* DCARepositoryProtocol.swift */,
+				E6745F8319597256577299D1 /* DocumentRepositoryProtocol.swift */,
 				26F721726852F2808AC8F7D8 /* FundingRepositoryProtocol.swift */,
+				5CA882D4D7579C2B9AD72A75 /* FundingWalletRepositoryProtocol.swift */,
 				82F584E463C3891EF645B9F6 /* GoalRepositoryProtocol.swift */,
+				EC238A84BF84FD1A56476E03 /* OrderRepositoryProtocol.swift */,
 				073FD868FF9398860B6EFE07 /* PortfolioRepositoryProtocol.swift */,
+				EDA6675552F12C1F9F228F1D /* PositionRepositoryProtocol.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -1280,7 +1410,9 @@
 				C933A130B52AB3CD7A85D990 /* KYC */,
 				E24642FC9532963430F3E89C /* Navigation */,
 				DD111F720FE971E7CAED8B94 /* Onboarding */,
+				A50A54216F1141460BCE16FF /* Orders */,
 				2DF0C801EB1D2907C31A4572 /* Portfolio */,
+				35073A7AC9A5E3EE870B3D3D /* Positions */,
 				A7A338309A333EFDC39493B9 /* Settings */,
 				F1D2549D460B03FB3F4983D1 /* StockDetails */,
 				06B8FEE38A426E0958355756 /* Stocks */,
@@ -1654,6 +1786,9 @@
 				96EE69AE1EAB38748F0A25B2 /* AuthInterceptor.swift in Sources */,
 				28D1A0A00C00BB625D553275 /* AuthModels.swift in Sources */,
 				3334D9D5DD40396369976AE2 /* AuthService.swift in Sources */,
+				A141C5F4D9E4084E840A7993 /* BankAccount.swift in Sources */,
+				D8EE09E5D097FB3DE6F51E82 /* BankRepository.swift in Sources */,
+				166A75268E62FB84FB4A22A5 /* BankRepositoryProtocol.swift in Sources */,
 				A69F92CF32268FA93ECB93EE /* Basket.swift in Sources */,
 				200743C2D196E53256CA3930 /* BasketAllocationRow.swift in Sources */,
 				72705B18779267C225405E15 /* BasketCard.swift in Sources */,
@@ -1671,6 +1806,9 @@
 				D3372FFF86FFA86CF6344785 /* ChatMessageView.swift in Sources */,
 				086C352738BE225544309135 /* Color+Extensions.swift in Sources */,
 				CFDB648D5A67E740F5460225 /* Constants.swift in Sources */,
+				1A2FB8FD98D9D31CD807CFF3 /* CorporateAction.swift in Sources */,
+				550551585AF43A595B1F680B /* CorporateActionRepository.swift in Sources */,
+				9344CB8698A1A152864A4DB3 /* CorporateActionRepositoryProtocol.swift in Sources */,
 				48FC987264EA054B86F72CF1 /* CostBasisLot.swift in Sources */,
 				A5334C12E385ECE749F58A40 /* CostBasisSummary.swift in Sources */,
 				4D8CAFB6AA1EB8DDD9718609 /* CostBasisView.swift in Sources */,
@@ -1692,6 +1830,9 @@
 				3E473D4DD2794D53DAC81B0B /* Decimal+Extensions.swift in Sources */,
 				5B90DF7124AB02E4D4671C33 /* DepositView.swift in Sources */,
 				E3E05415FAF8084A4AA129EB /* DisclosuresView.swift in Sources */,
+				B35CD05378A7F6ED915A8BBE /* Document.swift in Sources */,
+				8CC4852C965BB1B49BA4A4B7 /* DocumentRepository.swift in Sources */,
+				AEF95DC29EBFE28D829747FF /* DocumentRepositoryProtocol.swift in Sources */,
 				EFE932E7E2C376DB037C2246 /* EditProfileView.swift in Sources */,
 				A36C5AC3B10FC275C254C8B9 /* EmploymentInfoView.swift in Sources */,
 				A99D1DD4C74973F26B277295 /* Endpoints.swift in Sources */,
@@ -1711,6 +1852,9 @@
 				C8BA2370152CA40954C8B226 /* FundingRepositoryProtocol.swift in Sources */,
 				E0E254C352F225E3E6C5C560 /* FundingView.swift in Sources */,
 				2D3E61F14CACA3524EEBC849 /* FundingViewModel.swift in Sources */,
+				C64DCC51CE3E6A448A4A6FCE /* FundingWallet.swift in Sources */,
+				C68F6248E598F11705102EF6 /* FundingWalletRepository.swift in Sources */,
+				ACA986675E0F90DA14EDFD18 /* FundingWalletRepositoryProtocol.swift in Sources */,
 				E9483246938EC7FF20AD94C7 /* GlassMaterial+Extensions.swift in Sources */,
 				50E413A524A4629BA42F21C1 /* Goal.swift in Sources */,
 				B0DC049F2053BD9924B50015 /* GoalDetailView.swift in Sources */,
@@ -1735,16 +1879,22 @@
 				FC3BFE095DAF56556A66D5A5 /* MarketStatusBadge.swift in Sources */,
 				1CFBE017007404523F3F5898 /* MemberDetailView.swift in Sources */,
 				D91480C588BA3B85A48279CC /* MockAIRepository.swift in Sources */,
+				90E6D18068ABF9DFB922C102 /* MockBankRepository.swift in Sources */,
 				102FF9F301957AC00AB9522D /* MockBasketRepository.swift in Sources */,
 				669D1E9D9C1EACDF3314F7F5 /* MockConfiguration.swift in Sources */,
+				AEC13B412192AB25BB7DED6E /* MockCorporateActionRepository.swift in Sources */,
 				1BD1A80A78380645E2D793DE /* MockDCARepository.swift in Sources */,
 				860A70A8BFC6481381BC2C76 /* MockDataGenerator.swift in Sources */,
 				DE54C01BF128C2B6BC8E6AE0 /* MockDataStore.swift in Sources */,
+				92073A9B56926090D983D6DC /* MockDocumentRepository.swift in Sources */,
 				09143F9782F7DFBD6D40F0C2 /* MockFamilyRepository.swift in Sources */,
 				417112DEAEBB87D09B47BCD5 /* MockFundingRepository.swift in Sources */,
+				02DF71FFF86B54AFE060305F /* MockFundingWalletRepository.swift in Sources */,
 				2D5D174864469F8780E7B843 /* MockGoalRepository.swift in Sources */,
 				BA1855B80A6D54110BBBFB88 /* MockKYCRepository.swift in Sources */,
+				48860BE1FEEAF6B3B6F3A993 /* MockOrderRepository.swift in Sources */,
 				227D35595B9DD033FC0ECF1F /* MockPortfolioRepository.swift in Sources */,
+				8EEA0D67E56090BA9CACFAD9 /* MockPositionRepository.swift in Sources */,
 				53E47E3E231C0FD93A8E827F /* MockStockDataProvider.swift in Sources */,
 				3F7DB92FECF9C093E4ACE6E5 /* MockStocksRepository.swift in Sources */,
 				86AADFAD60F89730D2E7BC85 /* MockUserDataProvider.swift in Sources */,
@@ -1754,12 +1904,22 @@
 				13732DE477A0133758CD0BAA /* NotificationSettingsView.swift in Sources */,
 				5E06FA1C1B8B78F9EB53E466 /* OnboardingView.swift in Sources */,
 				DF838EF7182750F9CB4EEF13 /* OnboardingViewModel.swift in Sources */,
+				1CD5AFD98BEC3D65CEDD1464 /* Order.swift in Sources */,
+				2508AC689C9223763ADAEEB5 /* OrderRepository.swift in Sources */,
+				A8F6D7A62434F8D6433A057F /* OrderRepositoryProtocol.swift in Sources */,
+				033AFD87D7D22ADAD07CF4CC /* OrdersView.swift in Sources */,
+				A88D705043387F6BAB781395 /* OrdersViewModel.swift in Sources */,
 				8AD4122F2FA7BE1930953F0E /* PersonalInfoView.swift in Sources */,
 				601D0CDB1E1318949E8DB7B7 /* Portfolio.swift in Sources */,
 				E0438F61DDEF160E1E9A90EF /* PortfolioRepository.swift in Sources */,
 				2AE588CA0111E32DEE37192A /* PortfolioRepositoryProtocol.swift in Sources */,
 				01CC71EFADAED1195BA89654 /* PortfolioView.swift in Sources */,
 				9CB2D3AD0BAEEFAFB608F96D /* PortfolioViewModel.swift in Sources */,
+				AA5EF5F1FCCE63D8EACB3D41 /* Position.swift in Sources */,
+				278DA1B4201FB544D69E5B74 /* PositionRepository.swift in Sources */,
+				12178188E9A87D8D29FC5FE4 /* PositionRepositoryProtocol.swift in Sources */,
+				23716998F8EFBF7C07806893 /* PositionsView.swift in Sources */,
+				44CE5E7CD9E8068242EE9996 /* PositionsViewModel.swift in Sources */,
 				6CDE42003E37FEC278E7C695 /* RepositoryContainer.swift in Sources */,
 				1D2C792A48F68B76FAC7C861 /* SettingsView.swift in Sources */,
 				CF1324684716BDA41D4B537F /* SettingsViewModel.swift in Sources */,
