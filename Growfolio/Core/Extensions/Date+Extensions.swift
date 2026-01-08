@@ -12,14 +12,14 @@ extension Date {
     // MARK: - Formatters
 
     /// ISO 8601 formatter for API communication
-    nonisolated(unsafe) static let iso8601Formatter: ISO8601DateFormatter = {
+    static let iso8601Formatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter
     }()
 
     /// Date only formatter
-    nonisolated(unsafe) static let dateOnlyFormatter: DateFormatter = {
+    static let dateOnlyFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = Constants.DateFormat.dateOnly
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -27,35 +27,35 @@ extension Date {
     }()
 
     /// Display date formatter
-    nonisolated(unsafe) static let displayDateFormatter: DateFormatter = {
+    static let displayDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = Constants.DateFormat.displayDate
         return formatter
     }()
 
     /// Display date and time formatter
-    nonisolated(unsafe) static let displayDateTimeFormatter: DateFormatter = {
+    static let displayDateTimeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = Constants.DateFormat.displayDateTime
         return formatter
     }()
 
     /// Short date formatter
-    nonisolated(unsafe) static let shortDateFormatter: DateFormatter = {
+    static let shortDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = Constants.DateFormat.shortDate
         return formatter
     }()
 
     /// Month and year formatter
-    nonisolated(unsafe) static let monthYearFormatter: DateFormatter = {
+    static let monthYearFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = Constants.DateFormat.monthYear
         return formatter
     }()
 
     /// Relative date formatter
-    nonisolated(unsafe) static let relativeDateFormatter: RelativeDateTimeFormatter = {
+    static let relativeDateFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
         return formatter

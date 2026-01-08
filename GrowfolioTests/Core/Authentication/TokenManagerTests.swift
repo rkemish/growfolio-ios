@@ -227,7 +227,7 @@ final class TokenManagerTests: XCTestCase {
         let signature = "test-signature"
         let token = "\(header).\(payload).\(signature)"
 
-        let claims = await tokenManager.decodeJWT(token)
+        let claims = tokenManager.decodeJWT(token)
 
         XCTAssertNotNil(claims)
         XCTAssertEqual(claims?["sub"] as? String, "user-123")
@@ -238,7 +238,7 @@ final class TokenManagerTests: XCTestCase {
     func testTokenManagerDecodeJWTInvalidToken() async {
         let invalidToken = "not-a-valid-jwt"
 
-        let claims = await tokenManager.decodeJWT(invalidToken)
+        let claims = tokenManager.decodeJWT(invalidToken)
 
         XCTAssertNil(claims)
     }
@@ -246,7 +246,7 @@ final class TokenManagerTests: XCTestCase {
     func testTokenManagerDecodeJWTMissingSegments() async {
         let twoSegments = "header.payload"
 
-        let claims = await tokenManager.decodeJWT(twoSegments)
+        let claims = tokenManager.decodeJWT(twoSegments)
 
         XCTAssertNil(claims)
     }
@@ -254,7 +254,7 @@ final class TokenManagerTests: XCTestCase {
     func testTokenManagerDecodeJWTInvalidBase64() async {
         let invalidBase64 = "header.!!!invalid-base64!!!.signature"
 
-        let claims = await tokenManager.decodeJWT(invalidBase64)
+        let claims = tokenManager.decodeJWT(invalidBase64)
 
         XCTAssertNil(claims)
     }

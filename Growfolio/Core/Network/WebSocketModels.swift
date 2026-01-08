@@ -454,9 +454,9 @@ enum WebSocketDecoder {
 }
 
 struct WebSocketDateParser {
-    nonisolated(unsafe) private static let isoFormatter = ISO8601DateFormatter()
+    private static let isoFormatter = ISO8601DateFormatter()
 
-    nonisolated(unsafe) private static let microsecondsFormatter: DateFormatter = {
+    private static let microsecondsFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
@@ -464,7 +464,7 @@ struct WebSocketDateParser {
         return formatter
     }()
 
-    nonisolated(unsafe) private static let millisecondsFormatter: DateFormatter = {
+    private static let millisecondsFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
@@ -472,7 +472,7 @@ struct WebSocketDateParser {
         return formatter
     }()
 
-    nonisolated(unsafe) private static let secondsFormatter: DateFormatter = {
+    private static let secondsFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
