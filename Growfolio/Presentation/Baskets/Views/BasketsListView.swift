@@ -10,6 +10,9 @@ import SwiftUI
 struct BasketsListView: View {
     @State private var viewModel = BasketsViewModel()
     @State private var showingCreateBasket = false
+    @State private var selectedBasketForNavigation: Basket?
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(NavigationState.self) private var navState: NavigationState?
 
     var body: some View {
         NavigationStack {
@@ -45,6 +48,9 @@ struct BasketsListView: View {
             .task {
                 await viewModel.loadBaskets()
             }
+            .navigationDestination(item: $selectedBasketForNavigation) { basket in
+                BasketDetailView(basket: basket)
+            }
             .refreshable {
                 await viewModel.refreshBaskets()
             }
@@ -69,21 +75,25 @@ struct BasketsListView: View {
                 // Baskets list
                 LazyVStack(spacing: 12) {
                     ForEach(viewModel.baskets) { basket in
-                        NavigationLink {
-                            BasketDetailView(basket: basket)
-                        } label: {
-                            BasketCard(basket: basket)
-                        }
-                        .buttonStyle(.plain)
-                        .contextMenu {
-                            Button(role: .destructive) {
-                                Task {
-                                    await viewModel.deleteBasket(basket)
+                        BasketCard(basket: basket)
+                            .onTapGesture {
+                                if sizeClass == .compact {
+                                    // iPhone: Navigate using NavigationStack
+                                    selectedBasketForNavigation = basket
+                                } else {
+                                    // iPad: Update navigation state
+                                    navState?.selectedBasket = basket
                                 }
-                            } label: {
-                                Label("Delete", systemImage: "trash")
                             }
-                        }
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    Task {
+                                        await viewModel.deleteBasket(basket)
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
                     }
                 }
             }

@@ -10,6 +10,7 @@ import SwiftUI
 struct DashboardView: View {
     @State private var viewModel = DashboardViewModel()
     @Environment(AuthService.self) private var authService
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @AppStorage("isDarkMode") private var isDarkMode = false
 
     var body: some View {
@@ -181,8 +182,9 @@ struct DashboardView: View {
             Text("Quick Actions")
                 .font(.headline)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+            if sizeClass == .regular {
+                // iPad: Use grid layout
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
                     quickActionButton(
                         title: "Add Goal",
                         icon: "plus.circle.fill",
@@ -209,10 +211,47 @@ struct DashboardView: View {
 
                     quickActionButton(
                         title: "Deposit",
-                        icon: "plus.square.fill",
-                        color: Color.prosperityGold
+                        icon: "dollarsign.circle.fill",
+                        color: Color.trustBlue
                     ) {
                         viewModel.showDeposit = true
+                    }
+                }
+            } else {
+                // iPhone: Use horizontal scroll
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        quickActionButton(
+                            title: "Add Goal",
+                            icon: "plus.circle.fill",
+                            color: Color.trustBlue
+                        ) {
+                            viewModel.showAddGoal = true
+                        }
+
+                        quickActionButton(
+                            title: "New DCA",
+                            icon: "arrow.triangle.2.circlepath.circle.fill",
+                            color: Color.trustBlue
+                        ) {
+                            viewModel.showAddDCA = true
+                        }
+
+                        quickActionButton(
+                            title: "Record Trade",
+                            icon: "arrow.left.arrow.right.circle.fill",
+                            color: Color.growthGreen
+                        ) {
+                            viewModel.showRecordTrade = true
+                        }
+
+                        quickActionButton(
+                            title: "Deposit",
+                            icon: "dollarsign.circle.fill",
+                            color: Color.prosperityGold
+                        ) {
+                            viewModel.showDeposit = true
+                        }
                     }
                 }
             }

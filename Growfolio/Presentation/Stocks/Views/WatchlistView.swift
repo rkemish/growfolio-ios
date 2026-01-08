@@ -14,50 +14,70 @@ struct WatchlistView: View {
     @State private var viewModel = WatchlistViewModel()
     @State private var showStockSearch = false
     @State private var selectedSymbolForDetail: String?
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(NavigationState.self) private var navState: NavigationState?
 
     // MARK: - Body
 
+    /// Check if we're in iPad split view mode (navState available means iPad)
+    private var isIPad: Bool {
+        navState != nil
+    }
+
     var body: some View {
-        NavigationStack {
-            ZStack {
-                if viewModel.isLoading && viewModel.watchlistItems.isEmpty {
-                    loadingView
-                } else if let error = viewModel.error, viewModel.watchlistItems.isEmpty {
-                    errorView(error)
-                } else if viewModel.isEmpty {
-                    emptyStateView
-                } else {
-                    watchlistContent
+        Group {
+            if isIPad {
+                watchlistMainContent
+            } else {
+                NavigationStack {
+                    watchlistMainContent
                 }
             }
-            .navigationTitle("Watchlist")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showStockSearch = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
+        }
+    }
+
+    private var watchlistMainContent: some View {
+        ZStack {
+            if viewModel.isLoading && viewModel.watchlistItems.isEmpty {
+                loadingView
+            } else if let error = viewModel.error, viewModel.watchlistItems.isEmpty {
+                errorView(error)
+            } else if viewModel.isEmpty {
+                emptyStateView
+            } else {
+                watchlistContent
+            }
+        }
+        .navigationTitle("Watchlist")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showStockSearch = true
+                } label: {
+                    Image(systemName: "plus")
                 }
             }
-            .refreshable {
-                await viewModel.refreshWatchlist()
-            }
-            .task {
-                await viewModel.loadWatchlist()
-            }
-            .sheet(isPresented: $showStockSearch) {
-                StockSearchView { symbol in
-                    showStockSearch = false
-                    // After adding from search, refresh the list
-                    Task {
-                        await viewModel.refreshWatchlist()
-                    }
+        }
+        .refreshable {
+            await viewModel.refreshWatchlist()
+        }
+        .task {
+            await viewModel.loadWatchlist()
+        }
+        .sheet(isPresented: $showStockSearch) {
+            StockSearchView { symbol in
+                showStockSearch = false
+                // After adding from search, refresh the list
+                Task {
+                    await viewModel.refreshWatchlist()
                 }
             }
-            .sheet(item: $selectedSymbolForDetail) { symbol in
-                StockDetailView(symbol: symbol)
-            }
+        }
+        .sheet(item: Binding(
+            get: { navState == nil ? selectedSymbolForDetail : nil },
+            set: { selectedSymbolForDetail = $0 }
+        )) { symbol in
+            StockDetailView(symbol: symbol)
         }
     }
 
@@ -114,7 +134,13 @@ struct WatchlistView: View {
                 WatchlistRowView(item: item)
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        selectedSymbolForDetail = item.symbol
+                        if let navState = navState {
+                            // iPad: Update navigation state
+                            navState.selectedStock = item.symbol
+                        } else {
+                            // iPhone: Show sheet
+                            selectedSymbolForDetail = item.symbol
+                        }
                     }
             }
             .onDelete { offsets in

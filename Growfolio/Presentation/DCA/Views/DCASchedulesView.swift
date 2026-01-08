@@ -12,109 +12,129 @@ struct DCASchedulesView: View {
     // MARK: - Properties
 
     @State private var viewModel = DCAViewModel()
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(NavigationState.self) private var navState: NavigationState?
 
     // MARK: - Body
 
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                if viewModel.isLoading && viewModel.schedules.isEmpty {
-                    loadingView
-                } else if viewModel.isEmpty {
-                    emptyStateView
-                } else {
-                    schedulesListView
-                }
-            }
-            .navigationTitle("DCA Schedules")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        viewModel.showCreateSchedule = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
+    /// Check if we're in iPad split view mode (navState available means iPad)
+    private var isIPad: Bool {
+        navState != nil
+    }
 
-                ToolbarItem(placement: .topBarLeading) {
-                    Menu {
-                        sortMenu
-                        filterMenu
-                        Divider()
-                        Toggle("Show Inactive", isOn: $viewModel.showInactive)
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                    }
+    var body: some View {
+        Group {
+            if isIPad {
+                dcaMainContent
+            } else {
+                NavigationStack {
+                    dcaMainContent
                 }
             }
-            .refreshable {
-                await viewModel.refreshSchedules()
+        }
+    }
+
+    private var dcaMainContent: some View {
+        ZStack {
+            if viewModel.isLoading && viewModel.schedules.isEmpty {
+                loadingView
+            } else if viewModel.isEmpty {
+                emptyStateView
+            } else {
+                schedulesListView
             }
-            .task {
-                await viewModel.loadSchedules()
+        }
+        .navigationTitle("DCA Schedules")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.showCreateSchedule = true
+                } label: {
+                    Image(systemName: "plus")
+                }
             }
-            .sheet(isPresented: $viewModel.showCreateSchedule) {
-                CreateDCAScheduleView(
-                    scheduleToEdit: viewModel.scheduleToEdit,
-                    onSave: { symbol, amount, frequency, startDate, endDate, portfolioId in
-                        Task {
-                            do {
-                                if let editSchedule = viewModel.scheduleToEdit {
-                                    var updated = editSchedule
-                                    updated.amount = amount
-                                    updated.frequency = frequency
-                                    updated.endDate = endDate
-                                    try await viewModel.updateSchedule(updated)
-                                } else {
-                                    try await viewModel.createSchedule(
-                                        stockSymbol: symbol,
-                                        amount: amount,
-                                        frequency: frequency,
-                                        startDate: startDate,
-                                        endDate: endDate,
-                                        portfolioId: portfolioId
-                                    )
-                                }
-                                viewModel.showCreateSchedule = false
-                                viewModel.scheduleToEdit = nil
-                            } catch {
-                                // Handle error
+
+            ToolbarItem(placement: .topBarLeading) {
+                Menu {
+                    sortMenu
+                    filterMenu
+                    Divider()
+                    Toggle("Show Inactive", isOn: $viewModel.showInactive)
+                } label: {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                }
+            }
+        }
+        .refreshable {
+            await viewModel.refreshSchedules()
+        }
+        .task {
+            await viewModel.loadSchedules()
+        }
+        .sheet(isPresented: $viewModel.showCreateSchedule) {
+            CreateDCAScheduleView(
+                scheduleToEdit: viewModel.scheduleToEdit,
+                onSave: { symbol, amount, frequency, startDate, endDate, portfolioId in
+                    Task {
+                        do {
+                            if let editSchedule = viewModel.scheduleToEdit {
+                                var updated = editSchedule
+                                updated.amount = amount
+                                updated.frequency = frequency
+                                updated.endDate = endDate
+                                try await viewModel.updateSchedule(updated)
+                            } else {
+                                try await viewModel.createSchedule(
+                                    stockSymbol: symbol,
+                                    amount: amount,
+                                    frequency: frequency,
+                                    startDate: startDate,
+                                    endDate: endDate,
+                                    portfolioId: portfolioId
+                                )
                             }
+                            viewModel.showCreateSchedule = false
+                            viewModel.scheduleToEdit = nil
+                        } catch {
+                            // Handle error
+                        }
+                    }
+                },
+                onCancel: {
+                    viewModel.showCreateSchedule = false
+                    viewModel.scheduleToEdit = nil
+                }
+            )
+        }
+        .sheet(isPresented: Binding(
+            get: { navState == nil && viewModel.showScheduleDetail },
+            set: { viewModel.showScheduleDetail = $0 }
+        )) {
+            if let schedule = viewModel.selectedSchedule {
+                DCAScheduleDetailView(
+                    schedule: schedule,
+                    onEdit: {
+                        viewModel.showScheduleDetail = false
+                        viewModel.editSchedule(schedule)
+                    },
+                    onPauseResume: {
+                        Task {
+                            if schedule.isPaused {
+                                try? await viewModel.resumeSchedule(schedule)
+                            } else {
+                                try? await viewModel.pauseSchedule(schedule)
+                            }
+                            viewModel.showScheduleDetail = false
                         }
                     },
-                    onCancel: {
-                        viewModel.showCreateSchedule = false
-                        viewModel.scheduleToEdit = nil
+                    onDelete: {
+                        Task {
+                            try? await viewModel.deleteSchedule(schedule)
+                            viewModel.showScheduleDetail = false
+                        }
                     }
                 )
-            }
-            .sheet(isPresented: $viewModel.showScheduleDetail) {
-                if let schedule = viewModel.selectedSchedule {
-                    DCAScheduleDetailView(
-                        schedule: schedule,
-                        onEdit: {
-                            viewModel.showScheduleDetail = false
-                            viewModel.editSchedule(schedule)
-                        },
-                        onPauseResume: {
-                            Task {
-                                if schedule.isPaused {
-                                    try? await viewModel.resumeSchedule(schedule)
-                                } else {
-                                    try? await viewModel.pauseSchedule(schedule)
-                                }
-                                viewModel.showScheduleDetail = false
-                            }
-                        },
-                        onDelete: {
-                            Task {
-                                try? await viewModel.deleteSchedule(schedule)
-                                viewModel.showScheduleDetail = false
-                            }
-                        }
-                    )
-                }
             }
         }
     }
@@ -164,7 +184,13 @@ struct DCASchedulesView: View {
                 ForEach(viewModel.filteredSchedules) { schedule in
                     DCAScheduleRow(schedule: schedule)
                         .onTapGesture {
-                            viewModel.selectSchedule(schedule)
+                            if let navState = navState {
+                                // iPad: Update navigation state
+                                navState.selectedSchedule = schedule
+                            } else {
+                                // iPhone: Show sheet
+                                viewModel.selectSchedule(schedule)
+                            }
                         }
                         .contextMenu {
                             scheduleContextMenu(for: schedule)

@@ -79,7 +79,7 @@ struct RootView: View {
             case .kyc:
                 KYCFlowView()
             case .main:
-                MainTabView()
+                AdaptiveMainView()
             }
         }
         .task {
@@ -140,9 +140,27 @@ struct RootView: View {
     }
 }
 
+// MARK: - Adaptive Main View
+
+/// Adaptive main view that switches between tab-based (iPhone) and split view (iPad) navigation.
+/// Provides an optimal experience for each device type.
+struct AdaptiveMainView: View {
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @State private var navigationState = NavigationState()
+
+    var body: some View {
+        if sizeClass == .compact {
+            MainTabView()
+        } else {
+            iPadSplitView()
+                .environment(navigationState)
+        }
+    }
+}
+
 // MARK: - Main Tab View
 
-/// Main tab-based interface for the authenticated user experience.
+/// Main tab-based interface for the authenticated user experience on iPhone.
 /// Manages the primary navigation between core app features and handles
 /// WebSocket connections for real-time data updates.
 struct MainTabView: View {

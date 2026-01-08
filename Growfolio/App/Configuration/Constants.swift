@@ -114,6 +114,20 @@ enum Constants {
 
         /// Card minimum height
         static let cardMinHeight: CGFloat = 100
+
+        // MARK: - iPad Layout
+
+        /// iPad sidebar width
+        static let sidebarWidth: CGFloat = 320
+
+        /// Minimum detail column width
+        static let minDetailWidth: CGFloat = 400
+
+        /// Grid column count for compact size class (iPhone)
+        static let compactGridColumns = 2
+
+        /// Grid column count for regular size class (iPad)
+        static let regularGridColumns = 3
     }
 
     // MARK: - Validation

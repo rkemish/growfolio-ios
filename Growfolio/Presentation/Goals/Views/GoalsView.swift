@@ -12,106 +12,126 @@ struct GoalsView: View {
     // MARK: - Properties
 
     @State private var viewModel = GoalsViewModel()
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(NavigationState.self) private var navState: NavigationState?
 
     // MARK: - Body
 
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                if viewModel.isLoading && viewModel.goals.isEmpty {
-                    loadingView
-                } else if viewModel.isEmpty {
-                    emptyStateView
-                } else {
-                    goalsListView
-                }
-            }
-            .navigationTitle("Goals")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        viewModel.showCreateGoal = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
+    /// Check if we're in iPad split view mode (navState available means iPad)
+    private var isIPad: Bool {
+        navState != nil
+    }
 
-                ToolbarItem(placement: .topBarLeading) {
-                    Menu {
-                        sortMenu
-                        filterMenu
-                        Divider()
-                        Toggle("Show Archived", isOn: $viewModel.showArchived)
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                    }
+    var body: some View {
+        Group {
+            if isIPad {
+                goalsMainContent
+            } else {
+                NavigationStack {
+                    goalsMainContent
                 }
             }
-            .refreshable {
-                await viewModel.refreshGoals()
+        }
+    }
+
+    private var goalsMainContent: some View {
+        ZStack {
+            if viewModel.isLoading && viewModel.goals.isEmpty {
+                loadingView
+            } else if viewModel.isEmpty {
+                emptyStateView
+            } else {
+                goalsListView
             }
-            .task {
-                await viewModel.loadGoals()
+        }
+        .navigationTitle("Goals")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.showCreateGoal = true
+                } label: {
+                    Image(systemName: "plus")
+                }
             }
-            .sheet(isPresented: $viewModel.showCreateGoal) {
-                CreateGoalView(
-                    goalToEdit: viewModel.goalToEdit,
-                    onSave: { name, amount, date, category, notes in
-                        Task {
-                            do {
-                                if let editGoal = viewModel.goalToEdit {
-                                    var updated = editGoal
-                                    updated.name = name
-                                    updated.targetAmount = amount
-                                    updated.targetDate = date
-                                    updated.notes = notes
-                                    try await viewModel.updateGoal(updated)
-                                } else {
-                                    try await viewModel.createGoal(
-                                        name: name,
-                                        targetAmount: amount,
-                                        targetDate: date,
-                                        category: category,
-                                        notes: notes
-                                    )
-                                }
-                                viewModel.showCreateGoal = false
-                                viewModel.goalToEdit = nil
-                            } catch {
-                                // Handle error
+
+            ToolbarItem(placement: .topBarLeading) {
+                Menu {
+                    sortMenu
+                    filterMenu
+                    Divider()
+                    Toggle("Show Archived", isOn: $viewModel.showArchived)
+                } label: {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                }
+            }
+        }
+        .refreshable {
+            await viewModel.refreshGoals()
+        }
+        .task {
+            await viewModel.loadGoals()
+        }
+        .sheet(isPresented: $viewModel.showCreateGoal) {
+            CreateGoalView(
+                goalToEdit: viewModel.goalToEdit,
+                onSave: { name, amount, date, category, notes in
+                    Task {
+                        do {
+                            if let editGoal = viewModel.goalToEdit {
+                                var updated = editGoal
+                                updated.name = name
+                                updated.targetAmount = amount
+                                updated.targetDate = date
+                                updated.notes = notes
+                                try await viewModel.updateGoal(updated)
+                            } else {
+                                try await viewModel.createGoal(
+                                    name: name,
+                                    targetAmount: amount,
+                                    targetDate: date,
+                                    category: category,
+                                    notes: notes
+                                )
                             }
+                            viewModel.showCreateGoal = false
+                            viewModel.goalToEdit = nil
+                        } catch {
+                            // Handle error
+                        }
+                    }
+                },
+                onCancel: {
+                    viewModel.showCreateGoal = false
+                    viewModel.goalToEdit = nil
+                }
+            )
+        }
+        .sheet(isPresented: Binding(
+            get: { navState == nil && viewModel.showGoalDetail },
+            set: { viewModel.showGoalDetail = $0 }
+        )) {
+            if let goal = viewModel.selectedGoal {
+                GoalDetailView(
+                    goal: goal,
+                    onEdit: {
+                        viewModel.showGoalDetail = false
+                        viewModel.editGoal(goal)
+                    },
+                    onArchive: {
+                        Task {
+                            try? await viewModel.archiveGoal(goal)
+                            viewModel.showGoalDetail = false
                         }
                     },
-                    onCancel: {
-                        viewModel.showCreateGoal = false
-                        viewModel.goalToEdit = nil
-                    }
-                )
-            }
-            .sheet(isPresented: $viewModel.showGoalDetail) {
-                if let goal = viewModel.selectedGoal {
-                    GoalDetailView(
-                        goal: goal,
-                        onEdit: {
+                    onDelete: {
+                        Task {
+                            try? await viewModel.deleteGoal(goal)
                             viewModel.showGoalDetail = false
-                            viewModel.editGoal(goal)
-                        },
-                        onArchive: {
-                            Task {
-                                try? await viewModel.archiveGoal(goal)
-                                viewModel.showGoalDetail = false
-                            }
-                        },
-                        onDelete: {
-                            Task {
-                                try? await viewModel.deleteGoal(goal)
-                                viewModel.showGoalDetail = false
-                            }
-                        },
-                        positionsSummary: viewModel.selectedGoalPositions
-                    )
-                }
+                        }
+                    },
+                    positionsSummary: viewModel.selectedGoalPositions
+                )
             }
         }
     }
@@ -156,7 +176,13 @@ struct GoalsView: View {
                 ForEach(viewModel.filteredGoals) { goal in
                     GoalRow(goal: goal)
                         .onTapGesture {
-                            viewModel.selectGoal(goal)
+                            if let navState = navState {
+                                // iPad: Update navigation state
+                                navState.selectedGoal = goal
+                            } else {
+                                // iPhone: Show sheet
+                                viewModel.selectGoal(goal)
+                            }
                         }
                         .contextMenu {
                             goalContextMenu(for: goal)

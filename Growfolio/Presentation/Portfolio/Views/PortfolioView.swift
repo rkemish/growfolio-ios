@@ -12,85 +12,105 @@ struct PortfolioView: View {
     // MARK: - Properties
 
     @State private var viewModel = PortfolioViewModel()
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(NavigationState.self) private var navState: NavigationState?
 
     // MARK: - Body
 
+    /// Check if we're in iPad split view mode (navState available means iPad)
+    private var isIPad: Bool {
+        navState != nil
+    }
+
     var body: some View {
-        NavigationStack {
-            ZStack {
-                if viewModel.isLoading && viewModel.holdings.isEmpty {
-                    loadingView
-                } else if viewModel.isEmpty {
-                    emptyStateView
-                } else {
-                    portfolioContentView
+        Group {
+            if isIPad {
+                portfolioMainContent
+            } else {
+                NavigationStack {
+                    portfolioMainContent
                 }
             }
-            .navigationTitle("Portfolio")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Button {
-                            viewModel.showAddTransaction = true
-                        } label: {
-                            Label("Record Trade", systemImage: "plus.circle")
-                        }
+        }
+    }
 
-                        Button {
-                            Task {
-                                await viewModel.refreshPrices()
-                            }
-                        } label: {
-                            Label("Refresh Prices", systemImage: "arrow.clockwise")
-                        }
+    private var portfolioMainContent: some View {
+        ZStack {
+            if viewModel.isLoading && viewModel.holdings.isEmpty {
+                loadingView
+            } else if viewModel.isEmpty {
+                emptyStateView
+            } else {
+                portfolioContentView
+            }
+        }
+        .navigationTitle("Portfolio")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button {
+                        viewModel.showAddTransaction = true
+                    } label: {
+                        Label("Record Trade", systemImage: "plus.circle")
+                    }
 
-                        Divider()
-
-                        Button {
-                            viewModel.showTransactionHistory = true
-                        } label: {
-                            Label("Transaction History", systemImage: "list.bullet.rectangle")
+                    Button {
+                        Task {
+                            await viewModel.refreshPrices()
                         }
                     } label: {
-                        Image(systemName: "ellipsis.circle")
+                        Label("Refresh Prices", systemImage: "arrow.clockwise")
                     }
+
+                    Divider()
+
+                    Button {
+                        viewModel.showTransactionHistory = true
+                    } label: {
+                        Label("Transaction History", systemImage: "list.bullet.rectangle")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
                 }
             }
-            .refreshable {
-                await viewModel.refreshPortfolioData()
+        }
+        .refreshable {
+            await viewModel.refreshPortfolioData()
+        }
+        .task {
+            await viewModel.loadPortfolioData()
+        }
+        .sheet(isPresented: Binding(
+            get: { navState == nil && viewModel.showHoldingDetail },
+            set: { viewModel.showHoldingDetail = $0 }
+        )) {
+            if let holding = viewModel.selectedHolding {
+                HoldingDetailView(holding: holding)
             }
-            .task {
-                await viewModel.loadPortfolioData()
-            }
-            .sheet(isPresented: $viewModel.showHoldingDetail) {
-                if let holding = viewModel.selectedHolding {
-                    HoldingDetailView(holding: holding)
-                }
-            }
-            .sheet(isPresented: $viewModel.showTransactionHistory) {
-                TransactionHistoryView(transactions: viewModel.transactions)
-            }
-            .sheet(isPresented: $viewModel.showAddTransaction) {
-                AddTransactionView(
-                    onSave: { type, symbol, qty, price, amount, notes in
-                        Task {
-                            try? await viewModel.addTransaction(
-                                type: type,
-                                stockSymbol: symbol,
-                                quantity: qty,
-                                pricePerShare: price,
-                                totalAmount: amount,
-                                notes: notes
-                            )
-                            viewModel.showAddTransaction = false
-                        }
-                    },
-                    onCancel: {
+        }
+        .sheet(isPresented: $viewModel.showTransactionHistory) {
+            TransactionHistoryView(transactions: viewModel.transactions)
+        }
+        .sheet(isPresented: $viewModel.showAddTransaction) {
+            AddTransactionView(
+                onSave: { type, symbol, qty, price, amount, notes in
+                    Task {
+                        try? await viewModel.addTransaction(
+                            type: type,
+                            stockSymbol: symbol,
+                            quantity: qty,
+                            pricePerShare: price,
+                            totalAmount: amount,
+                            notes: notes
+                        )
                         viewModel.showAddTransaction = false
                     }
-                )
-            }
+                },
+                onCancel: {
+                    viewModel.showAddTransaction = false
+                }
+            )
         }
     }
 
@@ -252,7 +272,13 @@ struct PortfolioView: View {
             ForEach(viewModel.sortedHoldings) { holding in
                 HoldingRow(holding: holding, totalValue: viewModel.totalValue)
                     .onTapGesture {
-                        viewModel.selectHolding(holding)
+                        if let navState = navState {
+                            // iPad: Update navigation state
+                            navState.selectedHolding = holding
+                        } else {
+                            // iPhone: Show sheet
+                            viewModel.selectHolding(holding)
+                        }
                     }
             }
         }
