@@ -37,3 +37,28 @@ struct TokenResponse: Codable, Sendable, Equatable {
         case expiresIn = "expires_in"
     }
 }
+
+// MARK: - Unified Authentication (v2)
+
+enum AuthProvider: String, Codable, Sendable {
+    case apple
+    case google
+}
+
+struct UnifiedTokenRequest: Encodable, Sendable {
+    let provider: AuthProvider
+    let identityToken: String
+    let userFirstName: String?
+    let userLastName: String?
+}
+
+struct UnifiedTokenResponse: Decodable, Sendable {
+    let userId: String
+    let email: String?
+    let name: String?
+    let isNewUser: Bool
+    let alpacaAccountId: String?
+    let alpacaAccountStatus: String?
+    let linkedProvider: String
+    let isAccountLinked: Bool
+}

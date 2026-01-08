@@ -60,6 +60,32 @@ enum Endpoints {
         }
     }
 
+    struct ExchangeTokenV2: Endpoint {
+        let path = "/\(Constants.API.version)/auth/token/v2"
+        let method: HTTPMethod = .post
+        let body: Data?
+        let requiresAuthentication = false
+
+        init(request: UnifiedTokenRequest) throws {
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            self.body = try encoder.encode(request)
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    struct Logout: Endpoint {
+        let path = "/\(Constants.API.version)/auth/logout"
+        let method: HTTPMethod = .post
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
     // MARK: - User Endpoints
 
     struct GetCurrentUser: Endpoint {
@@ -105,6 +131,16 @@ enum Endpoints {
         var headers: [String: String]? {
             ["Content-Type": "application/json"]
         }
+    }
+
+    struct GetBrokerageAccounts: Endpoint {
+        let path = "/\(Constants.API.version)/users/me/accounts"
+        let method: HTTPMethod = .get
+    }
+
+    struct GetAccountConfigurations: Endpoint {
+        let path = "/\(Constants.API.version)/users/account/configurations"
+        let method: HTTPMethod = .get
     }
 
     // MARK: - Device Registration
@@ -284,6 +320,32 @@ enum Endpoints {
         }
     }
 
+    struct PauseBasket: Endpoint {
+        let path: String
+        let method: HTTPMethod = .post
+
+        init(basketId: String) {
+            self.path = "/\(Constants.API.version)/baskets/\(basketId)/pause"
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    struct ResumeBasket: Endpoint {
+        let path: String
+        let method: HTTPMethod = .post
+
+        init(basketId: String) {
+            self.path = "/\(Constants.API.version)/baskets/\(basketId)/resume"
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
     // MARK: - DCA Endpoints
 
     struct GetDCASchedules: Endpoint {
@@ -338,6 +400,129 @@ enum Endpoints {
         }
     }
 
+    struct GetDCAHistory: Endpoint {
+        let path: String
+        let method: HTTPMethod = .get
+        let queryItems: [URLQueryItem]?
+
+        init(scheduleId: String, page: Int = 1, limit: Int = Constants.API.defaultPageSize) {
+            self.path = "/\(Constants.API.version)/dca/schedules/\(scheduleId)/history"
+            self.queryItems = [
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "limit", value: "\(limit)")
+            ]
+        }
+    }
+
+    struct PauseDCASchedule: Endpoint {
+        let path: String
+        let method: HTTPMethod = .post
+
+        init(scheduleId: String) {
+            self.path = "/\(Constants.API.version)/dca/schedules/\(scheduleId)/pause"
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    struct ResumeDCASchedule: Endpoint {
+        let path: String
+        let method: HTTPMethod = .post
+
+        init(scheduleId: String) {
+            self.path = "/\(Constants.API.version)/dca/schedules/\(scheduleId)/resume"
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    // MARK: - Order Endpoints
+
+    struct GetOrders: Endpoint {
+        let path = "/\(Constants.API.version)/orders"
+        let method: HTTPMethod = .get
+        let queryItems: [URLQueryItem]?
+
+        init(status: OrderStatus? = nil, limit: Int? = nil, after: Date? = nil, until: Date? = nil) {
+            var items: [URLQueryItem] = []
+            if let status = status {
+                items.append(URLQueryItem(name: "status", value: status.rawValue))
+            }
+            if let limit = limit {
+                items.append(URLQueryItem(name: "limit", value: "\(limit)"))
+            }
+            if let after = after {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "after", value: formatter.string(from: after)))
+            }
+            if let until = until {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "until", value: formatter.string(from: until)))
+            }
+            self.queryItems = items.isEmpty ? nil : items
+        }
+    }
+
+    struct GetOrder: Endpoint {
+        let path: String
+        let method: HTTPMethod = .get
+
+        init(orderId: String) {
+            self.path = "/\(Constants.API.version)/orders/\(orderId)"
+        }
+    }
+
+    struct CancelOrder: Endpoint {
+        let path: String
+        let method: HTTPMethod = .delete
+
+        init(orderId: String) {
+            self.path = "/\(Constants.API.version)/orders/\(orderId)"
+        }
+    }
+
+    // MARK: - Position Endpoints
+
+    struct GetPositions: Endpoint {
+        let path = "/\(Constants.API.version)/positions"
+        let method: HTTPMethod = .get
+    }
+
+    struct GetPosition: Endpoint {
+        let path: String
+        let method: HTTPMethod = .get
+
+        init(symbol: String) {
+            self.path = "/\(Constants.API.version)/positions/\(symbol)"
+        }
+    }
+
+    struct GetPositionHistory: Endpoint {
+        let path = "/\(Constants.API.version)/positions/history"
+        let method: HTTPMethod = .get
+        let queryItems: [URLQueryItem]?
+
+        init(page: Int = 1, limit: Int = Constants.API.defaultPageSize, startDate: Date? = nil, endDate: Date? = nil) {
+            var items = [
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "limit", value: "\(limit)")
+            ]
+            if let startDate = startDate {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "start_date", value: formatter.string(from: startDate)))
+            }
+            if let endDate = endDate {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "end_date", value: formatter.string(from: endDate)))
+            }
+            self.queryItems = items
+        }
+    }
+
     // MARK: - Stock Endpoints
 
     struct SearchStocks: Endpoint {
@@ -385,6 +570,42 @@ enum Endpoints {
     struct GetMarketStatus: Endpoint {
         let path = "/\(Constants.API.version)/stocks/market/status"
         let method: HTTPMethod = .get
+    }
+
+    struct GetPopularStocks: Endpoint {
+        let path = "/\(Constants.API.version)/stocks/popular"
+        let method: HTTPMethod = .get
+        let queryItems: [URLQueryItem]?
+
+        init(limit: Int? = nil, category: String? = nil) {
+            var items: [URLQueryItem] = []
+            if let limit = limit {
+                items.append(URLQueryItem(name: "limit", value: "\(limit)"))
+            }
+            if let category = category {
+                items.append(URLQueryItem(name: "category", value: category))
+            }
+            self.queryItems = items.isEmpty ? nil : items
+        }
+    }
+
+    struct GetMarketCalendar: Endpoint {
+        let path = "/\(Constants.API.version)/stocks/market/calendar"
+        let method: HTTPMethod = .get
+        let queryItems: [URLQueryItem]?
+
+        init(start: Date? = nil, end: Date? = nil) {
+            var items: [URLQueryItem] = []
+            if let start = start {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "start", value: formatter.string(from: start)))
+            }
+            if let end = end {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "end", value: formatter.string(from: end)))
+            }
+            self.queryItems = items.isEmpty ? nil : items
+        }
     }
 
     struct SubmitBuyOrder: Endpoint {
@@ -621,6 +842,77 @@ enum Endpoints {
         }
     }
 
+    struct GetDividends: Endpoint {
+        let path = "/\(Constants.API.version)/ledger/dividends"
+        let method: HTTPMethod = .get
+        let queryItems: [URLQueryItem]?
+
+        init(startDate: Date? = nil, endDate: Date? = nil, symbol: String? = nil) {
+            var items: [URLQueryItem] = []
+            if let startDate = startDate {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "start_date", value: formatter.string(from: startDate)))
+            }
+            if let endDate = endDate {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "end_date", value: formatter.string(from: endDate)))
+            }
+            if let symbol = symbol {
+                items.append(URLQueryItem(name: "symbol", value: symbol))
+            }
+            self.queryItems = items.isEmpty ? nil : items
+        }
+    }
+
+    struct GetFXHistory: Endpoint {
+        let path = "/\(Constants.API.version)/ledger/fx-history"
+        let method: HTTPMethod = .get
+        let queryItems: [URLQueryItem]?
+
+        init(startDate: Date? = nil, endDate: Date? = nil) {
+            var items: [URLQueryItem] = []
+            if let startDate = startDate {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "start_date", value: formatter.string(from: startDate)))
+            }
+            if let endDate = endDate {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "end_date", value: formatter.string(from: endDate)))
+            }
+            self.queryItems = items.isEmpty ? nil : items
+        }
+    }
+
+    struct GetLedgerSummary: Endpoint {
+        let path = "/\(Constants.API.version)/ledger/summary"
+        let method: HTTPMethod = .get
+    }
+
+    struct GetLedgerTransactions: Endpoint {
+        let path = "/\(Constants.API.version)/ledger/transactions"
+        let method: HTTPMethod = .get
+        let queryItems: [URLQueryItem]?
+
+        init(page: Int = 1, limit: Int = Constants.API.defaultPageSize, type: String? = nil, startDate: Date? = nil, endDate: Date? = nil) {
+            var items = [
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "limit", value: "\(limit)")
+            ]
+            if let type = type {
+                items.append(URLQueryItem(name: "type", value: type))
+            }
+            if let startDate = startDate {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "start_date", value: formatter.string(from: startDate)))
+            }
+            if let endDate = endDate {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "end_date", value: formatter.string(from: endDate)))
+            }
+            self.queryItems = items
+        }
+    }
+
     // MARK: - AI Insights Endpoints
 
     struct GetAIInsights: Endpoint {
@@ -836,6 +1128,262 @@ enum Endpoints {
             ]
         }
     }
+
+    // MARK: - Watchlist Endpoints
+
+    struct GetWatchlists: Endpoint {
+        let path = "/\(Constants.API.version)/watchlists"
+        let method: HTTPMethod = .get
+    }
+
+    struct GetWatchlist: Endpoint {
+        let path: String
+        let method: HTTPMethod = .get
+
+        init(watchlistId: String) {
+            self.path = "/\(Constants.API.version)/watchlists/\(watchlistId)"
+        }
+    }
+
+    struct CreateWatchlist: Endpoint {
+        let path = "/\(Constants.API.version)/watchlists"
+        let method: HTTPMethod = .post
+        let body: Data?
+
+        init(watchlist: WatchlistCreate) throws {
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            self.body = try encoder.encode(watchlist)
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    struct UpdateWatchlist: Endpoint {
+        let path: String
+        let method: HTTPMethod = .patch
+        let body: Data?
+
+        init(watchlistId: String, watchlist: WatchlistUpdate) throws {
+            self.path = "/\(Constants.API.version)/watchlists/\(watchlistId)"
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            self.body = try encoder.encode(watchlist)
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    struct DeleteWatchlist: Endpoint {
+        let path: String
+        let method: HTTPMethod = .delete
+
+        init(watchlistId: String) {
+            self.path = "/\(Constants.API.version)/watchlists/\(watchlistId)"
+        }
+    }
+
+    struct AddSymbolToWatchlist: Endpoint {
+        let path: String
+        let method: HTTPMethod = .post
+        let body: Data?
+
+        init(watchlistId: String, symbol: String) {
+            self.path = "/\(Constants.API.version)/watchlists/\(watchlistId)/symbols"
+            let payload = ["symbol": symbol]
+            self.body = try? JSONEncoder().encode(payload)
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    struct RemoveSymbolFromWatchlist: Endpoint {
+        let path: String
+        let method: HTTPMethod = .delete
+
+        init(watchlistId: String, symbol: String) {
+            self.path = "/\(Constants.API.version)/watchlists/\(watchlistId)/symbols/\(symbol)"
+        }
+    }
+
+    // MARK: - Bank Account Endpoints
+
+    struct GetBankAccounts: Endpoint {
+        let path = "/\(Constants.API.version)/banks"
+        let method: HTTPMethod = .get
+    }
+
+    struct GetBankAccount: Endpoint {
+        let path: String
+        let method: HTTPMethod = .get
+
+        init(relationshipId: String) {
+            self.path = "/\(Constants.API.version)/banks/\(relationshipId)"
+        }
+    }
+
+    struct LinkBankManual: Endpoint {
+        let path = "/\(Constants.API.version)/banks/link-manual"
+        let method: HTTPMethod = .post
+        let body: Data?
+
+        init(request: BankLinkManualRequest) throws {
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            self.body = try encoder.encode(request)
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    struct LinkBankPlaid: Endpoint {
+        let path = "/\(Constants.API.version)/banks/link-plaid"
+        let method: HTTPMethod = .post
+        let body: Data?
+
+        init(request: BankLinkPlaidRequest) throws {
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            self.body = try encoder.encode(request)
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    struct RemoveBankAccount: Endpoint {
+        let path: String
+        let method: HTTPMethod = .delete
+
+        init(relationshipId: String) {
+            self.path = "/\(Constants.API.version)/banks/\(relationshipId)"
+        }
+    }
+
+    // MARK: - Funding Wallet Endpoints
+
+    struct GetFundingWallet: Endpoint {
+        let path = "/\(Constants.API.version)/funding-wallet"
+        let method: HTTPMethod = .get
+    }
+
+    struct GetFundingDetails: Endpoint {
+        let path = "/\(Constants.API.version)/funding-wallet/funding-details"
+        let method: HTTPMethod = .get
+    }
+
+    struct GetRecipientBank: Endpoint {
+        let path = "/\(Constants.API.version)/funding-wallet/recipient-bank"
+        let method: HTTPMethod = .get
+    }
+
+    struct SyncDeposits: Endpoint {
+        let path = "/\(Constants.API.version)/funding-wallet/sync-deposits"
+        let method: HTTPMethod = .post
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    struct GetWalletTransfers: Endpoint {
+        let path = "/\(Constants.API.version)/funding-wallet/transfers"
+        let method: HTTPMethod = .get
+    }
+
+    struct InitiateWalletWithdraw: Endpoint {
+        let path = "/\(Constants.API.version)/funding-wallet/withdraw"
+        let method: HTTPMethod = .post
+        let body: Data?
+
+        init(request: WalletWithdrawRequest) throws {
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            self.body = try encoder.encode(request)
+        }
+
+        var headers: [String: String]? {
+            ["Content-Type": "application/json"]
+        }
+    }
+
+    // MARK: - Document Endpoints
+
+    struct GetDocuments: Endpoint {
+        let path = "/\(Constants.API.version)/documents"
+        let method: HTTPMethod = .get
+        let queryItems: [URLQueryItem]?
+
+        init(type: DocumentType? = nil, startDate: Date? = nil, endDate: Date? = nil) {
+            var items: [URLQueryItem] = []
+            if let type = type {
+                items.append(URLQueryItem(name: "type", value: type.rawValue))
+            }
+            if let startDate = startDate {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "start_date", value: formatter.string(from: startDate)))
+            }
+            if let endDate = endDate {
+                let formatter = ISO8601DateFormatter()
+                items.append(URLQueryItem(name: "end_date", value: formatter.string(from: endDate)))
+            }
+            self.queryItems = items.isEmpty ? nil : items
+        }
+    }
+
+    struct DownloadDocument: Endpoint {
+        let path: String
+        let method: HTTPMethod = .get
+
+        init(documentId: String) {
+            self.path = "/\(Constants.API.version)/documents/\(documentId)/download"
+        }
+    }
+
+    struct GetW8BENForm: Endpoint {
+        let path = "/\(Constants.API.version)/documents/w8ben"
+        let method: HTTPMethod = .get
+    }
+
+    // MARK: - Corporate Action Endpoints
+
+    struct GetCorporateActions: Endpoint {
+        let path = "/\(Constants.API.version)/corporate-actions"
+        let method: HTTPMethod = .get
+        let queryItems: [URLQueryItem]?
+
+        init(symbol: String? = nil, type: CorporateActionType? = nil, status: CorporateActionStatus? = nil) {
+            var items: [URLQueryItem] = []
+            if let symbol = symbol {
+                items.append(URLQueryItem(name: "symbol", value: symbol))
+            }
+            if let type = type {
+                items.append(URLQueryItem(name: "type", value: type.rawValue))
+            }
+            if let status = status {
+                items.append(URLQueryItem(name: "status", value: status.rawValue))
+            }
+            self.queryItems = items.isEmpty ? nil : items
+        }
+    }
+
+    struct GetCorporateAction: Endpoint {
+        let path: String
+        let method: HTTPMethod = .get
+
+        init(announcementId: String) {
+            self.path = "/\(Constants.API.version)/corporate-actions/\(announcementId)"
+        }
+    }
 }
 
 // MARK: - Supporting Types
@@ -992,4 +1540,35 @@ struct BuyOrderRequest: Codable, Sendable {
     let type: String
     let timeInForce: String
     let notional: Decimal
+}
+
+// MARK: - Watchlist Requests
+
+struct WatchlistCreate: Codable, Sendable {
+    let name: String
+}
+
+struct WatchlistUpdate: Codable, Sendable {
+    let name: String?
+}
+
+// MARK: - Bank Account Requests
+
+struct BankLinkManualRequest: Codable, Sendable {
+    let accountNumber: String
+    let routingNumber: String
+    let accountType: String
+    let bankName: String
+}
+
+struct BankLinkPlaidRequest: Codable, Sendable {
+    let publicToken: String
+    let accountId: String
+}
+
+// MARK: - Funding Wallet Requests
+
+struct WalletWithdrawRequest: Codable, Sendable {
+    let amount: Decimal
+    let currency: String
 }

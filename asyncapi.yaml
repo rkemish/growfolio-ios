@@ -518,29 +518,54 @@ components:
       required:
         - transfer_id
         - direction
-        - amount
-        - currency
+        - amount_usd
+        - funding_method
         - status
       properties:
         transfer_id:
           type: string
-          description: Transfer ID
+          description: Alpaca transfer ID
         direction:
           type: string
           enum: [INCOMING, OUTGOING]
           description: Transfer direction
-        amount:
+        amount_usd:
           type: string
           pattern: '^\d+(\.\d+)?$'
-          description: Transfer amount
-        currency:
+          description: Transfer amount in USD
+        funding_method:
+          $ref: '#/components/schemas/FundingMethod'
+        original_currency:
           type: string
-          enum: [USD, GBP]
-          description: Currency code
+          description: Original currency code (for SWIFT deposits, e.g., GBP, EUR)
+        original_amount:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: Amount in original currency (for SWIFT deposits)
+        fx_rate:
+          type: string
+          pattern: '^\d+(\.\d+)?$'
+          description: FX rate used by Alpaca (for SWIFT deposits)
         status:
           type: string
           enum: [pending, complete, failed, returned, canceled]
           description: Transfer status
+
+    FundingMethod:
+      type: string
+      enum:
+        - ach
+        - wire
+        - swift
+        - local_rails
+        - instant
+      description: |
+        Funding method used:
+        - ach: ACH transfer (US bank)
+        - wire: Wire transfer
+        - swift: SWIFT international transfer
+        - local_rails: Local rails (UK Faster Payments, EU SEPA, etc.)
+        - instant: Instant funding with immediate availability
 
     FXRatePayload:
       type: object

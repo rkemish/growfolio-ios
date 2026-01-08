@@ -372,12 +372,22 @@ struct WebSocketTransferPayload: Decodable, Sendable {
     let currency: String
     let status: String
 
+    // Enhanced fields from AsyncAPI spec
+    let fundingMethod: String?
+    let originalCurrency: String?
+    let originalAmount: FlexibleDecimal?
+    let fxRate: FlexibleDecimal?
+
     enum CodingKeys: String, CodingKey {
         case transferId = "transfer_id"
         case direction
         case amount
         case currency
         case status
+        case fundingMethod = "funding_method"
+        case originalCurrency = "original_currency"
+        case originalAmount = "original_amount"
+        case fxRate = "fx_rate"
     }
 }
 
