@@ -44,15 +44,21 @@ struct GrowfolioApp: App {
     }
 
     /// Configures global UI appearance settings for the application.
-    /// Sets up navigation bar appearance to maintain consistency across views.
+    /// iOS 26: Uses transparent backgrounds to enable Liquid Glass effects.
     private func configureAppearance() {
-        // Create opaque navigation bar appearance
+        // iOS 26: Configure navigation bar with transparent background for glass effect
         let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        
-        // Apply appearance to both standard and scroll edge states
+        appearance.configureWithTransparentBackground()
+
+        // Apply transparent appearance to enable glass material effect
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
+
+        // iOS 26: Tab bar also uses glass automatically with default configuration
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithTransparentBackground()
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
     }
 }
 

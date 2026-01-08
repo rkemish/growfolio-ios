@@ -41,11 +41,7 @@ struct ChatInputView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(
-            Rectangle()
-                .fill(Color(.systemBackground))
-                .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: -4)
-        )
+        .background(.thickMaterial)
     }
 
     // MARK: - Text Field
@@ -65,8 +61,7 @@ struct ChatInputView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20))
     }
 
     // MARK: - Send Button

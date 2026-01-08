@@ -128,6 +128,26 @@ enum Constants {
 
         /// Grid column count for regular size class (iPad)
         static let regularGridColumns = 3
+
+        // MARK: - Glass Design System (iOS 26)
+
+        /// Glass card corner radius (slightly larger for glass effect)
+        static let glassCornerRadius: CGFloat = 16
+
+        /// Large glass corner radius for prominent cards
+        static let largeGlassCornerRadius: CGFloat = 24
+
+        /// Glass surface padding
+        static let glassPadding: CGFloat = 18
+
+        /// Glass shadow radius (subtler for glass)
+        static let glassShadowRadius: CGFloat = 12
+
+        /// Glass shadow opacity (reduced for glass aesthetic)
+        static let glassShadowOpacity: CGFloat = 0.08
+
+        /// Glass badge corner radius
+        static let glassBadgeCornerRadius: CGFloat = 8
     }
 
     // MARK: - Validation

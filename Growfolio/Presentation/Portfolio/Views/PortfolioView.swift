@@ -220,9 +220,7 @@ struct PortfolioView: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .glassCard(material: .regular, cornerRadius: Constants.UI.glassCornerRadius)
     }
 
     // MARK: - Period Selector
@@ -248,9 +246,14 @@ struct PortfolioView: View {
                 .fontWeight(isSelected ? .semibold : .regular)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.trustBlue : Color(.systemGray5))
+                .background {
+                    if isSelected {
+                        Capsule().fill(Color.trustBlue)
+                    } else {
+                        Capsule().fill(.thinMaterial)
+                    }
+                }
                 .foregroundColor(isSelected ? Color.white : Color.primary)
-                .clipShape(Capsule())
         }
     }
 
@@ -283,8 +286,7 @@ struct PortfolioView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassCard(material: .regular, cornerRadius: Constants.UI.glassCornerRadius)
     }
 
     // MARK: - Allocation Section
@@ -324,8 +326,7 @@ struct PortfolioView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassCard(material: .regular, cornerRadius: Constants.UI.glassCornerRadius)
     }
 
     // MARK: - Recent Activity
@@ -357,8 +358,7 @@ struct PortfolioView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassCard(material: .regular, cornerRadius: Constants.UI.glassCornerRadius)
     }
 }
 

@@ -207,7 +207,7 @@ private final class MockTokenProvider: WebSocketTokenProvider, @unchecked Sendab
 }
 
 @MainActor
-private final class MockWebSocketClient: WebSocketClientProtocol, @unchecked Sendable {
+private final class MockWebSocketClient: @preconcurrency WebSocketClientProtocol, @unchecked Sendable {
     private let eventStream: AsyncStream<WebSocketClientEvent>
     private var continuation: AsyncStream<WebSocketClientEvent>.Continuation?
 

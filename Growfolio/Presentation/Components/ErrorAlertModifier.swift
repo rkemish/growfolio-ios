@@ -68,7 +68,7 @@ struct ErrorAlertModifier: ViewModifier {
 /// A view modifier that shows a toast when an error occurs
 struct ErrorToastModifier: ViewModifier {
     @Binding var error: Error?
-    let retryAction: (() -> Void)?
+    let retryAction: (@Sendable () -> Void)?
     @Environment(ToastManager.self) private var toastManager: ToastManager?
 
     func body(content: Content) -> some View {
@@ -86,9 +86,7 @@ struct ErrorToastModifier: ViewModifier {
         let manager = toastManager ?? ToastManager.shared
 
         if let retry = retryAction {
-            manager.showError(error) {
-                retry()
-            }
+            manager.showError(error, retryAction: retry)
         } else {
             manager.showError(error)
         }
@@ -123,7 +121,7 @@ extension View {
     /// - Returns: Modified view with error toast handling
     func errorToast(
         error: Binding<Error?>,
-        retryAction: (() -> Void)? = nil
+        retryAction: (@Sendable () -> Void)? = nil
     ) -> some View {
         modifier(ErrorToastModifier(
             error: error,

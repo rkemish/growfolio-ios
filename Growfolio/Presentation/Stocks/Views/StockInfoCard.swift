@@ -95,9 +95,7 @@ struct StockInfoCard: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .glassCard(material: .regular, cornerRadius: Constants.UI.glassCornerRadius)
     }
 }
 
@@ -126,8 +124,7 @@ struct StatItem: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 10))
     }
 }
 
@@ -290,9 +287,7 @@ struct DetailedStockInfoCard: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .glassCard(material: .regular, cornerRadius: Constants.UI.glassCornerRadius)
     }
 
     private func formatLargeNumber(_ number: Int) -> String {

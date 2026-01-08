@@ -152,9 +152,12 @@ struct ToastView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
-        .background(toast.type.backgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+        .background {
+            RoundedRectangle(cornerRadius: 14)
+                .fill(toast.type.backgroundColor.opacity(0.85))
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+        }
+        .shadow(color: .black.opacity(Constants.UI.glassShadowOpacity), radius: Constants.UI.glassShadowRadius, x: 0, y: 4)
         .offset(y: offset)
         .opacity(opacity)
         .onAppear {

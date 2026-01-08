@@ -8,8 +8,9 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 @Observable
-final class OnboardingViewModel: Sendable {
+final class OnboardingViewModel: @unchecked Sendable {
 
     // MARK: - Properties
 

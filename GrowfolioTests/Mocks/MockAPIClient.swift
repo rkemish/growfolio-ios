@@ -25,27 +25,33 @@ final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
     /// Default error to throw if no response is configured
     var defaultError: Error?
 
-    private let lock = NSLock()
+    // Thread-safe access using os_unfair_lock for async-compatible locking
+    private var _lock = os_unfair_lock()
+
+    private func withLock<T>(_ body: () throws -> T) rethrows -> T {
+        os_unfair_lock_lock(&_lock)
+        defer { os_unfair_lock_unlock(&_lock) }
+        return try body()
+    }
 
     // MARK: - APIClientProtocol
 
     func request<T: Decodable & Sendable>(_ endpoint: Endpoint) async throws -> T {
-        lock.lock()
-        defer { lock.unlock() }
+        let (key, errorToThrow, responseToReturn, defaultErr): (String, Error?, T?, Error?) = withLock {
+            requestsMade.append(endpoint)
+            let key = String(describing: type(of: endpoint))
+            return (key, errors[key], responses[key] as? T, defaultError)
+        }
 
-        requestsMade.append(endpoint)
-
-        let key = String(describing: type(of: endpoint))
-
-        if let error = errors[key] {
+        if let error = errorToThrow {
             throw error
         }
 
-        if let response = responses[key] as? T {
+        if let response = responseToReturn {
             return response
         }
 
-        if let error = defaultError {
+        if let error = defaultErr {
             throw error
         }
 
@@ -53,31 +59,29 @@ final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
     }
 
     func request(_ endpoint: Endpoint) async throws {
-        lock.lock()
-        defer { lock.unlock() }
+        let errorToThrow: Error? = withLock {
+            requestsMade.append(endpoint)
+            let key = String(describing: type(of: endpoint))
+            return errors[key]
+        }
 
-        requestsMade.append(endpoint)
-
-        let key = String(describing: type(of: endpoint))
-
-        if let error = errors[key] {
+        if let error = errorToThrow {
             throw error
         }
     }
 
     func requestData(_ endpoint: Endpoint) async throws -> Data {
-        lock.lock()
-        defer { lock.unlock() }
+        let (errorToThrow, dataToReturn): (Error?, Data?) = withLock {
+            requestsMade.append(endpoint)
+            let key = String(describing: type(of: endpoint))
+            return (errors[key], responses[key] as? Data)
+        }
 
-        requestsMade.append(endpoint)
-
-        let key = String(describing: type(of: endpoint))
-
-        if let error = errors[key] {
+        if let error = errorToThrow {
             throw error
         }
 
-        if let data = responses[key] as? Data {
+        if let data = dataToReturn {
             return data
         }
 
@@ -90,18 +94,17 @@ final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
         fileName: String,
         mimeType: String
     ) async throws -> T {
-        lock.lock()
-        defer { lock.unlock() }
+        let (key, errorToThrow, responseToReturn): (String, Error?, T?) = withLock {
+            requestsMade.append(endpoint)
+            let key = String(describing: type(of: endpoint))
+            return (key, errors[key], responses[key] as? T)
+        }
 
-        requestsMade.append(endpoint)
-
-        let key = String(describing: type(of: endpoint))
-
-        if let error = errors[key] {
+        if let error = errorToThrow {
             throw error
         }
 
-        if let response = responses[key] as? T {
+        if let response = responseToReturn {
             return response
         }
 
@@ -111,26 +114,26 @@ final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
     // MARK: - Configuration Helpers
 
     func setResponse<T>(_ response: T, for endpointType: Any.Type) {
-        let key = String(describing: endpointType)
-        lock.lock()
-        defer { lock.unlock() }
-        responses[key] = response
+        withLock {
+            let key = String(describing: endpointType)
+            responses[key] = response
+        }
     }
 
     func setError(_ error: Error, for endpointType: Any.Type) {
-        let key = String(describing: endpointType)
-        lock.lock()
-        defer { lock.unlock() }
-        errors[key] = error
+        withLock {
+            let key = String(describing: endpointType)
+            errors[key] = error
+        }
     }
 
     func reset() {
-        lock.lock()
-        defer { lock.unlock() }
-        responses.removeAll()
-        errors.removeAll()
-        requestsMade.removeAll()
-        defaultError = nil
+        withLock {
+            responses.removeAll()
+            errors.removeAll()
+            requestsMade.removeAll()
+            defaultError = nil
+        }
     }
 }
 

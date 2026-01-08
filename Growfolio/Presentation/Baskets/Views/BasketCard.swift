@@ -96,9 +96,7 @@ struct BasketCard: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .glassCard(material: .regular, cornerRadius: Constants.UI.glassCornerRadius)
     }
 
     private var statusBadge: some View {
@@ -108,11 +106,8 @@ struct BasketCard: View {
             Text(basket.status.displayName)
                 .font(.caption)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(Color(hex: basket.status.colorHex).opacity(0.1))
+        .glassBadge(tintColor: Color(hex: basket.status.colorHex))
         .foregroundStyle(Color(hex: basket.status.colorHex))
-        .clipShape(Capsule())
     }
 
     private var gainLossColor: Color {

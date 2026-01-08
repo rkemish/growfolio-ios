@@ -237,9 +237,7 @@ struct DCASchedulesView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .glassCard(material: .regular, cornerRadius: Constants.UI.glassCornerRadius)
     }
 
     // MARK: - Upcoming Section
@@ -279,8 +277,7 @@ struct DCASchedulesView: View {
                     }
                 }
                 .padding()
-                .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 8))
             }
         }
     }
@@ -447,9 +444,7 @@ struct DCAScheduleRow: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .glassCard(material: .regular, cornerRadius: Constants.UI.glassCornerRadius)
         .opacity(schedule.isPaused || !schedule.isActive ? 0.7 : 1.0)
     }
 
@@ -460,11 +455,8 @@ struct DCAScheduleRow: View {
         }
         .font(.caption2)
         .fontWeight(.medium)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(Color(hex: schedule.status.colorHex).opacity(0.2))
+        .glassBadge(tintColor: Color(hex: schedule.status.colorHex))
         .foregroundStyle(Color(hex: schedule.status.colorHex))
-        .clipShape(Capsule())
     }
 }
 

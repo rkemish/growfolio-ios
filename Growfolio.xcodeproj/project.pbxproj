@@ -214,6 +214,7 @@
 		E37DFEE0AC180ABF150B1527 /* FamilyGoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B536AC8AA10FEBA343D78B4 /* FamilyGoalsView.swift */; };
 		E3E05415FAF8084A4AA129EB /* DisclosuresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3A2089565A8E4DFFB496DE /* DisclosuresView.swift */; };
 		E3E84B99B9E309EE47A57AD5 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6D743C99DC1479E0C3EAF1 /* ChatMessage.swift */; };
+		E9483246938EC7FF20AD94C7 /* GlassMaterial+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23EF366E982E957039AB4F5D /* GlassMaterial+Extensions.swift */; };
 		EB62B67123EC71D2E035CBA6 /* BasketRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F63D499F16B77EF853B6A4 /* BasketRepositoryProtocol.swift */; };
 		EC42D29EC5CC9B4AB631095A /* iPadDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB31A804F97E67B266B00DF /* iPadDetailView.swift */; };
 		EDE56BD5E05241AD1241BBD4 /* InviteMemberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D018EB4C7C5334EC7FB11AE /* InviteMemberView.swift */; };
@@ -288,6 +289,7 @@
 		1FB5B378C53DDCE5D010167E /* GoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsView.swift; sourceTree = "<group>"; };
 		228E0E7BB4DE287AA6D59C84 /* UserRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepositoryTests.swift; sourceTree = "<group>"; };
 		236F59D03673DF21705AEF5B /* WatchlistViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistViewModelTests.swift; sourceTree = "<group>"; };
+		23EF366E982E957039AB4F5D /* GlassMaterial+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GlassMaterial+Extensions.swift"; sourceTree = "<group>"; };
 		2568E360CEF8BE5AD3FD7CB0 /* KYCRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCRepositoryTests.swift; sourceTree = "<group>"; };
 		26D9297B7D6AB25C2DF63805 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		26F721726852F2808AC8F7D8 /* FundingRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FundingRepositoryProtocol.swift; sourceTree = "<group>"; };
@@ -1285,6 +1287,7 @@
 				CAABA0EE969FB551530FCFE0 /* Color+Extensions.swift */,
 				5CBDA0B05BCB16807BCBF8DB /* Date+Extensions.swift */,
 				16EA9A3374BF368FCA75C48E /* Decimal+Extensions.swift */,
+				23EF366E982E957039AB4F5D /* GlassMaterial+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1435,7 +1438,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1600;
+				LastUpgradeCheck = 1800;
 				TargetAttributes = {
 					2062521C2062BF10877C00CB = {
 						DevelopmentTeam = "";
@@ -1645,6 +1648,7 @@
 				C8BA2370152CA40954C8B226 /* FundingRepositoryProtocol.swift in Sources */,
 				E0E254C352F225E3E6C5C560 /* FundingView.swift in Sources */,
 				2D3E61F14CACA3524EEBC849 /* FundingViewModel.swift in Sources */,
+				E9483246938EC7FF20AD94C7 /* GlassMaterial+Extensions.swift in Sources */,
 				50E413A524A4629BA42F21C1 /* Goal.swift in Sources */,
 				B0DC049F2053BD9924B50015 /* GoalDetailView.swift in Sources */,
 				F8B99FD2906F54658398A426 /* GoalPositionsView.swift in Sources */,
@@ -1819,7 +1823,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -1828,7 +1832,7 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 5.9;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
@@ -1886,7 +1890,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1896,7 +1900,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 5.9;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};

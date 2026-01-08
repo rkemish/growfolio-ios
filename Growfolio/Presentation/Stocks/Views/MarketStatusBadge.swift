@@ -96,10 +96,7 @@ struct MarketStatusBadge: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(statusColor.opacity(0.1))
-        .clipShape(Capsule())
+        .glassBadge(tintColor: statusColor)
     }
 
     // MARK: - Compact Badge
@@ -151,8 +148,7 @@ struct MarketStatusBadge: View {
                         .fontWeight(.medium)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color(.tertiarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 4))
                 }
             }
 
@@ -169,8 +165,7 @@ struct MarketStatusBadge: View {
             }
         }
         .padding(12)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .glassCard(material: .regular, cornerRadius: 12)
     }
 }
 
@@ -311,8 +306,7 @@ struct MarketStatusCard: View {
                 }
             }
             .padding(12)
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
+            .glassCard(material: .regular, cornerRadius: Constants.UI.glassCornerRadius)
         }
         .buttonStyle(.plain)
     }

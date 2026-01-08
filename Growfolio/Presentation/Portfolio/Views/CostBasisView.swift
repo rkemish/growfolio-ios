@@ -524,8 +524,9 @@ struct CostBasisView: View {
 
 // MARK: - Cost Basis View Model
 
+@MainActor
 @Observable
-final class CostBasisViewModel {
+final class CostBasisViewModel: @unchecked Sendable {
     var costBasisSummary: CostBasisSummary?
     var isLoading = false
     var errorMessage: String?

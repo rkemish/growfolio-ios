@@ -180,7 +180,7 @@ struct EnvironmentConfiguration: Sendable {
 // MARK: - Feature Flags
 
 struct FeatureFlags: Sendable {
-    static var shared = FeatureFlags()
+    nonisolated(unsafe) static var shared = FeatureFlags()
 
     private init() {}
 

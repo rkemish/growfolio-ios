@@ -232,7 +232,7 @@ final class CacheManagerTests: XCTestCase {
         await freshCache.invalidatePrefix("prefix_")
 
         // Create another cache manager to read from disk only (memory cache won't have values)
-        let anotherCache = CacheManager()
+        _ = CacheManager()
 
         // The prefixed keys should be removed from disk
         // Note: This test verifies the method runs without error

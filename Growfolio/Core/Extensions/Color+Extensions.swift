@@ -102,6 +102,27 @@ extension Color {
     /// Neutral color
     static let neutral = Color(hex: "#8E8E93")
 
+    // MARK: - Glass-Aware Colors (iOS 26)
+
+    /// High contrast primary text color for glass surfaces
+    static var glassText: Color {
+        Color.primary.opacity(0.95)
+    }
+
+    /// Secondary text color optimized for glass readability
+    static var glassSecondaryText: Color {
+        Color.secondary.opacity(0.9)
+    }
+
+    /// Vibrant version of Trust Blue for glass backgrounds
+    static let trustBlueVibrant = Color(hex: "#1E3A5F").opacity(0.85)
+
+    /// Vibrant version of Growth Green for glass backgrounds
+    static let growthGreenVibrant = Color(hex: "#2E7D5A").opacity(0.85)
+
+    /// Vibrant version of Prosperity Gold for glass backgrounds
+    static let prosperityGoldVibrant = Color(hex: "#D4A84B").opacity(0.85)
+
     // MARK: - Chart Colors
 
     /// Colors for charts and graphs (theme-consistent)

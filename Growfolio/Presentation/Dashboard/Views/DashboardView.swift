@@ -80,8 +80,7 @@ struct DashboardView: View {
                     .font(.title3)
                     .foregroundStyle(isDarkMode ? .yellow : Color.trustBlue)
                     .frame(width: 40, height: 40)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(Circle())
+                    .background(.thinMaterial, in: Circle())
             }
             .buttonStyle(.plain)
 
@@ -148,9 +147,7 @@ struct DashboardView: View {
             }
         }
         .padding(20)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: Constants.UI.largeCornerRadius))
-        .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+        .glassCard(material: .regular, cornerRadius: Constants.UI.largeGlassCornerRadius)
     }
 
     private func performanceMetric(title: String, value: Decimal, percentage: Decimal) -> some View {
@@ -270,8 +267,11 @@ struct DashboardView: View {
                     .foregroundStyle(.primary)
             }
             .frame(width: 80, height: 80)
-            .background(color.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
+            .background {
+                RoundedRectangle(cornerRadius: Constants.UI.cornerRadius)
+                    .fill(color.opacity(0.15))
+                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
+            }
         }
         .buttonStyle(.plain)
     }
@@ -400,8 +400,7 @@ struct DashboardView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(24)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
+        .glassCard(material: .light, cornerRadius: Constants.UI.glassCornerRadius)
     }
 }
 
@@ -443,8 +442,7 @@ struct GoalProgressRow: View {
             }
         }
         .padding(12)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
+        .glassCard(material: .light, cornerRadius: Constants.UI.glassCornerRadius)
     }
 }
 
@@ -488,8 +486,7 @@ private struct DashboardDCAScheduleRow: View {
             }
         }
         .padding(12)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
+        .glassCard(material: .light, cornerRadius: Constants.UI.glassCornerRadius)
     }
 }
 
