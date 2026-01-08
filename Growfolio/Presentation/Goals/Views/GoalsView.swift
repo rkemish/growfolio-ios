@@ -153,12 +153,42 @@ struct GoalsView: View {
         ContentUnavailableView {
             Label("No Goals Yet", systemImage: "target")
         } description: {
-            Text("Create your first investment goal to start tracking your progress.")
+            VStack(spacing: 16) {
+                Text("Set financial goals and track your progress automatically.")
+                    .multilineTextAlignment(.center)
+
+                // Educational steps
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "1.circle.fill")
+                            .foregroundStyle(Color.trustBlue)
+                        Text("Choose a goal type (retirement, vacation, education)")
+                            .font(.subheadline)
+                    }
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "2.circle.fill")
+                            .foregroundStyle(Color.trustBlue)
+                        Text("Set your target amount and date")
+                            .font(.subheadline)
+                    }
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "3.circle.fill")
+                            .foregroundStyle(Color.trustBlue)
+                        Text("Link to DCA schedules for automatic tracking")
+                            .font(.subheadline)
+                    }
+                }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .padding(.horizontal)
         } actions: {
             Button {
                 viewModel.showCreateGoal = true
             } label: {
-                Text("Create Goal")
+                Text("Create Your First Goal")
             }
             .buttonStyle(.borderedProminent)
         }

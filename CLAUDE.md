@@ -120,3 +120,43 @@ The app supports a mock mode for development without backend:
 - `MockDataStore` manages shared state across mock repositories
 - `MockDataGenerator` creates realistic test data scenarios
 - SwiftUI previews use `RepositoryContainer.preview*` properties
+
+## WebSocket (Real-Time Updates)
+
+The app uses WebSocket for real-time data including quotes, order updates, and transfer notifications.
+
+Key files:
+- `Growfolio/Core/Network/WebSocketService.swift` - Main service managing connection lifecycle
+- `Growfolio/Core/Network/WebSocketModels.swift` - Message types and event definitions
+- `Growfolio/Core/Network/WebSocketClient.swift` - Low-level URLSessionWebSocketTask wrapper
+
+Available channels: `quotes`, `orders`, `positions`, `account`, `dca`, `transfers`, `fx`, `baskets`
+
+See `IOS_WEBSOCKET_MANUAL.md` for the complete WebSocket protocol specification.
+
+## Launch Arguments
+
+The app supports launch arguments for testing and development:
+
+| Argument | Description |
+|----------|-------------|
+| `--uitesting` | Enable UI testing mode (faster animations) |
+| `--mock-mode` | Use mock data instead of real API |
+| `--skip-to-main` | Skip directly to main app (tab bar) |
+| `--skip-onboarding` | Skip to authentication screen |
+| `--reset-onboarding` | Reset onboarding state |
+
+Example usage in tests:
+```swift
+app.launchArguments.append("--mock-mode")
+app.launchArguments.append("--skip-to-main")
+```
+
+## Environment Configuration
+
+Three environments configured in `Growfolio/App/Configuration/Environment.swift`:
+- **development**: localhost, mock data enabled by default, verbose logging
+- **staging**: staging-api.growfolio.app, SSL pinning enabled
+- **production**: api.growfolio.app, SSL pinning, analytics, crash reporting
+
+Feature flags are managed in `FeatureFlags` struct in the same file.

@@ -146,35 +146,48 @@ struct BasketsListView: View {
     }
 
     private var emptyStateView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "basket.fill")
-                .font(.system(size: 80))
-                .foregroundStyle(.secondary)
+        ContentUnavailableView {
+            Label("No Baskets Yet", systemImage: "basket.fill")
+        } description: {
+            VStack(spacing: 16) {
+                Text("Create custom stock baskets with specific allocations for diversified investing.")
+                    .multilineTextAlignment(.center)
 
-            Text("No Baskets Yet")
-                .font(.title2)
-                .fontWeight(.semibold)
-
-            Text("Create your first basket to group stocks\nwith custom allocations and DCA schedules")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
+                // Educational steps
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "1.circle.fill")
+                            .foregroundStyle(Color.trustBlue)
+                        Text("Name your basket and choose stocks")
+                            .font(.subheadline)
+                    }
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "2.circle.fill")
+                            .foregroundStyle(Color.trustBlue)
+                        Text("Set allocation percentages (must total 100%)")
+                            .font(.subheadline)
+                    }
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "3.circle.fill")
+                            .foregroundStyle(Color.trustBlue)
+                        Text("Link to DCA schedules for automatic rebalancing")
+                            .font(.subheadline)
+                    }
+                }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .padding(.horizontal)
+        } actions: {
             Button {
                 showingCreateBasket = true
             } label: {
-                Label("Create Basket", systemImage: "plus.circle.fill")
-                    .font(.headline)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.blue)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                Text("Create Your First Basket")
             }
-            .padding(.horizontal, 40)
-            .padding(.top, 20)
+            .buttonStyle(.borderedProminent)
         }
-        .padding()
     }
 
     private var loadingView: some View {

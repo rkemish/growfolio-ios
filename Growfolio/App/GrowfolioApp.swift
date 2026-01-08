@@ -170,9 +170,9 @@ struct AdaptiveMainView: View {
 /// Manages the primary navigation between core app features and handles
 /// WebSocket connections for real-time data updates.
 struct MainTabView: View {
-    /// Currently selected tab index (0-4)
+    /// Currently selected tab index (0-3)
     @State private var selectedTab = 0
-    
+
     /// Monitor app lifecycle to manage WebSocket connections
     @Environment(\.scenePhase) private var scenePhase
 
@@ -185,40 +185,26 @@ struct MainTabView: View {
                 }
                 .tag(0)
 
-            // Watchlist - Tracked securities and favorites
-            WatchlistView()
+            // Invest - Watchlist, Baskets, and DCA (consolidated)
+            InvestView()
                 .tabItem {
-                    Label("Watchlist", systemImage: "star.fill")
+                    Label("Invest", systemImage: "chart.line.uptrend.xyaxis")
                 }
                 .tag(1)
-
-            // Baskets - Custom stock groups with allocations
-            BasketsListView()
-                .tabItem {
-                    Label("Baskets", systemImage: "basket.fill")
-                }
-                .tag(2)
-
-            // Dollar-Cost Averaging - Investment automation
-            DCASchedulesView()
-                .tabItem {
-                    Label("DCA", systemImage: "arrow.triangle.2.circlepath")
-                }
-                .tag(3)
 
             // Portfolio - Holdings and performance tracking
             PortfolioView()
                 .tabItem {
                     Label("Portfolio", systemImage: "briefcase.fill")
                 }
-                .tag(4)
+                .tag(2)
 
             // Settings - App configuration and account management
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gearshape.fill")
                 }
-                .tag(5)
+                .tag(3)
         }
         .task {
             // Establish WebSocket connection when tab view appears

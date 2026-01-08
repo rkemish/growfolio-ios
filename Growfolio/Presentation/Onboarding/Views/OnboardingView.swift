@@ -146,31 +146,19 @@ struct OnboardingPage: Identifiable {
     static let pages: [OnboardingPage] = [
         OnboardingPage(
             title: "Welcome to Growfolio",
-            description: "Your personal investment companion for smarter, disciplined investing through Dollar-Cost Averaging.",
+            description: "Your personal investment companion for smarter investing through Dollar-Cost Averaging. Set goals, automate investments, and grow your portfolio consistently.",
             iconName: "chart.line.uptrend.xyaxis.circle.fill",
             iconColor: Color.growthGreen
         ),
         OnboardingPage(
-            title: "Set Investment Goals",
-            description: "Define your financial goals and track your progress. Whether it's retirement, education, or a dream vacation, we'll help you get there.",
-            iconName: "target",
-            iconColor: Color.trustBlue
-        ),
-        OnboardingPage(
-            title: "Automate Your Investments",
-            description: "Set up Dollar-Cost Averaging schedules to invest consistently, reducing the impact of market volatility over time.",
+            title: "Automate Your Growth",
+            description: "Set up recurring investments with Dollar-Cost Averaging. Define your financial goals and we'll help you reach them systematically, reducing market volatility impact.",
             iconName: "arrow.triangle.2.circlepath.circle.fill",
             iconColor: Color.prosperityGold
         ),
         OnboardingPage(
-            title: "Track Your Portfolio",
-            description: "Monitor your holdings, analyze performance, and get AI-powered insights to make informed investment decisions.",
-            iconName: "briefcase.circle.fill",
-            iconColor: Color.trustBlue
-        ),
-        OnboardingPage(
-            title: "Invest as a Family",
-            description: "Manage investments for your whole family. Create custodial accounts and teach children about investing.",
+            title: "Built for Families",
+            description: "Manage investments for your whole family. Create custodial accounts, teach children about investing, and grow wealth together.",
             iconName: "person.3.fill",
             iconColor: .pink
         )

@@ -64,24 +64,16 @@ final class OnboardingFlowTests: GrowfolioUITests {
         // Page 1: Welcome
         captureScreenshot(named: "welcome")
 
-        // Tap Continue through all pages
-        if app.buttons["Continue"].exists {
-            tapAndCapture(app.buttons["Continue"], screenshotName: "goals")
-        }
-
+        // Tap Continue through all pages (now only 3 pages)
         if app.buttons["Continue"].exists {
             tapAndCapture(app.buttons["Continue"], screenshotName: "automate")
-        }
-
-        if app.buttons["Continue"].exists {
-            tapAndCapture(app.buttons["Continue"], screenshotName: "track")
         }
 
         if app.buttons["Continue"].exists {
             tapAndCapture(app.buttons["Continue"], screenshotName: "family")
         }
 
-        // Page 5: Get Started
+        // Page 3: Get Started (last page)
         if app.buttons["Get Started"].exists {
             tapAndCapture(app.buttons["Get Started"], screenshotName: "auth")
         }
@@ -149,29 +141,34 @@ final class MainAppFlowTests: GrowfolioUITests {
         }
     }
 
-    func testWatchlistTab() throws {
+    func testInvestTab() throws {
         app.launch()
 
-        // Tap Watchlist tab
-        let watchlistTab = app.tabBars.buttons["Watchlist"]
-        if watchlistTab.exists {
-            tapAndCapture(watchlistTab, screenshotName: "watchlist")
+        // Tap Invest tab (consolidates Watchlist, Baskets, DCA)
+        let investTab = app.tabBars.buttons["Invest"]
+        if investTab.exists {
+            tapAndCapture(investTab, screenshotName: "invest-watchlist")
         }
 
-        // Tap on a stock row if exists
-        let stockCell = app.cells.firstMatch
-        if stockCell.exists {
-            tapAndCapture(stockCell, screenshotName: "stock-detail")
+        // Switch to Baskets segment
+        if app.buttons["Baskets"].exists {
+            tapAndCapture(app.buttons["Baskets"], screenshotName: "invest-baskets")
         }
-    }
 
-    func testDCATab() throws {
-        app.launch()
+        // Switch to DCA segment
+        if app.buttons["DCA"].exists {
+            tapAndCapture(app.buttons["DCA"], screenshotName: "invest-dca")
+        }
 
-        // Tap DCA tab
-        let dcaTab = app.tabBars.buttons["DCA"]
-        if dcaTab.exists {
-            tapAndCapture(dcaTab, screenshotName: "dca-schedules")
+        // Tap on a stock row if exists (switch back to Watchlist first)
+        if app.buttons["Watchlist"].exists {
+            app.buttons["Watchlist"].tap()
+            sleep(1)
+
+            let stockCell = app.cells.firstMatch
+            if stockCell.exists {
+                tapAndCapture(stockCell, screenshotName: "stock-detail")
+            }
         }
     }
 
@@ -204,10 +201,10 @@ final class MainAppFlowTests: GrowfolioUITests {
     func testAllTabsSequence() throws {
         app.launch()
 
-        // Capture all tabs in sequence
+        // Capture all tabs in sequence (now 4 tabs)
         captureScreenshot(named: "tab-0-dashboard")
 
-        let tabs = ["Watchlist", "DCA", "Portfolio", "Settings"]
+        let tabs = ["Invest", "Portfolio", "Settings"]
         for (index, tabName) in tabs.enumerated() {
             let tab = app.tabBars.buttons[tabName]
             if tab.exists {
@@ -232,11 +229,18 @@ final class StockDetailFlowTests: GrowfolioUITests {
     func testStockDetailAndBuyFlow() throws {
         app.launch()
 
-        // Go to Watchlist
-        let watchlistTab = app.tabBars.buttons["Watchlist"]
-        if watchlistTab.exists {
-            watchlistTab.tap()
+        // Go to Invest tab and select Watchlist
+        let investTab = app.tabBars.buttons["Invest"]
+        if investTab.exists {
+            investTab.tap()
             sleep(1)
+
+            // Ensure Watchlist segment is selected
+            if app.buttons["Watchlist"].exists {
+                app.buttons["Watchlist"].tap()
+                sleep(1)
+            }
+
             captureScreenshot(named: "watchlist")
         }
 
@@ -269,9 +273,16 @@ final class StockDetailFlowTests: GrowfolioUITests {
         app.launch()
 
         // Navigate to a stock detail
-        let watchlistTab = app.tabBars.buttons["Watchlist"]
-        if watchlistTab.exists {
-            watchlistTab.tap()
+        let investTab = app.tabBars.buttons["Invest"]
+        if investTab.exists {
+            investTab.tap()
+            sleep(1)
+
+            // Ensure Watchlist segment is selected
+            if app.buttons["Watchlist"].exists {
+                app.buttons["Watchlist"].tap()
+                sleep(1)
+            }
         }
 
         let stockCell = app.cells.firstMatch
@@ -358,20 +369,12 @@ final class FullAppWalkthroughTests: GrowfolioUITests {
         app.swipeDown()
         sleep(1)
 
-        // 2. Watchlist - try different approaches to find the tab
-        var watchlistTab = app.tabBars.buttons["Watchlist"]
-        if !watchlistTab.exists {
-            // Try finding by accessibility identifier
-            watchlistTab = app.buttons.matching(identifier: "Watchlist").firstMatch
-        }
-        if !watchlistTab.exists {
-            // Try finding by label containing Watchlist
-            watchlistTab = app.buttons.containing(NSPredicate(format: "label CONTAINS 'Watchlist'")).firstMatch
-        }
-        XCTAssertTrue(watchlistTab.waitForExistence(timeout: 5), "Watchlist tab not found")
-        watchlistTab.tap()
+        // 2. Invest tab - consolidated Watchlist, Baskets, DCA
+        let investTab = app.tabBars.buttons["Invest"]
+        XCTAssertTrue(investTab.waitForExistence(timeout: 5), "Invest tab not found")
+        investTab.tap()
         sleep(1)
-        captureScreenshot(named: "03-watchlist")
+        captureScreenshot(named: "03-invest-watchlist")
 
         // Open stock detail
         let stockCell = app.cells.firstMatch
@@ -393,33 +396,39 @@ final class FullAppWalkthroughTests: GrowfolioUITests {
             }
         }
 
-        // 3. DCA
-        let dcaTab = app.tabBars.buttons["DCA"]
-        XCTAssertTrue(dcaTab.waitForExistence(timeout: 5), "DCA tab not found")
-        dcaTab.tap()
-        sleep(1)
-        captureScreenshot(named: "06-dca-schedules")
+        // Capture Baskets and DCA segments within Invest tab
+        if app.buttons["Baskets"].exists {
+            app.buttons["Baskets"].tap()
+            sleep(1)
+            captureScreenshot(named: "04-invest-baskets")
+        }
 
-        // 4. Portfolio
+        if app.buttons["DCA"].exists {
+            app.buttons["DCA"].tap()
+            sleep(1)
+            captureScreenshot(named: "05-invest-dca")
+        }
+
+        // 3. Portfolio
         let portfolioTab = app.tabBars.buttons["Portfolio"]
         XCTAssertTrue(portfolioTab.waitForExistence(timeout: 5), "Portfolio tab not found")
         portfolioTab.tap()
         sleep(1)
-        captureScreenshot(named: "07-portfolio")
+        captureScreenshot(named: "06-portfolio")
 
         app.swipeUp()
         sleep(1)
-        captureScreenshot(named: "08-portfolio-scrolled")
+        captureScreenshot(named: "07-portfolio-scrolled")
 
-        // 5. Settings
+        // 4. Settings
         let settingsTab = app.tabBars.buttons["Settings"]
         XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "Settings tab not found")
         settingsTab.tap()
         sleep(1)
-        captureScreenshot(named: "09-settings")
+        captureScreenshot(named: "08-settings")
 
         app.swipeUp()
         sleep(1)
-        captureScreenshot(named: "10-settings-scrolled")
+        captureScreenshot(named: "09-settings-scrolled")
     }
 }

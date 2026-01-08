@@ -407,13 +407,16 @@ final class CacheManagerTests: XCTestCase {
     }
 
     func testCacheManagerConcurrentAccess() async {
+        // Capture cacheManager locally to avoid data races in concurrent closures
+        let cacheManager = self.cacheManager!
+
         await withTaskGroup(of: Void.self) { group in
             for i in 0..<100 {
                 group.addTask {
-                    await self.cacheManager.set("value-\(i)", forKey: "concurrent-\(i)", expiration: nil)
+                    await cacheManager.set("value-\(i)", forKey: "concurrent-\(i)", expiration: nil)
                 }
                 group.addTask {
-                    let _: String? = await self.cacheManager.get(forKey: "concurrent-\(i)")
+                    let _: String? = await cacheManager.get(forKey: "concurrent-\(i)")
                 }
             }
         }

@@ -39,12 +39,15 @@ final class GoalsViewModel: @unchecked Sendable {
     // MARK: - Computed Properties
 
     var filteredGoals: [Goal] {
+        // First filter: archived status based on toggle
         var filtered = showArchived ? goals : goals.filter { !$0.isArchived }
 
+        // Second filter: optional category filter (nil = show all categories)
         if let category = filterCategory {
             filtered = filtered.filter { $0.category == category }
         }
 
+        // Apply sort order (progress, target date, etc.)
         return sortGoals(filtered, by: sortOrder)
     }
 
@@ -95,6 +98,8 @@ final class GoalsViewModel: @unchecked Sendable {
     @MainActor
     func refreshGoals() async {
         isRefreshing = true
+        // Invalidate cache to force fresh data on next fetch
+        // This ensures pull-to-refresh gets latest data from server
         await repository.invalidateCache()
         await loadGoals()
         isRefreshing = false
@@ -127,12 +132,18 @@ final class GoalsViewModel: @unchecked Sendable {
 
         // Refresh to get updated list
         await refreshGoals()
+
+        // Show success toast
+        ToastManager.shared.showSuccess("Goal '\(name)' created successfully!")
     }
 
     @MainActor
     func updateGoal(_ goal: Goal) async throws {
         let _ = try await repository.updateGoal(goal)
         await refreshGoals()
+
+        // Show success toast
+        ToastManager.shared.showSuccess("Goal '\(goal.name)' updated successfully!")
     }
 
     @MainActor

@@ -12,7 +12,7 @@ extension Date {
     // MARK: - Formatters
 
     /// ISO 8601 formatter for API communication
-    static let iso8601Formatter: ISO8601DateFormatter = {
+    nonisolated(unsafe) static let iso8601Formatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter
@@ -55,7 +55,7 @@ extension Date {
     }()
 
     /// Relative date formatter
-    static let relativeDateFormatter: RelativeDateTimeFormatter = {
+    nonisolated(unsafe) static let relativeDateFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
         return formatter

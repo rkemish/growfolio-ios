@@ -473,10 +473,13 @@ final class UserRepositoryTests: XCTestCase {
         let userDTO = makeUserDTO()
         mockAPIClient.setResponse(userDTO, for: Endpoints.GetCurrentUser.self)
 
+        // Capture repository locally to avoid data races in concurrent closures
+        let repository = self.sut!
+
         // Act - Make multiple concurrent requests
-        async let user1 = sut.fetchCurrentUser()
-        async let user2 = sut.fetchCurrentUser()
-        async let user3 = sut.fetchCurrentUser()
+        async let user1 = repository.fetchCurrentUser()
+        async let user2 = repository.fetchCurrentUser()
+        async let user3 = repository.fetchCurrentUser()
 
         let results = try await [user1, user2, user3]
 

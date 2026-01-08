@@ -143,12 +143,18 @@ final class DCAViewModel: @unchecked Sendable {
         )
 
         await refreshSchedules()
+
+        // Show success toast
+        ToastManager.shared.showSuccess("DCA schedule for \(stockSymbol) created successfully!")
     }
 
     @MainActor
     func updateSchedule(_ schedule: DCASchedule) async throws {
         let _ = try await repository.updateSchedule(schedule)
         await refreshSchedules()
+
+        // Show success toast
+        ToastManager.shared.showSuccess("DCA schedule for \(schedule.stockSymbol) updated successfully!")
     }
 
     @MainActor

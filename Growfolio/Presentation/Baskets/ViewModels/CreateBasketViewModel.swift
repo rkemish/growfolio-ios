@@ -92,6 +92,10 @@ final class CreateBasketViewModel: @unchecked Sendable {
 
             let basket = try await basketRepository.createBasket(basketCreate)
             isCreating = false
+
+            // Show success toast
+            ToastManager.shared.showSuccess("Basket '\(name)' created successfully!")
+
             return basket
         } catch {
             errorMessage = "Failed to create basket: \(error.localizedDescription)"

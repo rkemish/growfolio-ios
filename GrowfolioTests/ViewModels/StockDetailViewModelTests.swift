@@ -550,7 +550,7 @@ final class StockDetailViewModelTests: XCTestCase {
 
 // MARK: - Test Doubles
 
-final class StubAIRepository: AIRepositoryProtocol {
+final class StubAIRepository: AIRepositoryProtocol, @unchecked Sendable {
     var explanationToReturn = StockExplanation(symbol: "AAPL", explanation: "Mock explanation")
     var errorToThrow: Error?
     private(set) var fetchExplanationCallCount = 0

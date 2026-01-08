@@ -413,14 +413,17 @@ final class TokenManagerTests: XCTestCase {
     }
 
     func testKeychainWrapperThreadSafety() async {
+        // Capture keychain locally to avoid data races in concurrent closures
+        let keychain = self.keychain!
+
         // Concurrent writes and reads
         await withTaskGroup(of: Void.self) { group in
             for i in 0..<100 {
                 group.addTask {
-                    self.keychain.set("value-\(i)", forKey: "concurrent-key")
+                    keychain.set("value-\(i)", forKey: "concurrent-key")
                 }
                 group.addTask {
-                    _ = self.keychain.get("concurrent-key")
+                    _ = keychain.get("concurrent-key")
                 }
             }
         }

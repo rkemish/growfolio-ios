@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DashboardView: View {
     @State private var viewModel = DashboardViewModel()
+    @State private var showStockSearch = false
     @Environment(AuthService.self) private var authService
     @Environment(\.horizontalSizeClass) private var sizeClass
     @AppStorage("isDarkMode") private var isDarkMode = false
@@ -42,11 +43,26 @@ struct DashboardView: View {
                 .padding(.bottom, 20)
             }
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showStockSearch = true
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                    }
+                }
+            }
             .refreshable {
                 await viewModel.refreshDataAsync()
             }
             .task {
                 await viewModel.loadDashboardData()
+            }
+            .sheet(isPresented: $showStockSearch) {
+                StockSearchView { symbol in
+                    showStockSearch = false
+                    // Stock added to watchlist via StockSearchView
+                }
             }
         }
         .preferredColorScheme(isDarkMode ? .dark : .light)

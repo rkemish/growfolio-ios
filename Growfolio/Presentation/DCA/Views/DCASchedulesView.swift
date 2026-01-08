@@ -156,12 +156,42 @@ struct DCASchedulesView: View {
         ContentUnavailableView {
             Label("No DCA Schedules", systemImage: "arrow.triangle.2.circlepath")
         } description: {
-            Text("Set up automatic investments to grow your portfolio consistently over time.")
+            VStack(spacing: 16) {
+                Text("Dollar-Cost Averaging helps you invest consistently, reducing the impact of market volatility.")
+                    .multilineTextAlignment(.center)
+
+                // Educational steps
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "1.circle.fill")
+                            .foregroundStyle(Color.prosperityGold)
+                        Text("Choose a stock and investment amount")
+                            .font(.subheadline)
+                    }
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "2.circle.fill")
+                            .foregroundStyle(Color.prosperityGold)
+                        Text("Set your frequency (daily, weekly, monthly)")
+                            .font(.subheadline)
+                    }
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "3.circle.fill")
+                            .foregroundStyle(Color.prosperityGold)
+                        Text("Sit back and let automation build your wealth")
+                            .font(.subheadline)
+                    }
+                }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .padding(.horizontal)
         } actions: {
             Button {
                 viewModel.showCreateSchedule = true
             } label: {
-                Text("Create Schedule")
+                Text("Create Your First Schedule")
             }
             .buttonStyle(.borderedProminent)
         }

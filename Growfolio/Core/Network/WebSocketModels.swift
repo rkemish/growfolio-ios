@@ -454,7 +454,7 @@ enum WebSocketDecoder {
 }
 
 struct WebSocketDateParser {
-    private static let isoFormatter = ISO8601DateFormatter()
+    nonisolated(unsafe) private static let isoFormatter = ISO8601DateFormatter()
 
     private static let microsecondsFormatter: DateFormatter = {
         let formatter = DateFormatter()
